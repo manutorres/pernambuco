@@ -1,0 +1,5 @@
+portfolio/moc/
+portfolio/obj/
+portfolio/bin/
+portfolio/src/moc_mainwindow.cpp
+portfolio/src/moc_pdfmerge.cpp
