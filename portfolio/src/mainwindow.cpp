@@ -21,10 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
     PDFmerge *pdf = new PDFmerge();*/
 }
 
-void MainWindow::switchToLoginPage(bool downloadHandouts){
+void MainWindow::switchToLoginPage(bool download){
 
-    if (downloadHandouts)
-        this->downloadHandouts();
+    //if (download)
+       // this->downloadHandouts();
 
     this->ui->stackedWidget->setCurrentIndex(1);
 }

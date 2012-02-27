@@ -21,7 +21,7 @@ private:
     void downloadHandouts();
 
 private slots:
-    void switchToLoginPage(bool downloadHandouts);
+    void switchToLoginPage(bool download);
 };
 
 #endif // MAINWINDOW_H
