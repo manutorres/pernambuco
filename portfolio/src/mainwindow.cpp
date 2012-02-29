@@ -3,6 +3,7 @@
 
 #include "xmlassigment.h"
 #include "pdfmerge.h"
+#include "sftp.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -10,8 +11,20 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //QObject::connect(this->ui->btnAccept,SIGNAL(clicked()),this,SLOT(switchToLoginPage(true)));
-    //QObject::connect(this->ui->btnCancel,SIGNAL(clicked()),this,SLOT(switchToLoginPage(false)));
+    this->signalMapper = new QSignalMapper(this);
+    this->signalMapper->setMapping(this->ui->btnAccept, 1);
+    this->signalMapper->setMapping(this->ui->btnCancel, 0);
+
+    QObject::connect(this->ui->btnAccept,SIGNAL(clicked()), this->signalMapper, SLOT(map()));
+    QObject::connect(this->ui->btnCancel,SIGNAL(clicked()), this->signalMapper, SLOT(map()));
+
+    QObject::connect(this->signalMapper, SIGNAL(mapped(int)), this, SLOT(switchToLoginPage(int)));
+
+
+    Sftp *sftp = new Sftp();
+    sftp->open("72.167.232.31","kidsplaymath","Seguro2000!");
+    sftp->downloadFile("html/pdfhandouts/report.pdf","out.pdf");
+    sftp->downloadFile("html/pdfhandouts/encuesta.pdf","out2.pdf");
 
     /*XMLAssigment obj = XMLAssigment();
     obj.newAssignmentXML();
@@ -21,12 +34,16 @@ MainWindow::MainWindow(QWidget *parent) :
     PDFmerge *pdf = new PDFmerge();*/
 }
 
-void MainWindow::switchToLoginPage(bool download){
+void MainWindow::switchToLoginPage(int download){
 
-    //if (download)
-       // this->downloadHandouts();
+    if (download)
+        this->downloadHandouts();
 
     this->ui->stackedWidget->setCurrentIndex(1);
+}
+
+void MainWindow::downloadHandouts(){
+    printf("entro al metodo downloadHandouts");
 }
 
 MainWindow::~MainWindow()

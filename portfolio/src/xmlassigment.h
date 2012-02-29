@@ -1,10 +1,10 @@
 #ifndef XMLASSIGMENT_H
 #define XMLASSIGMENT_H
 
-#include "QString"
-#include "QtXml/QDomDocument"
-#include "QFile"
-#include "QTextStream"
+#include <QString>
+#include <QtXml/QDomDocument>
+#include <QFile>
+#include <QTextStream>
 
 class XMLAssigment
 {

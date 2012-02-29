@@ -11,7 +11,8 @@ QT       += core gui\
 
 #QT += xml
 
-LIBS += -lpodofo
+LIBS += -lpodofo \
+        -lssh2
 
 TARGET = portfolio
 
@@ -27,11 +28,13 @@ SOURCES += src/main.cpp\
            src/mainwindow.cpp \
            src/xmlassigment.cpp \
            src/pdfmerge.cpp \
-           src/dbconnection.cpp
+           src/dbconnection.cpp \
+    src/sftp.cpp
 
 HEADERS  += src/mainwindow.h \
             src/xmlassigment.h \
             src/pdfmerge.h \
-            src/dbconnection.h
+            src/dbconnection.h \
+    src/sftp.h
 
 FORMS    += ui/mainwindow.ui

@@ -2,7 +2,7 @@
 #define DBCONNECTION_H
 
 #include <QtSql/QSqlDatabase>
-#include "stdio.h"
+#include <stdio.h>
 
 class DBConnection
 {

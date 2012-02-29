@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QSignalMapper>
 
 namespace Ui {
     class MainWindow;
@@ -18,10 +19,12 @@ public:
 private:
     Ui::MainWindow *ui;
 
+    QSignalMapper *signalMapper;
+
     void downloadHandouts();
 
 private slots:
-    void switchToLoginPage(bool download);
+    void switchToLoginPage(int download);
 };
 
 #endif // MAINWINDOW_H

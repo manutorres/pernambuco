@@ -3,9 +3,9 @@
 
 #include "stdio.h"
 #include <podofo/podofo.h>
-#include "QPrinter"
-#include "QtWebKit/QtWebKit"
-#include "QObject"
+#include <QPrinter>
+#include <QtWebKit/QtWebKit>
+#include <QObject>
 
 using namespace PoDoFo;
 
