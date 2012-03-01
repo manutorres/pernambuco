@@ -35,6 +35,8 @@ private:
     PDFmerge pdfmerge;
 
     void downloadHandouts();
+    void setAssignmentTableStyle();
+    void loadAssignments();
 
 private slots:
     void switchToLoginPage(int download);
