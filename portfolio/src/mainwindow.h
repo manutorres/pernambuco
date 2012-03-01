@@ -28,14 +28,16 @@ private:
     Ui::MainWindow *ui;
 
     QSignalMapper *signalMapper;
-    Sftp *sftp;
+    Sftp sftp;
     QStringList handoutsFileNames;
     QFuture<void> thread;
+    DBConnection db;
 
     void downloadHandouts();
 
 private slots:
     void switchToLoginPage(int download);
+    void switchToAssignmentsPage();
 };
 
 #endif // MAINWINDOW_H

@@ -20,7 +20,7 @@
       <item row="0" column="0">
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page">
          <widget class="QPushButton" name="btnAccept">
@@ -75,7 +75,7 @@
             <x>170</x>
             <y>120</y>
             <width>391</width>
-            <height>151</height>
+            <height>131</height>
            </rect>
           </property>
           <property name="font">
@@ -98,7 +98,7 @@
              <x>114</x>
              <y>60</y>
              <width>251</width>
-             <height>21</height>
+             <height>25</height>
             </rect>
            </property>
            <property name="font">
@@ -118,7 +118,7 @@
              <x>114</x>
              <y>30</y>
              <width>251</width>
-             <height>21</height>
+             <height>25</height>
             </rect>
            </property>
            <property name="font">
@@ -133,7 +133,7 @@
            <property name="geometry">
             <rect>
              <x>30</x>
-             <y>33</y>
+             <y>35</y>
              <width>81</width>
              <height>16</height>
             </rect>
@@ -154,7 +154,7 @@
            <property name="geometry">
             <rect>
              <x>30</x>
-             <y>64</y>
+             <y>65</y>
              <width>81</width>
              <height>16</height>
             </rect>
@@ -171,24 +171,11 @@
             <string>Password:</string>
            </property>
           </widget>
-          <widget class="QPushButton" name="btnLogin">
-           <property name="geometry">
-            <rect>
-             <x>114</x>
-             <y>90</y>
-             <width>78</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Login</string>
-           </property>
-          </widget>
           <widget class="QLabel" name="lblForgotenPassword">
            <property name="geometry">
             <rect>
              <x>120</x>
-             <y>130</y>
+             <y>106</y>
              <width>261</width>
              <height>20</height>
             </rect>

@@ -14,11 +14,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(this->ui->btnAccept,SIGNAL(clicked()), this->signalMapper, SLOT(map()));
     QObject::connect(this->ui->btnCancel,SIGNAL(clicked()), this->signalMapper, SLOT(map()));
-
     QObject::connect(this->signalMapper, SIGNAL(mapped(int)), this, SLOT(switchToLoginPage(int)));
+    //QObject::connect(this->ui->btnNext, SIGNAL(clicked()),this, )
 
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
+
+    this->db.connect("moodlekpm20.db.5672082.hostedresource.com","moodlekpm20","moodlekpm20","Seguro2000!");
 
     /*XMLAssigment obj = XMLAssigment();
     obj.newAssignmentXML();
@@ -40,17 +42,26 @@ void MainWindow::switchToLoginPage(int download){
 //Descarga los handouts en background
 void MainWindow::downloadHandouts(){
 
-    this->sftp = new Sftp();
-    this->sftp->open("72.167.232.31","kidsplaymath","Seguro2000!");
-    this->handoutsFileNames = this->sftp->getListOfHandouts("html/pdfhandouts/");    
+    //this->sftp = new Sftp();
+    this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
+    this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
 
     foreach (QString f, this->handoutsFileNames){
         //Sftp conn;
         //conn.open("72.167.232.31","kidsplaymath","Seguro2000!");
         //QFuture<bool> f1 = run(conn, &Sftp::downloadFile, QString("html/pdfhandouts/" + f), f);
-        this->sftp->downloadFile("html/pdfhandouts/" + f, f);
+        this->sftp.downloadFile("html/pdfhandouts/" + f, f);
     }
 }
+
+
+void MainWindow::switchToAssignmentsPage(){
+
+    if (this->db.userLogin(this->ui->lineEditUsername->text(),this->ui->lineEditPassword->text()))
+        this->ui->stackedWidget->setCurrentIndex(2);
+    else qDebug() << "Fallo login";
+}
+
 
 MainWindow::~MainWindow()
 {

@@ -11,7 +11,8 @@ public:
 
     DBConnection();
 
-    void connect(QString host, QString database, QString user, QString password);
+    bool connect(QString host, QString database, QString user, QString password);
+    bool userLogin(QString username, QString password);
     void disconnet();
 
 private:
