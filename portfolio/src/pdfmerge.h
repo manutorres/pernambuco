@@ -1,11 +1,12 @@
 #ifndef PDFMERGE_H
 #define PDFMERGE_H
 
-#include "stdio.h"
+#include <stdio.h>
 #include <podofo/podofo.h>
 #include <QPrinter>
 #include <QtWebKit/QtWebKit>
 #include <QObject>
+#include <QDir>
 
 using namespace PoDoFo;
 
@@ -15,15 +16,19 @@ class PDFmerge:public QObject
 
 public:
 
-    PDFmerge();
+    PDFmerge();      
 
-    QWebView *web;
-    QPrinter *printer;
+    void htmlToPdf(QString outputName, QString html);
+    void mergePdfs(QString path, QString outputName);
 
-    //PdfMemDocument *document;
+private:
+    QWebView web;
+    QPrinter printer;
+    PdfMemDocument document;
+    QDir dir;
 
-public slots:
-    void htmlToPdf();
+private slots:
+    void printHtmlToPdf();
 };
 
 #endif // PDFMERGE_H

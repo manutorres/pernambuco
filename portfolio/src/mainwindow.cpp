@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include <QCheckBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,12 +22,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->db.connect("moodlekpm20.db.5672082.hostedresource.com","moodlekpm20","moodlekpm20","Seguro2000!");
 
-    /*XMLAssigment obj = XMLAssigment();
-    obj.newAssignmentXML();
-    obj.addAssignmentElement("online","","","");
-    obj.saveFile();
+    this->setAssignmentTableStyle();
+    this->loadAssignments(QStringList());
 
-    PDFmerge *pdf = new PDFmerge();*/
+    //pdfmerge.mergePdfs("/home/jonathan/Trabajo/KPM/pernambuco/portfolio/bin/","salida.pdf");
 }
 
 //Dependiendo de la elección del usuario descarga o no los handouts del servidor y avanza a la siguiente pantalla
@@ -72,6 +70,33 @@ void MainWindow::switchToAssignmentsPage(){
     this->db.printModel();
 }
 
+void MainWindow::loadAssignments(){
+
+    //this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
+    //this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
+
+
+    this->ui->tableWidgetAssignments->setRowCount(this->handoutsFileNames.count());
+
+    for (int i = 0; i < this->handoutsFileNames.count(); i++){
+
+        QTableWidgetItem *itemPrint = new QTableWidgetItem();
+        QTableWidgetItem *itemName = new QTableWidgetItem();
+        itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        itemPrint->setCheckState(Qt::Checked);
+        itemName->setText(this->handoutsFileNames.at(i));
+        this->ui->tableWidgetAssignments->setItem(i,0,itemPrint);
+        this->ui->tableWidgetAssignments->setItem(i,1,itemName);
+    }
+}
+
+void MainWindow::setAssignmentTableStyle(){
+
+    QStringList header;
+    header << "Print?" << "File" << "Date";
+    this->ui->tableWidgetAssignments->setColumnCount(3);
+    this->ui->tableWidgetAssignments->setHorizontalHeaderLabels(header);
+}
 
 MainWindow::~MainWindow()
 {
