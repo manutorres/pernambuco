@@ -22,12 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->db.connect("moodlekpm20.db.5672082.hostedresource.com","moodlekpm20","moodlekpm20","Seguro2000!");
 
-    /*XMLAssigment obj = XMLAssigment();
-    obj.newAssignmentXML();
-    obj.addAssignmentElement("online","","","");
-    obj.saveFile();
-
-    PDFmerge *pdf = new PDFmerge();*/
+    pdfmerge.mergePdfs("/home/jonathan/Trabajo/KPM/pernambuco/portfolio/bin/","salida.pdf");
 }
 
 //Dependiendo de la elección del usuario descarga o no los handouts del servidor y avanza a la siguiente pantalla

@@ -2,27 +2,37 @@
 
 PDFmerge::PDFmerge()
 {    
-    //document = new PdfMemDocument();
-    //document->Load("pdf1.pdf");
-    /*PdfMemDocument doc1("pdf3.pdf");
-    PdfMemDocument doc2("pdf2.pdf");
+    printer.setPageSize(QPrinter::A4);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    dir.setNameFilters(QStringList() << "*.pdf");
 
-    doc1.Append(doc2);
-    doc1.Write("resultado.pdf");*/
-
-    web = new QWebView();
-
-    QObject::connect(this->web,SIGNAL(loadFinished(bool)),this,SLOT(htmlToPdf()));
-
-    web->load(QUrl("http://www.google.com"));
-
-    printer = new QPrinter();
-    printer->setPageSize(QPrinter::A4);
-    printer->setOutputFormat(QPrinter::PdfFormat);
-    printer->setOutputFileName("htmlToPdf.pdf");
+    QObject::connect(&this->web,SIGNAL(loadFinished(bool)),this,SLOT(printHtmlToPdf()));
 }
 
-void PDFmerge::htmlToPdf(){
+//Convierte contenido html en un documento pdf
+void PDFmerge::htmlToPdf(QString outputName, QString html){
 
-    this->web->print(printer);
+    this->printer.setOutputFileName(outputName);
+    this->web.setHtml(html);
+}
+
+//Mezcla todos los documentos pdf contenidos en un dado directorio
+void PDFmerge::mergePdfs(QString path, QString outputName){
+
+    dir.setPath(path);
+    QStringList files = dir.entryList(QDir::Files | QDir::NoSymLinks);
+
+    foreach (QString file, files){
+        qDebug() << file;
+        PdfMemDocument doc;
+        doc.Load((path + "/" + file).toStdString().data());
+        document.Append(doc);
+    }
+
+    document.Write(outputName.toStdString().data());
+}
+
+//Este método se ejecuta cuando el contenido html se termina de cargar en el objeto web
+void PDFmerge::printHtmlToPdf(){
+    this->web.print(&this->printer);
 }

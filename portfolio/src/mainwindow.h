@@ -32,6 +32,7 @@ private:
     QStringList handoutsFileNames;
     QFuture<void> thread;
     DBConnection db;
+    PDFmerge pdfmerge;
 
     void downloadHandouts();
 
