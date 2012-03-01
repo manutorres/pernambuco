@@ -2,6 +2,7 @@
 #define SFTP_H
 
 #include <QString>
+#include <QStringList>
 #include <QFile>
 #include <QTextStream>
 
@@ -40,9 +41,11 @@ class Sftp
 public:
     Sftp();
 
-    bool open(const char *host, const char *username, const char *password);
-    bool downloadFile(QString serverFile, QString outputFile);
+    //bool open(const char *host, const char *username, const char *password);
+    bool open(QString host, QString username, QString password);
     void disconnect();
+    bool downloadFile(QString serverFile, QString outputFile);
+    QStringList getListOfHandouts(QString handsoutDirectory);
 
 private:
 

@@ -3,10 +3,18 @@
 
 #include <QMainWindow>
 #include <QSignalMapper>
+#include <QtConcurrentRun>
+
+#include "xmlassigment.h"
+#include "pdfmerge.h"
+#include "sftp.h"
+#include "dbconnection.h"
 
 namespace Ui {
     class MainWindow;
 }
+
+using namespace QtConcurrent;
 
 class MainWindow : public QMainWindow
 {
@@ -20,6 +28,9 @@ private:
     Ui::MainWindow *ui;
 
     QSignalMapper *signalMapper;
+    Sftp *sftp;
+    QStringList handoutsFileNames;
+    QFuture<void> thread;
 
     void downloadHandouts();
 

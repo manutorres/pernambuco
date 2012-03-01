@@ -29,12 +29,13 @@ SOURCES += src/main.cpp\
            src/xmlassigment.cpp \
            src/pdfmerge.cpp \
            src/dbconnection.cpp \
-    src/sftp.cpp
+           src/sftp.cpp
 
 HEADERS  += src/mainwindow.h \
             src/xmlassigment.h \
             src/pdfmerge.h \
             src/dbconnection.h \
-    src/sftp.h
+            src/sftp.h
+
 
 FORMS    += ui/mainwindow.ui
