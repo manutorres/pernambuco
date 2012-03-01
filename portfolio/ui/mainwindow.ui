@@ -20,7 +20,7 @@
       <item row="0" column="0">
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page">
          <widget class="QPushButton" name="btnAccept">
@@ -276,7 +276,7 @@
      <x>0</x>
      <y>0</y>
      <width>734</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

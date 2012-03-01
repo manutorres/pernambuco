@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->btnAccept,SIGNAL(clicked()), this->signalMapper, SLOT(map()));
     QObject::connect(this->ui->btnCancel,SIGNAL(clicked()), this->signalMapper, SLOT(map()));
     QObject::connect(this->signalMapper, SIGNAL(mapped(int)), this, SLOT(switchToLoginPage(int)));
-    //QObject::connect(this->ui->btnNext, SIGNAL(clicked()),this, )
+    QObject::connect(this->ui->btnNext, SIGNAL(clicked()), this, SLOT(switchToAssignmentsPage()));
 
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
@@ -43,23 +43,33 @@ void MainWindow::switchToLoginPage(int download){
 void MainWindow::downloadHandouts(){
 
     //this->sftp = new Sftp();
-    this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
-    this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
+    //this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
+    //this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
 
-    foreach (QString f, this->handoutsFileNames){
+    //foreach (QString f, this->handoutsFileNames){
         //Sftp conn;
         //conn.open("72.167.232.31","kidsplaymath","Seguro2000!");
         //QFuture<bool> f1 = run(conn, &Sftp::downloadFile, QString("html/pdfhandouts/" + f), f);
-        this->sftp.downloadFile("html/pdfhandouts/" + f, f);
-    }
+        //this->sftp.downloadFile("html/pdfhandouts/" + f, f);
+    //}
 }
 
 
 void MainWindow::switchToAssignmentsPage(){
-
-    if (this->db.userLogin(this->ui->lineEditUsername->text(),this->ui->lineEditPassword->text()))
-        this->ui->stackedWidget->setCurrentIndex(2);
-    else qDebug() << "Fallo login";
+    QPair<QString, QString> userData;
+    QString username = this->ui->lineEditUsername->text();
+    QString password = this->ui->lineEditPassword->text();
+    if(!this->db.userLogin(username, password)){
+        qDebug() << "Usuario o contraseña incorretos.";
+        return;
+    }
+    this->db.printModel();
+    QString userId = this->db.getModel()->record(0).value("id").toString();
+    this->ui->stackedWidget->setCurrentIndex(2);
+    this->db.getOnlineFiles(userId);
+    this->db.printModel();
+    this->db.getUploadFiles(userId);
+    this->db.printModel();
 }
 
 
