@@ -21,14 +21,14 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
     this->db.connect("moodlekpm20.db.5672082.hostedresource.com", "moodlekpm20", "moodlekpm20", "Seguro2000!");
+    this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
 
     this->setAssignmentTableStyle();
-    this->loadAssignments(QStringList());
 
     //pdfmerge.mergePdfs("/home/jonathan/Trabajo/KPM/pernambuco/portfolio/bin/","salida.pdf");
 }
 
-//Dependiendo de la elecciÃ³n del usuario descarga o no los handouts del servidor y avanza a la siguiente pantalla
+//Dependiendo de la eleccion del usuario descarga o no los handouts del servidor y avanza a la siguiente pantalla
 void MainWindow::switchToLoginPage(int download){
 
     if (download)
@@ -40,8 +40,6 @@ void MainWindow::switchToLoginPage(int download){
 //Descarga los handouts en background
 void MainWindow::downloadHandouts(){
 
-    this->sftp = new Sftp();
-    this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
     this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
 
     foreach (QString f, this->handoutsFileNames){
@@ -54,31 +52,42 @@ void MainWindow::downloadHandouts(){
 
 
 void MainWindow::switchToAssignmentsPage(){
-    QPair<QString, QString> userData;
+
     QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
     if(!this->db.userLogin(username, password)){
         qDebug() << "Usuario o contraseña incorretos.";
         return;
     }
-    this->db.printModel();
-    QString userId = this->db.getModel()->record(0).value("id").toString();
+    //this->db.printModel();
+    //QString userId = this->db.getModel()->record(0).value("id").toString();
+
     this->ui->stackedWidget->setCurrentIndex(2);
-    this->db.getOnlineFiles(userId);
+
+    this->loadAssignments();
+
+    /*this->db.getOnlineFiles(userId);
     this->db.printModel();
     this->db.getUploadFiles(userId);
-    this->db.printModel();
+    this->db.printModel();*/
 }
 
 void MainWindow::loadAssignments(){
 
-    //this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
-    //this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
+    QString userId = this->db.getModel()->record(0).value("id").toString();
 
+    this->db.getOnlineFiles(userId);
+    QSqlQueryModel *onlineFilesModel = this->db.getModel();
+    this->db.getUploadFiles(userId);
+    QSqlQueryModel *uploadFilesModel = this->db.getModel();
 
-    this->ui->tableWidgetAssignments->setRowCount(this->handoutsFileNames.count());
+    this->ui->tableWidgetAssignments->setRowCount(this->handoutsFileNames.count() + onlineFilesModel->rowCount() + uploadFilesModel->rowCount());
 
-    for (int i = 0; i < this->handoutsFileNames.count(); i++){
+    this->thread.waitForFinished();
+
+    int i;
+
+    for (i = 0; i < this->handoutsFileNames.count(); i++){
 
         QTableWidgetItem *itemPrint = new QTableWidgetItem();
         QTableWidgetItem *itemName = new QTableWidgetItem();
@@ -88,6 +97,34 @@ void MainWindow::loadAssignments(){
         this->ui->tableWidgetAssignments->setItem(i,0,itemPrint);
         this->ui->tableWidgetAssignments->setItem(i,1,itemName);
     }
+
+    for (i = 0; i < onlineFilesModel->rowCount(); i++){
+
+        QTableWidgetItem *itemPrint = new QTableWidgetItem();
+        QTableWidgetItem *itemName = new QTableWidgetItem();
+        itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        itemPrint->setCheckState(Qt::Unchecked);
+        itemName->setText(onlineFilesModel->record(i).value(1).toString());
+        this->ui->tableWidgetAssignments->setItem(i,0,itemPrint);
+        this->ui->tableWidgetAssignments->setItem(i,1,itemName);
+
+        pdfmerge.htmlToPdf(onlineFilesModel->record(i).value(1).toString(), onlineFilesModel->record(i).value(4).toString());
+    }
+
+    for (i = 0; i < uploadFilesModel->rowCount(); i++){
+
+        QTableWidgetItem *itemPrint = new QTableWidgetItem();
+        QTableWidgetItem *itemName = new QTableWidgetItem();
+        itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        itemPrint->setCheckState(Qt::Unchecked);
+        itemName->setText(onlineFilesModel->record(i).value(0).toString());
+        this->ui->tableWidgetAssignments->setItem(i,0,itemPrint);
+        this->ui->tableWidgetAssignments->setItem(i,1,itemName);
+
+        //sftp.downloadFile(,);
+    }
+
+    this->ui->tableWidgetAssignments->sortItems(1, Qt::AscendingOrder);
 }
 
 void MainWindow::setAssignmentTableStyle(){
