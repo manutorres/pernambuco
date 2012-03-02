@@ -8,7 +8,8 @@
 #include <QCryptographicHash>
 #include <QDebug>
 
-#define SALT "some_very_long_secret!#A12345678901234567890!"
+#define PASSWORD_SALT "some_very_long_secret!#A12345678901234567890!"
+#define UPLOAD_FILES_PATH "kidsplaymath.org/moodle/moodledata/filedir/"
 
 using namespace std;
 
@@ -21,9 +22,12 @@ public:
     bool userLogin(QString username, QString password);
     bool getOnlineFiles(QString userId);
     bool getUploadFiles(QString userId);
-    void disconnet();
+    void disconnect();
     QSqlQueryModel* getModel();
     void printModel();
+
+    //En Sftp
+    QString fileHashToPath(QString fileHash);
 
 private:
 

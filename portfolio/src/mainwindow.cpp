@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QCheckBox>
 
@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
     this->db.connect("moodlekpm20.db.5672082.hostedresource.com", "moodlekpm20", "moodlekpm20", "Seguro2000!");
-    this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
+    //this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
 
     this->setAssignmentTableStyle();
 
@@ -40,13 +40,13 @@ void MainWindow::switchToLoginPage(int download){
 //Descarga los handouts en background
 void MainWindow::downloadHandouts(){
 
-    this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
+    //this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
 
     foreach (QString f, this->handoutsFileNames){
         //Sftp conn;
         //conn.open("72.167.232.31","kidsplaymath","Seguro2000!");
         //QFuture<bool> f1 = run(conn, &Sftp::downloadFile, QString("html/pdfhandouts/" + f), f);
-        this->sftp.downloadFile("html/pdfhandouts/" + f, f);
+        //this->sftp.downloadFile("html/pdfhandouts/" + f, f);
     }
 }
 
@@ -56,14 +56,13 @@ void MainWindow::switchToAssignmentsPage(){
     QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
     if(!this->db.userLogin(username, password)){
-        qDebug() << "Usuario o contrase�a incorretos.";
+        qDebug() << "Usuario o contraseña incorretos.";
         return;
     }
     //this->db.printModel();
     //QString userId = this->db.getModel()->record(0).value("id").toString();
 
     this->ui->stackedWidget->setCurrentIndex(2);
-
     this->loadAssignments();
 
     /*this->db.getOnlineFiles(userId);
@@ -108,7 +107,7 @@ void MainWindow::loadAssignments(){
         this->ui->tableWidgetAssignments->setItem(i,0,itemPrint);
         this->ui->tableWidgetAssignments->setItem(i,1,itemName);
 
-        pdfmerge.htmlToPdf(onlineFilesModel->record(i).value(1).toString(), onlineFilesModel->record(i).value(4).toString());
+        //pdfmerge.htmlToPdf(onlineFilesModel->record(i).value(1).toString(), onlineFilesModel->record(i).value(4).toString());
     }
 
     for (i = 0; i < uploadFilesModel->rowCount(); i++){

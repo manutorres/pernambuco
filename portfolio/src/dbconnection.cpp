@@ -37,7 +37,7 @@ void DBConnection::printModel(){
 bool DBConnection::userLogin(QString username, QString password){
     username = "froggy";
     password = "D*S4RbPOJ@";
-    password += SALT;
+    password += PASSWORD_SALT;
     QString encPasswordMd5 = QString(QCryptographicHash::hash(password.toStdString().data(), QCryptographicHash::Md5).toHex());
     QString queryString = "SELECT id, username, firstname, lastname FROM mdl_user "
                             "WHERE username = '" + username + "' AND password = '" + encPasswordMd5 + "'";
@@ -55,6 +55,9 @@ bool DBConnection::userLogin(QString username, QString password){
 }
 
 bool DBConnection::getOnlineFiles(QString userId){
+
+    // mdl_assignment_submission tiene timecreated, timemodified y timemarked
+
     QString queryString = "SELECT mdl_assignment.id as assignment_id, name, intro, "
                             "mdl_assignment_submissions.id as submission_id, data1 FROM "
                             "mdl_assignment_submissions JOIN mdl_assignment "
@@ -68,6 +71,9 @@ bool DBConnection::getOnlineFiles(QString userId){
 }
 
 bool DBConnection::getUploadFiles(QString userId){
+
+    // mdl_files tiene timecreated y timemodified
+
     QString queryString = "SELECT filename, pathnamehash FROM mdl_files "
                             "WHERE filearea = 'submission' AND userid = " + userId;
     this->model->setQuery(queryString);
@@ -78,6 +84,10 @@ bool DBConnection::getUploadFiles(QString userId){
     return true;
 }
 
-void DBConnection::disconnet(){
+void DBConnection::disconnect(){
     this->db.close();
+}
+
+QString DBConnection::fileHashToPath(QString fileHash){
+    return UPLOAD_FILES_PATH + fileHash.left(2) + "/" + fileHash.mid(2, 2) + "/" + fileHash;
 }

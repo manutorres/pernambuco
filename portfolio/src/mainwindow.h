@@ -6,8 +6,8 @@
 #include <QtConcurrentRun>
 
 #include "xmlassigment.h"
-#include "pdfmerge.h"
-#include "sftp.h"
+//#include "pdfmerge.h"
+//#include "sftp.h"
 #include "dbconnection.h"
 
 namespace Ui {
@@ -28,11 +28,11 @@ private:
     Ui::MainWindow *ui;
 
     QSignalMapper *signalMapper;
-    Sftp sftp;
+    //Sftp sftp;
     QStringList handoutsFileNames;
     QFuture<void> thread;
     DBConnection db;
-    PDFmerge pdfmerge;
+    //PDFmerge pdfmerge;
 
     void downloadHandouts();
     void setAssignmentTableStyle();

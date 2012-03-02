@@ -4,16 +4,25 @@
 #
 #-------------------------------------------------
 
-QT       += core gui\
-            xml \
-            webkit \
-            sql
-
-#QT += xml
+QT += core gui \
+        xml \
+        webkit \
+        sql
 
 unix{
 LIBS += -lpodofo \
         -lssh2
+}
+
+!unix{
+
+#Falta PoDoFo
+
+#INCLUDEPATH += "C:\Program Files (x86)\libssh2-1.2.5\include\
+
+#LIBS += "C:\Program Files (x86)\libssh2-1.2.5\lib\libgcrypt.dll.a" \
+#        "C:\Program Files (x86)\libssh2-1.2.5\lib\libgpg-error.dll.a" \
+#        "C:\Program Files (x86)\libssh2-1.2.5\lib\libssh2.dll.a"
 }
 
 TARGET = portfolio
@@ -31,16 +40,13 @@ SOURCES += src/main.cpp\
            src/xmlassigment.cpp \
            src/dbconnection.cpp
 
-unix{
-SOURCES += src/pdfmerge.cpp \
-           src/sftp.cpp
-}
-
 HEADERS  += src/mainwindow.h \
             src/xmlassigment.h \
             src/dbconnection.h
 
 unix{
+SOURCES += src/pdfmerge.cpp \
+           src/sftp.cpp
 HEADERS  += src/pdfmerge.h \
             src/sftp.h
 }
