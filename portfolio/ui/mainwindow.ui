@@ -263,7 +263,34 @@
           </property>
          </widget>
         </widget>
-        <widget class="QWidget" name="page_4"/>
+        <widget class="QWidget" name="page_4">
+         <widget class="QPushButton" name="btnPrint">
+          <property name="geometry">
+           <rect>
+            <x>590</x>
+            <y>380</y>
+            <width>78</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Print</string>
+          </property>
+         </widget>
+         <widget class="QProgressBar" name="progressBar">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>180</y>
+            <width>341</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="value">
+           <number>24</number>
+          </property>
+         </widget>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -276,7 +303,7 @@
      <x>0</x>
      <y>0</y>
      <width>734</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

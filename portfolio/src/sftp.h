@@ -10,6 +10,7 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 #include <stdio.h>
+#include <QObject>
 
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
@@ -36,16 +37,19 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#define UPLOAD_FILES_PATH "html/moodle/moodledata/filedir/"
+
 class Sftp
 {
+
 public:
     Sftp();
 
-    //bool open(const char *host, const char *username, const char *password);
     bool open(QString host, QString username, QString password);
     void disconnect();
     bool downloadFile(QString serverFile, QString outputFile);
     QStringList getListOfHandouts(QString handsoutDirectory);
+    QString fileHashToPath(QString fileHash);
 
 private:
 

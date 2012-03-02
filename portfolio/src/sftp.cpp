@@ -83,8 +83,6 @@ bool Sftp::open(QString host, QString username, QString password){
     return true;
 }
 
-
-
 //Cierra la conexión ssh
 void Sftp::disconnect(){
 
@@ -103,7 +101,6 @@ void Sftp::disconnect(){
 
     libssh2_exit();
 }
-
 
 //Descarga el archivo serverFile y lo almacena en outputFile
 bool Sftp::downloadFile(QString serverFile, QString outputFile){
@@ -126,8 +123,6 @@ bool Sftp::downloadFile(QString serverFile, QString outputFile){
         char mem[131072];
 
         //loop until we fail
-        //fprintf(stderr, "libssh2_sftp_read()!\n");
-
         this->rc = libssh2_sftp_read(this->sftp_handle, mem, sizeof(mem));
 
         if (this->rc > 0) {
@@ -141,8 +136,6 @@ bool Sftp::downloadFile(QString serverFile, QString outputFile){
 
     return true;
 }
-
-
 
 //Retorna una lista de archivos de un directorio especificado
 QStringList Sftp::getListOfHandouts(QString handsoutDirectory){
@@ -180,4 +173,8 @@ QStringList Sftp::getListOfHandouts(QString handsoutDirectory){
     result.removeAll(".");
     result.removeAll("..");
     return result;
+}
+
+QString Sftp::fileHashToPath(QString fileHash){
+    return UPLOAD_FILES_PATH + fileHash.left(2) + "/" + fileHash.mid(2, 2) + "/" + fileHash;
 }

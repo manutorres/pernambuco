@@ -9,7 +9,6 @@
 #include <QDebug>
 
 #define PASSWORD_SALT "some_very_long_secret!#A12345678901234567890!"
-#define UPLOAD_FILES_PATH "kidsplaymath.org/moodle/moodledata/filedir/"
 
 using namespace std;
 
@@ -25,9 +24,6 @@ public:
     void disconnect();
     QSqlQueryModel* getModel();
     void printModel();
-
-    //En Sftp
-    QString fileHashToPath(QString fileHash);
 
 private:
 
