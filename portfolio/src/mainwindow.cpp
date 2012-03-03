@@ -80,9 +80,11 @@ void MainWindow::loadAssignments(){
 
         QTableWidgetItem *itemPrint = new QTableWidgetItem();
         QTableWidgetItem *itemName = new QTableWidgetItem();
+        QTableWidgetItem *itemType = new QTableWidgetItem();
         itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         itemPrint->setCheckState(Qt::Checked);
         itemName->setText(this->handoutsFileNames.at(i));
+        itemType->setText("handout");
         this->ui->tableWidgetAssignments->setItem(i, 0, itemPrint);
         this->ui->tableWidgetAssignments->setItem(i, 1, itemName);
     }
@@ -93,14 +95,14 @@ void MainWindow::loadAssignments(){
 
         QTableWidgetItem *itemPrint = new QTableWidgetItem();
         QTableWidgetItem *itemName = new QTableWidgetItem();
+        QTableWidgetItem *itemType = new QTableWidgetItem();
         itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         itemPrint->setCheckState(Qt::Unchecked);
         itemName->setText(onlineFilesModel->record(i).value(1).toString());
+        itemType->setText("online");
         this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
         this->ui->tableWidgetAssignments->setItem(i + count, 1, itemName);
-
-        qDebug() << "entro" << onlineFilesModel->record(i).value(1).toString();
-        //pdfmerge.htmlToPdf(onlineFilesModel->record(i).value(1).toString(), onlineFilesModel->record(i).value(4).toString());
+        this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
     }
 
     this->db.getUploadFiles(userId);
@@ -114,17 +116,17 @@ void MainWindow::loadAssignments(){
 
         QTableWidgetItem *itemPrint = new QTableWidgetItem();
         QTableWidgetItem *itemName = new QTableWidgetItem();
+        QTableWidgetItem *itemType = new QTableWidgetItem();
         QTableWidgetItem *itemPathHash = new QTableWidgetItem();
         itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         itemPrint->setCheckState(Qt::Unchecked);
         itemName->setText(uploadFilesModel->record(i).value(0).toString());
+        itemType->setText("upload");
         itemPathHash->setText(uploadFilesModel->record(i).value(1).toString());
         this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
         this->ui->tableWidgetAssignments->setItem(i + count, 1, itemName);
-        this->ui->tableWidgetAssignments->setItem(i + count, 3, itemPathHash);
-
-        //sftp.downloadFile(this->sftp.fileHashToPath(onlineFilesModel->record(i).value(0).toString()), onlineFilesModel->record(i).value(0).toString());
-        //emit this->downloadedFile();
+        this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
+        this->ui->tableWidgetAssignments->setItem(i + count, 4, itemPathHash);
     }
 
     this->ui->tableWidgetAssignments->sortItems(1, Qt::AscendingOrder);
@@ -133,13 +135,22 @@ void MainWindow::loadAssignments(){
 void MainWindow::setAssignmentTableStyle(){
 
     QStringList header;
-    header << "Print?" << "File" << "Date" << "filePathHash";
-    this->ui->tableWidgetAssignments->setColumnCount(4);
+    header << "Print?" << "File" << "Date" << "Type" << "filePathHash";
+    this->ui->tableWidgetAssignments->setColumnCount(5);
     this->ui->tableWidgetAssignments->setHorizontalHeaderLabels(header);
     this->ui->tableWidgetAssignments->hideColumn(3);
+    this->ui->tableWidgetAssignments->hideColumn(4);
 }
 
 void MainWindow::switchToProgressPage(){
+
+    int countChecked = 0;//sin tener en cuenta los handouts
+
+    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
+        if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 0)->text() != "handout"))
+            countChecked++;
+    }
+    this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + countChecked - 1);
 
     this->ui->stackedWidget->setCurrentIndex(3);
 }
@@ -147,6 +158,25 @@ void MainWindow::switchToProgressPage(){
 void MainWindow::updateProgressBar(){
 
     this->ui->progressBar->setValue(this->ui->progressBar->value() + 1);
+}
+
+void MainWindow::downloadUploadFiles(){
+
+    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
+        if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "upload")){
+            sftp.downloadFile(this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 1)->text()), this->ui->tableWidgetAssignments->item(i, 1)->text());
+            emit this->downloadedFile();
+        }
+    }
+}
+
+void MainWindow::convertOnlineFiles(){
+    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
+        if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "online")){
+            pdfmerge.htmlToPdf(this->ui->tableWidgetAssignments->item(i, 1)->text(), this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf");
+            emit this->downloadedFile();
+        }
+    }
 }
 
 MainWindow::~MainWindow()
