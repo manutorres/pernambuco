@@ -8,22 +8,25 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    this->ui->btnPrint->setIcon(QIcon("../ui/print.png"));
+
     this->signalMapper = new QSignalMapper(this);
     this->signalMapper->setMapping(this->ui->btnAccept, 1);
     this->signalMapper->setMapping(this->ui->btnCancel, 0);
 
-    QObject::connect(this->ui->btnAccept,SIGNAL(clicked()), this->signalMapper, SLOT(map()));
-    QObject::connect(this->ui->btnCancel,SIGNAL(clicked()), this->signalMapper, SLOT(map()));
+    QObject::connect(this->ui->btnAccept, SIGNAL(clicked()), this->signalMapper, SLOT(map()));
+    QObject::connect(this->ui->btnCancel, SIGNAL(clicked()), this->signalMapper, SLOT(map()));
     QObject::connect(this->signalMapper, SIGNAL(mapped(int)), this, SLOT(switchToLoginPage(int)));
     QObject::connect(this->ui->btnNext, SIGNAL(clicked()), this, SLOT(switchToAssignmentsPage()));
     QObject::connect(this->ui->btnNext_2, SIGNAL(clicked()), this, SLOT(switchToProgressPage()));
     QObject::connect(this, SIGNAL(downloadedFile()), this, SLOT(updateProgressBar()));
+    QObject::connect(this->ui->btnCancel_2, SIGNAL(clicked()), this, SLOT(exit()));
+    QObject::connect(this->ui->btnCancel_3, SIGNAL(clicked()), this, SLOT(exit()));
+    QObject::connect(this->ui->btnPrint, SIGNAL(clicked()), this, SLOT(mergeAndPrint()));
+    QObject::connect(this->ui->progressBar, SIGNAL(valueChanged(int)), this, SLOT(checkProgressBar()));
 
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
-
-    this->db.connect("moodlekpm20.db.5672082.hostedresource.com", "moodlekpm20", "moodlekpm20", "Seguro2000!");
-    this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
 
     this->setAssignmentTableStyle();
 }
@@ -33,6 +36,7 @@ void MainWindow::switchToLoginPage(int download){
 
     if (download)
         thread = run(this, &MainWindow::downloadHandouts);
+    else this->ui->progressBar->setRange(0,0);
 
     this->ui->stackedWidget->setCurrentIndex(1);
 }
@@ -40,6 +44,7 @@ void MainWindow::switchToLoginPage(int download){
 //Descarga los handouts en background
 void MainWindow::downloadHandouts(){
 
+    this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
     this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
 
     this->ui->progressBar->setRange(0, this->handoutsFileNames.count() -1);
@@ -50,8 +55,9 @@ void MainWindow::downloadHandouts(){
     }
 }
 
-
 void MainWindow::switchToAssignmentsPage(){
+
+    this->db.connect("moodlekpm20.db.5672082.hostedresource.com", "moodlekpm20", "moodlekpm20", "Seguro2000!");
 
     QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
@@ -87,6 +93,7 @@ void MainWindow::loadAssignments(){
         itemType->setText("handout");
         this->ui->tableWidgetAssignments->setItem(i, 0, itemPrint);
         this->ui->tableWidgetAssignments->setItem(i, 1, itemName);
+        this->ui->tableWidgetAssignments->setItem(i, 3, itemType);
     }
 
     count = this->handoutsFileNames.count();
@@ -147,36 +154,63 @@ void MainWindow::switchToProgressPage(){
     int countChecked = 0;//sin tener en cuenta los handouts
 
     for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
-        if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 0)->text() != "handout"))
+        if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() != "handout"))
             countChecked++;
-    }
+    }    
+    //Se actualiza la cantidad de archivos a descargar y/o convertir
     this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + countChecked - 1);
 
+    QFuture<void> th1 = run(this, &MainWindow::downloadUploadFiles);
+    QFuture<void> th2 = run(this, &MainWindow::convertOnlineFiles);
     this->ui->stackedWidget->setCurrentIndex(3);
 }
 
+//Actualiza la progress bar a medida que se van descargando los archivos y que se van convirtiendo a pdf los assignment online
 void MainWindow::updateProgressBar(){
 
     this->ui->progressBar->setValue(this->ui->progressBar->value() + 1);
 }
 
+void MainWindow::checkProgressBar(){
+
+    this->ui->btnPrint->setEnabled(this->ui->progressBar->value() == this->ui->progressBar->maximum());
+}
+
+//Descarga los assignment de tipo upload del servidor
 void MainWindow::downloadUploadFiles(){
 
+    Sftp sftp2;
+    sftp2.open("72.167.232.31","kidsplaymath","Seguro2000!");
     for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
         if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "upload")){
-            sftp.downloadFile(this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 1)->text()), this->ui->tableWidgetAssignments->item(i, 1)->text());
+            sftp2.downloadFile(this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 4)->text()), this->ui->tableWidgetAssignments->item(i, 1)->text());
+            emit this->downloadedFile();
+        }        
+    }    
+}
+
+//Convierte a pdf el contenido de los assignment de tipo online de la tabla
+void MainWindow::convertOnlineFiles(){
+
+    PDFmerge pdfmerge;
+
+    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
+        if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "online")){
+            pdfmerge.htmlToPdf(this->ui->tableWidgetAssignments->item(i, 1)->text(), this->ui->tableWidgetAssignments->item(i, 1)->text());
             emit this->downloadedFile();
         }
     }
 }
 
-void MainWindow::convertOnlineFiles(){
-    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
-        if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "online")){
-            pdfmerge.htmlToPdf(this->ui->tableWidgetAssignments->item(i, 1)->text(), this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf");
-            emit this->downloadedFile();
-        }
-    }
+void MainWindow::mergeAndPrint(){
+
+    this->pdfmerge.mergePdfs(QDir::currentPath(), "salida.pdf");
+}
+
+void MainWindow::exit(){
+    this->sftp.disconnect();
+    this->db.disconnect();
+    QApplication::exit();
 }
 
 MainWindow::~MainWindow()

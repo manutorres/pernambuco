@@ -26,46 +26,59 @@
          <widget class="QPushButton" name="btnAccept">
           <property name="geometry">
            <rect>
-            <x>540</x>
-            <y>370</y>
-            <width>78</width>
+            <x>370</x>
+            <y>380</y>
+            <width>181</width>
             <height>25</height>
            </rect>
           </property>
           <property name="text">
-           <string>&amp;Accept</string>
+           <string>&amp;Download handouts and Next</string>
           </property>
          </widget>
          <widget class="QPushButton" name="btnCancel">
           <property name="geometry">
            <rect>
-            <x>630</x>
-            <y>370</y>
-            <width>78</width>
+            <x>557</x>
+            <y>380</y>
+            <width>151</width>
             <height>25</height>
            </rect>
           </property>
           <property name="text">
-           <string>&amp;Cancel</string>
+           <string>&amp;Next without download</string>
           </property>
          </widget>
-         <widget class="QLabel" name="label">
+         <widget class="QGroupBox" name="groupBox_2">
           <property name="geometry">
            <rect>
-            <x>120</x>
-            <y>120</y>
-            <width>461</width>
-            <height>91</height>
+            <x>110</x>
+            <y>150</y>
+            <width>311</width>
+            <height>51</height>
            </rect>
           </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
+          <property name="title">
+           <string/>
           </property>
-          <property name="text">
-           <string>Acá la pregunta sobre si quiere imprimir los handouts</string>
-          </property>
+          <widget class="QLabel" name="label">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>10</y>
+             <width>291</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Do you want print the handouts?</string>
+           </property>
+          </widget>
          </widget>
         </widget>
         <widget class="QWidget" name="page_2">
@@ -267,14 +280,20 @@
          <widget class="QPushButton" name="btnPrint">
           <property name="geometry">
            <rect>
-            <x>590</x>
-            <y>380</y>
-            <width>78</width>
-            <height>25</height>
+            <x>560</x>
+            <y>334</y>
+            <width>70</width>
+            <height>70</height>
            </rect>
           </property>
           <property name="text">
-           <string>Print</string>
+           <string/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>64</width>
+            <height>64</height>
+           </size>
           </property>
          </widget>
          <widget class="QProgressBar" name="progressBar">

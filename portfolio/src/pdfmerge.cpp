@@ -12,7 +12,7 @@ PDFmerge::PDFmerge()
 //Convierte contenido html en un documento pdf
 void PDFmerge::htmlToPdf(QString outputName, QString html){
 
-    this->printer.setOutputFileName(outputName);
+    this->printer.setOutputFileName(outputName + ".pdf");
     this->web.setHtml(html);
 }
 
@@ -21,7 +21,7 @@ void PDFmerge::mergePdfs(QString path, QString outputName){
 
     dir.setPath(path);
     QStringList files = dir.entryList(QDir::Files | QDir::NoSymLinks);
-
+    qDebug() << files;
     foreach (QString file, files){
         qDebug() << file;
         PdfMemDocument doc;

@@ -16,6 +16,7 @@ bool DBConnection::connect(QString host, QString database, QString user, QString
     }
     this->query = QSqlQuery(this->db);
     this->model = new QSqlQueryModel();
+    return true;
 }
 
 QSqlQueryModel* DBConnection::getModel(){
@@ -36,8 +37,7 @@ void DBConnection::printModel(){
 
 bool DBConnection::userLogin(QString username, QString password){
 
-    if (!this->db.isOpen())
-        this->db.open();
+    this->db.open();
 
     username = "froggy";
     password = "D*S4RbPOJ@";
@@ -57,8 +57,7 @@ bool DBConnection::userLogin(QString username, QString password){
 bool DBConnection::getOnlineFiles(QString userId){
 
     // mdl_assignment_submission tiene timecreated, timemodified y timemarked
-    if (!this->db.isOpen())
-        this->db.open();
+    this->db.open();
 
     QString queryString = "SELECT mdl_assignment.id as assignment_id, name, intro, "
                             "mdl_assignment_submissions.id as submission_id, data1 FROM "
@@ -75,8 +74,7 @@ bool DBConnection::getOnlineFiles(QString userId){
 bool DBConnection::getUploadFiles(QString userId){
 
     // mdl_files tiene timecreated y timemodified
-    if (!this->db.isOpen())
-        this->db.open();
+    this->db.open();
 
     QString queryString = "SELECT filename, pathnamehash FROM mdl_files "
                             "WHERE filearea = 'submission' AND userid = " + userId;

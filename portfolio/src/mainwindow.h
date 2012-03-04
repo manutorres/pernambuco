@@ -45,9 +45,12 @@ private slots:
     void switchToAssignmentsPage();
     void switchToProgressPage();
     void updateProgressBar();
+    void checkProgressBar();
+    void mergeAndPrint();
+    void exit();
 
 signals:
-    void downloadedFile();
+    void downloadedFile();    
 };
 
 #endif // MAINWINDOW_H
