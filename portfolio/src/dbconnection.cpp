@@ -39,9 +39,9 @@ bool DBConnection::userLogin(QString username, QString password){
 
     this->db.open();
 
-    username = "froggy";
-    password = "D*S4RbPOJ@";
-    password += PASSWORD_SALT;
+    username = LOGIN_TEST_USERNAME;
+    password = LOGIN_TEST_PASSWORD;
+    password += LOGIN_PASSWORD_SALT;
     QString encPasswordMd5 = QString(QCryptographicHash::hash(password.toStdString().data(), QCryptographicHash::Md5).toHex());
     QString queryString = "SELECT id, username, firstname, lastname FROM mdl_user "
                             "WHERE username = '" + username + "' AND password = '" + encPasswordMd5 + "'";

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>734</width>
-    <height>486</height>
+    <width>543</width>
+    <height>396</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,74 +19,73 @@
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="QStackedWidget" name="stackedWidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="page">
-         <widget class="QPushButton" name="btnAccept">
-          <property name="geometry">
-           <rect>
-            <x>370</x>
-            <y>380</y>
-            <width>181</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>&amp;Download handouts and Next</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="btnCancel">
-          <property name="geometry">
-           <rect>
-            <x>557</x>
-            <y>380</y>
-            <width>151</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>&amp;Next without download</string>
-          </property>
-         </widget>
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="geometry">
-           <rect>
-            <x>110</x>
-            <y>150</y>
-            <width>311</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="title">
-           <string/>
-          </property>
-          <widget class="QLabel" name="label">
-           <property name="geometry">
-            <rect>
-             <x>20</x>
-             <y>10</y>
-             <width>291</width>
-             <height>31</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Do you want print the handouts?</string>
-           </property>
-          </widget>
-         </widget>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0" rowspan="2" colspan="3">
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="title">
+             <string/>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label">
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Do you want to include the handouts in the printing?</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="btnCancel">
+            <property name="text">
+             <string>No (Next)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QPushButton" name="btnAccept">
+            <property name="text">
+             <string>Yes</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </widget>
         <widget class="QWidget" name="page_2">
          <widget class="QGroupBox" name="groupBox">
           <property name="geometry">
            <rect>
-            <x>170</x>
-            <y>120</y>
+            <x>30</x>
+            <y>40</y>
             <width>391</width>
             <height>131</height>
            </rect>
@@ -214,8 +213,8 @@
          <widget class="QPushButton" name="btnCancel_2">
           <property name="geometry">
            <rect>
-            <x>630</x>
-            <y>370</y>
+            <x>430</x>
+            <y>280</y>
             <width>78</width>
             <height>25</height>
            </rect>
@@ -227,8 +226,8 @@
          <widget class="QPushButton" name="btnNext">
           <property name="geometry">
            <rect>
-            <x>540</x>
-            <y>370</y>
+            <x>330</x>
+            <y>280</y>
             <width>78</width>
             <height>25</height>
            </rect>
@@ -244,16 +243,16 @@
            <rect>
             <x>10</x>
             <y>10</y>
-            <width>691</width>
-            <height>351</height>
+            <width>500</width>
+            <height>261</height>
            </rect>
           </property>
          </widget>
          <widget class="QPushButton" name="btnCancel_3">
           <property name="geometry">
            <rect>
-            <x>630</x>
-            <y>370</y>
+            <x>340</x>
+            <y>290</y>
             <width>78</width>
             <height>25</height>
            </rect>
@@ -265,8 +264,8 @@
          <widget class="QPushButton" name="btnNext_2">
           <property name="geometry">
            <rect>
-            <x>540</x>
-            <y>370</y>
+            <x>420</x>
+            <y>290</y>
             <width>78</width>
             <height>25</height>
            </rect>
@@ -280,8 +279,8 @@
          <widget class="QPushButton" name="btnPrint">
           <property name="geometry">
            <rect>
-            <x>560</x>
-            <y>334</y>
+            <x>390</x>
+            <y>230</y>
             <width>70</width>
             <height>70</height>
            </rect>
@@ -299,8 +298,8 @@
          <widget class="QProgressBar" name="progressBar">
           <property name="geometry">
            <rect>
-            <x>190</x>
-            <y>180</y>
+            <x>60</x>
+            <y>70</y>
             <width>341</width>
             <height>41</height>
            </rect>
@@ -321,8 +320,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>734</width>
-     <height>25</height>
+     <width>543</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -330,8 +329,6 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>btnAccept</tabstop>
-  <tabstop>btnCancel</tabstop>
   <tabstop>lineEditUsername</tabstop>
   <tabstop>lineEditPassword</tabstop>
   <tabstop>btnNext</tabstop>

@@ -1,4 +1,4 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QCheckBox>
 
@@ -44,7 +44,8 @@ void MainWindow::switchToLoginPage(int download){
 //Descarga los handouts en background
 void MainWindow::downloadHandouts(){
 
-    this->sftp.open("72.167.232.31","kidsplaymath","Seguro2000!");
+    this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
+
     this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
 
     this->ui->progressBar->setRange(0, this->handoutsFileNames.count() -1);
@@ -57,7 +58,7 @@ void MainWindow::downloadHandouts(){
 
 void MainWindow::switchToAssignmentsPage(){
 
-    this->db.connect("moodlekpm20.db.5672082.hostedresource.com", "moodlekpm20", "moodlekpm20", "Seguro2000!");
+    this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD);
 
     QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
@@ -180,7 +181,7 @@ void MainWindow::checkProgressBar(){
 void MainWindow::downloadUploadFiles(){
 
     Sftp sftp2;
-    sftp2.open("72.167.232.31","kidsplaymath","Seguro2000!");
+    sftp2.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
     for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
         if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "upload")){
             sftp2.downloadFile(this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 4)->text()), this->ui->tableWidgetAssignments->item(i, 1)->text());

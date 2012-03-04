@@ -7,6 +7,7 @@
 #include <QString>
 #include <QCryptographicHash>
 #include <QDebug>
+#include "kpm_settings.h"
 
 #define PASSWORD_SALT "some_very_long_secret!#A12345678901234567890!"
 
