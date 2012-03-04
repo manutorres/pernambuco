@@ -45,7 +45,7 @@ void MainWindow::switchToLoginPage(int download){
 void MainWindow::downloadHandouts(){
 
     this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
-
+    
     this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
 
     this->ui->progressBar->setRange(0, this->handoutsFileNames.count() -1);
