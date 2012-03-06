@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
-    <height>320</height>
+    <width>461</width>
+    <height>336</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,17 +44,10 @@
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_4">
-        <item row="5" column="6">
-         <widget class="QPushButton" name="btnCancel">
-          <property name="text">
-           <string>No (Next)</string>
-          </property>
-         </widget>
-        </item>
         <item row="5" column="5">
-         <widget class="QPushButton" name="btnAccept">
+         <widget class="QPushButton" name="btnNext_1">
           <property name="text">
-           <string>Yes</string>
+           <string>&amp;Next</string>
           </property>
          </widget>
         </item>
@@ -78,10 +71,13 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1" colspan="6">
-         <widget class="QRadioButton" name="radioButton_2">
+        <item row="2" column="1" colspan="7">
+         <widget class="QRadioButton" name="radioButtonHandouts">
           <property name="text">
            <string>Yes, download and print the handouts.</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -98,7 +94,7 @@
           </property>
          </spacer>
         </item>
-        <item row="1" column="0" colspan="7">
+        <item row="1" column="0" colspan="8">
          <widget class="QLabel" name="label_2">
           <property name="minimumSize">
            <size>
@@ -117,7 +113,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0" colspan="7">
+        <item row="4" column="0" colspan="8">
          <spacer name="verticalSpacer_4">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -169,21 +165,21 @@
           </property>
          </spacer>
         </item>
+        <item row="5" column="6">
+         <widget class="QPushButton" name="btnExit_1">
+          <property name="text">
+           <string>&amp;Exit</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="page_2">
        <layout class="QGridLayout" name="gridLayout_5">
-        <item row="6" column="6">
-         <widget class="QPushButton" name="btnCancel_2">
-          <property name="text">
-           <string>&amp;Cancel</string>
-          </property>
-         </widget>
-        </item>
         <item row="6" column="7">
-         <widget class="QPushButton" name="btnNext">
+         <widget class="QPushButton" name="btnExit_2">
           <property name="text">
-           <string>&amp;Next</string>
+           <string>&amp;Exit</string>
           </property>
          </widget>
         </item>
@@ -319,6 +315,13 @@
           </property>
          </spacer>
         </item>
+        <item row="6" column="6">
+         <widget class="QPushButton" name="btnNext_2">
+          <property name="text">
+           <string>&amp;Next</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="page_3">
@@ -327,16 +330,16 @@
          <widget class="QTableWidget" name="tableWidgetAssignments"/>
         </item>
         <item row="2" column="1">
-         <widget class="QPushButton" name="btnCancel_3">
+         <widget class="QPushButton" name="btnNext_3">
           <property name="text">
-           <string>&amp;Cancel</string>
+           <string>&amp;Next</string>
           </property>
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QPushButton" name="btnNext_2">
+         <widget class="QPushButton" name="btnExit_3">
           <property name="text">
-           <string>&amp;Next</string>
+           <string>&amp;Exit</string>
           </property>
          </widget>
         </item>
@@ -426,8 +429,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>460</width>
-     <height>21</height>
+     <width>461</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>

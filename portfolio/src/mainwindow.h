@@ -27,9 +27,8 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    QSignalMapper *signalMapper;
     Sftp sftp;
-    QStringList handoutsFileNames;
+    QStringList handoutsFileNames, filesToMerge;
     QFuture<void> thread;
     DBConnection db;
     PDFmerge pdfmerge;
@@ -41,7 +40,7 @@ private:
     void convertOnlineFiles();
 
 private slots:
-    void switchToLoginPage(int download);
+    void switchToLoginPage();
     void switchToAssignmentsPage();
     void switchToProgressPage();
     void updateProgressBar();
