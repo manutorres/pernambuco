@@ -11,8 +11,9 @@ PDFmerge::PDFmerge()
 
 //Convierte contenido html en un documento pdf
 void PDFmerge::htmlToPdf(QString outputName, QString html){
-
+    qDebug() << "HtmlToPdf 1";
     this->printer.setOutputFileName(outputName + ".pdf");
+    qDebug() << "HtmlToPdf 2 - Output name:" << outputName;
     this->web.setHtml(html);
 }
 

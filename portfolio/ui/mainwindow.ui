@@ -13,8 +13,23 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="maximumSize">
+    <size>
+     <width>461</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="topMargin">
+     <number>9</number>
+    </property>
     <item>
      <widget class="QGraphicsView" name="graphicsView">
       <property name="maximumSize">
@@ -376,7 +391,7 @@
         <item row="0" column="0" colspan="2">
          <widget class="QProgressBar" name="progressBar">
           <property name="value">
-           <number>24</number>
+           <number>0</number>
           </property>
          </widget>
         </item>
@@ -430,7 +445,7 @@
      <x>0</x>
      <y>0</y>
      <width>461</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

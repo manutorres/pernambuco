@@ -52,9 +52,9 @@ bool Sftp::open(QString host, QString username, QString password){
      */
     //this->rc = libssh2_session_handshake(this->session, this->sock);
     #ifdef Q_WS_WIN
-       rc =libssh2_session_startup(session, sock);
+        rc =libssh2_session_startup(session, sock);
     #else
-      rc = libssh2_session_handshake(session, sock);
+        rc = libssh2_session_handshake(session, sock);
     #endif
 
     if(this->rc) {

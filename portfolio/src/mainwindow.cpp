@@ -31,7 +31,7 @@ void MainWindow::switchToLoginPage(){
 
     if (this->ui->radioButtonHandouts->isChecked())
         thread = run(this, &MainWindow::downloadHandouts);
-    else this->ui->progressBar->setRange(0,0);
+    else this->ui->progressBar->setRange(0, 0);
 
     this->ui->stackedWidget->setCurrentIndex(1);
 }
@@ -108,12 +108,12 @@ void MainWindow::loadAssignments(){
         this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
     }
 
+    count += onlineFilesModel->rowCount();
+
     this->db.getUploadFiles(userId);
     QSqlQueryModel *uploadFilesModel = this->db.getModel();
 
     this->ui->tableWidgetAssignments->setRowCount(this->ui->tableWidgetAssignments->rowCount() + uploadFilesModel->rowCount());
-
-    count += onlineFilesModel->rowCount();
 
     for (i = 0; i < uploadFilesModel->rowCount(); i++){
 
@@ -132,7 +132,7 @@ void MainWindow::loadAssignments(){
         this->ui->tableWidgetAssignments->setItem(i + count, 4, itemPathHash);
     }
 
-    this->ui->tableWidgetAssignments->sortItems(1, Qt::AscendingOrder);
+    //this->ui->tableWidgetAssignments->sortItems(1, Qt::AscendingOrder);
 }
 
 void MainWindow::setAssignmentTableStyle(){
@@ -149,21 +149,25 @@ void MainWindow::switchToProgressPage(){
 
     int countChecked = 0;//sin tener en cuenta los handouts
 
-    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount() -1; i++){
+    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
         if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() != "handout"))
             countChecked++;
     }
     //Se actualiza la cantidad de archivos a descargar y/o convertir
     this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + countChecked);
+    this->checkProgressBar();
 
     QFuture<void> th1 = run(this, &MainWindow::downloadUploadFiles);
     QFuture<void> th2 = run(this, &MainWindow::convertOnlineFiles);
+    //this->convertOnlineFiles();
     this->ui->stackedWidget->setCurrentIndex(3);
 }
 
 //Actualiza la progress bar a medida que se van descargando los archivos y que se van convirtiendo a pdf los assignment online
 void MainWindow::updateProgressBar(){
-
+    qDebug() << "Update progress bar.";
+    qDebug() << "Maximum:" << this->ui->progressBar->maximum();
+    qDebug() << "Value:" << this->ui->progressBar->value();
     this->ui->progressBar->setValue(this->ui->progressBar->value() + 1);    
 }
 
@@ -177,7 +181,7 @@ void MainWindow::downloadUploadFiles(){
 
     Sftp sftp2;
     sftp2.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
-    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount() - 1; i++){
+    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
         if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "upload")){
             qDebug() << "A descargar: " << this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 4)->text());
             sftp2.downloadFile(this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 4)->text()), this->ui->tableWidgetAssignments->item(i, 1)->text());
@@ -189,13 +193,16 @@ void MainWindow::downloadUploadFiles(){
 
 //Convierte a pdf el contenido de los assignment de tipo online de la tabla
 void MainWindow::convertOnlineFiles(){
-
+    qDebug() << "convertOnlineFiles";
     PDFmerge pdfmerge;
 
-    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount() - 1; i++){
+    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
         if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "online")){            
+            qDebug() << "convertOnlineFiles 2";
             pdfmerge.htmlToPdf(this->ui->tableWidgetAssignments->item(i, 1)->text(), this->ui->tableWidgetAssignments->item(i, 1)->text());
+            qDebug() << "convertOnlineFiles 3";
             this->filesToMerge << this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
+            qDebug() << "convertOnlineFiles 4";
             emit this->downloadedFile();
         }
     }
@@ -203,7 +210,7 @@ void MainWindow::convertOnlineFiles(){
 
 void MainWindow::mergeAndPrint(){
 
-    //this->pdfmerge.mergePdfs(QDir::currentPath(), "salida.pdf");
+    this->pdfmerge.mergePdfs(QDir::currentPath(), "salida.pdf");
     qDebug() << this->filesToMerge;
     qDebug() << this->ui->progressBar->maximum();
 }
