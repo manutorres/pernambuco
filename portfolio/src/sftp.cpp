@@ -8,7 +8,7 @@ bool Sftp::open(QString host, QString username, QString password){
     unsigned long hostaddr;
     struct sockaddr_in sin;
 
-    #ifdef WIN32
+    #ifdef Q_WS_WIN
         WSADATA wsadata;
         WSAStartup(MAKEWORD(2,0), &wsadata);
     #endif
@@ -50,7 +50,12 @@ bool Sftp::open(QString host, QString username, QString password){
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
-    this->rc = libssh2_session_handshake(this->session, this->sock);
+    //this->rc = libssh2_session_handshake(this->session, this->sock);
+    #ifdef Q_WS_WIN
+       rc =libssh2_session_startup(session, sock);
+    #else
+      rc = libssh2_session_handshake(session, sock);
+    #endif
 
     if(this->rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", this->rc);
@@ -93,7 +98,7 @@ void Sftp::disconnect(){
     libssh2_session_disconnect(this->session, "Normal Shutdown, Thank you for playing");
     libssh2_session_free(this->session);
 
-    #ifdef WIN32
+    #ifdef Q_WS_WIN
         closesocket(this->sock);
     #else
         close(this->sock);

@@ -6,12 +6,14 @@
 #include <QFile>
 #include <QTextStream>
 
-#include <libssh2_config.h>
+#include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 #include <stdio.h>
 #include <QObject>
+#include "includes.h"
 
+/*
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
 #endif
@@ -36,6 +38,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
+*/
 
 #define UPLOAD_FILES_PATH "html/moodle/moodledata/filedir/"
 
