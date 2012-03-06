@@ -18,8 +18,6 @@ win32{
 unix{
     LIBS += -lpodofo \
             -lssh2
-    SOURCES += src/pdfmerge.cpp
-    HEADERS  += src/pdfmerge.h
 }
 
 TARGET = portfolio
