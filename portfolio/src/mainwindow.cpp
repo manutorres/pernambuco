@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->btnExit_3, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnPrint, SIGNAL(clicked()), this, SLOT(mergeAndPrint()));
     QObject::connect(this->ui->progressBar, SIGNAL(valueChanged(int)), this, SLOT(checkProgressBar()));
+    QObject::connect(this, SIGNAL(downloadedFile()), this, SLOT(updateProgressBar()));
 
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
@@ -163,7 +164,7 @@ void MainWindow::switchToProgressPage(){
 //Actualiza la progress bar a medida que se van descargando los archivos y que se van convirtiendo a pdf los assignment online
 void MainWindow::updateProgressBar(){
 
-    this->ui->progressBar->setValue(this->ui->progressBar->value() + 1);
+    this->ui->progressBar->setValue(this->ui->progressBar->value() + 1);    
 }
 
 void MainWindow::checkProgressBar(){
@@ -178,6 +179,7 @@ void MainWindow::downloadUploadFiles(){
     sftp2.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
     for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount() - 1; i++){
         if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "upload")){
+            qDebug() << "A descargar: " << this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 4)->text());
             sftp2.downloadFile(this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 4)->text()), this->ui->tableWidgetAssignments->item(i, 1)->text());
             this->filesToMerge << this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
             emit this->downloadedFile();
