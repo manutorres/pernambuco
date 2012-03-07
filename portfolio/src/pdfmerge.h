@@ -19,7 +19,8 @@ public:
     PDFmerge();      
 
     void htmlToPdf(QString html, QString outputName);
-    void mergePdfs(QStringList files, QString outputName);
+    bool addPdf(QString file, QString &errorString);
+    void writeOutput(QString outputName);
 
 private:
     QWebView web;

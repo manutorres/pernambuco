@@ -60,19 +60,21 @@ void MainWindow::downloadHandouts(){
 }
 
 void MainWindow::switchToAssignmentsPage(){
-
+    this->ui->lblLoginFail->setText("");
+    //Loading gif
     this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD);
 
     QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
 
     if(!this->db.userLogin(username, password)){
-        qDebug() << "Usuario o contraseÃ±a incorretos.";
+        this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
+        qDebug() << "Usuario o contraseña incorretos.";
         return;
     }        
 
-    this->ui->stackedWidget->setCurrentIndex(2);
     this->loadAssignments();    
+    this->ui->stackedWidget->setCurrentIndex(2);
 }
 
 void MainWindow::loadAssignments(){
@@ -228,7 +230,7 @@ QString MainWindow::getUserDirectory(){
 #endif
 }
 
-QStringList MainWindow::getFilesToMergeList(){
+void MainWindow::mergeFiles(){
     QString userDirectory = getUserDirectory();
     QStringList files;
     for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
@@ -236,18 +238,27 @@ QStringList MainWindow::getFilesToMergeList(){
             QString fileName = this->ui->tableWidgetAssignments->item(i, 1)->text();
             QString fileType = this->ui->tableWidgetAssignments->item(i, 3)->text();
             if(fileType == "handout"){
-                files << userDirectory + "/" + HANDOUTS_LOCAL_PATH + "/" + fileName;
+                fileName = userDirectory + "/" + HANDOUTS_LOCAL_PATH + "/" + fileName;
             }else{
-                files << userDirectory + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + fileName + ".pdf";
+                fileName = userDirectory + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + fileName + ".pdf"; //Hola consistencia!
+            }
+            QString errorString;
+            if(this->pdfmerge.addPdf(fileName, errorString)){
+                this->ui->listWidgetOutputStatus->addItem("File successfully printed: " + fileName);
+            }else{
+                QListWidgetItem *item = new QListWidgetItem();
+                item->setForeground(QBrush(QColor(255, 0, 0)));
+                item->setText(errorString);
+                this->ui->listWidgetOutputStatus->addItem(item);
             }
         }
     }
-    return files;
 }
 
 void MainWindow::mergeAndPrint(){
-    qDebug() << this->getFilesToMergeList();
-    this->pdfmerge.mergePdfs(this->getFilesToMergeList(), "salida.pdf");
+    this->mergeFiles();
+    QString outputFile = this->getUserDirectory() + "/" + OUTPUT_LOCAL_FILE;
+    this->pdfmerge.writeOutput(outputFile);
     qDebug() << this->ui->progressBar->maximum();
 }
 

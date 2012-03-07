@@ -38,7 +38,7 @@ private:
     void downloadUploadFiles();
     void convertOnlineFiles();
     QString getUserDirectory();
-    QStringList getFilesToMergeList();
+    void mergeFiles();
 
 private slots:
     void switchToLoginPage();

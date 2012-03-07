@@ -16,16 +16,27 @@ void PDFmerge::htmlToPdf(QString html, QString outputName){
 }
 
 //Mezcla todos los documentos pdf contenidos en un dado directorio
-void PDFmerge::mergePdfs(QStringList files, QString outputName){
-
-    qDebug() << files;
-    foreach (QString file, files){
-        qDebug() << file;
-        PdfMemDocument doc;
+bool PDFmerge::addPdf(QString file, QString &errorString){
+    qDebug() << file;
+    PdfMemDocument doc;
+    try{
         doc.Load(file.toStdString().data());
-        document.Append(doc);
+        try{
+            document.Append(doc);
+        }catch(PoDoFo::PdfError){
+            errorString = "The file could not be appended: " + file;
+            return false;
+        }
+    }catch(PoDoFo::PdfError){
+        qDebug() << "Error al cargar el archivo:" << file;
+        errorString = "The file could not be loaded: " + file;
+        return false;
     }
+    return true;
+}
 
+//Imprime la salida en un archivo pdf
+void PDFmerge::writeOutput(QString outputName){
     document.Write(outputName.toStdString().data());
 }
 
