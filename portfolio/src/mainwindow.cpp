@@ -216,11 +216,16 @@ void MainWindow::convertOnlineFiles(){
 }
 
 QString MainWindow::getUserDirectory(){
+#ifdef Q_OS_WIN32
     QSettings settings(QSettings::UserScope, "Microsoft", "Windows");
     settings.beginGroup("CurrentVersion/Explorer/Shell Folders");
     return settings.value("Personal").toString().replace("\\", "/");
-
-    //AGREGAR LINUX Y MAC
+#endif
+#ifdef Q_OS_UNIX
+    return QDir().homePath();
+#endif
+#ifdef Q_OS_MAC
+#endif
 }
 
 QStringList MainWindow::getFilesToMergeList(){
