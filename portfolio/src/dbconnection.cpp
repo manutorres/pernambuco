@@ -77,7 +77,7 @@ bool DBConnection::getUploadFiles(QString userId){
     this->db.open();
 
     QString queryString = "SELECT filename, pathnamehash FROM mdl_files "
-                            "WHERE filearea = 'submission' AND userid = " + userId;
+            "WHERE filename != '.' AND filearea = 'submission' AND component = 'mod_assignment' AND userid = " + userId;
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){

@@ -10,23 +10,19 @@ PDFmerge::PDFmerge()
 }
 
 //Convierte contenido html en un documento pdf
-void PDFmerge::htmlToPdf(QString outputName, QString html){
-    qDebug() << "HtmlToPdf 1";
-    this->printer.setOutputFileName(outputName + ".pdf");
-    qDebug() << "HtmlToPdf 2 - Output name:" << outputName;
+void PDFmerge::htmlToPdf(QString html, QString outputName){
+    this->printer.setOutputFileName(outputName);
     this->web.setHtml(html);
 }
 
 //Mezcla todos los documentos pdf contenidos en un dado directorio
-void PDFmerge::mergePdfs(QString path, QString outputName){
+void PDFmerge::mergePdfs(QStringList files, QString outputName){
 
-    dir.setPath(path);
-    QStringList files = dir.entryList(QDir::Files | QDir::NoSymLinks);
     qDebug() << files;
     foreach (QString file, files){
         qDebug() << file;
         PdfMemDocument doc;
-        doc.Load((path + "/" + file).toStdString().data());
+        doc.Load(file.toStdString().data());
         document.Append(doc);
     }
 

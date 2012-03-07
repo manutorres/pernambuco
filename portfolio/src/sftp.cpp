@@ -115,7 +115,6 @@ bool Sftp::downloadFile(QString serverFile, QString outputFile){
     fd = fopen(outputFile.toStdString().data(),"w");
 
     this->sftp_handle = libssh2_sftp_open(this->sftp_session, serverFile.toStdString().data(), LIBSSH2_FXF_READ, 0);
-
     if (!this->sftp_handle) {
 
         fprintf(stderr, "Unable to open file with SFTP: %ld\n", libssh2_sftp_last_error(this->sftp_session));

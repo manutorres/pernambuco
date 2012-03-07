@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QSignalMapper>
 #include <QtConcurrentRun>
-
 #include "xmlassigment.h"
 #include "pdfmerge.h"
 #include "sftp.h"
@@ -38,6 +37,8 @@ private:
     void loadAssignments();
     void downloadUploadFiles();
     void convertOnlineFiles();
+    QString getUserDirectory();
+    QStringList getFilesToMergeList();
 
 private slots:
     void switchToLoginPage();

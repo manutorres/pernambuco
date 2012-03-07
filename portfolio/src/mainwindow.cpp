@@ -24,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
     this->setAssignmentTableStyle();
+
+    QDir().mkpath(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
+    QDir().mkpath(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
 }
 
 //Dependiendo de la eleccion del usuario descarga o no los handouts del servidor y avanza a la siguiente pantalla
@@ -41,12 +44,17 @@ void MainWindow::downloadHandouts(){
 
     this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
     
-    this->handoutsFileNames = this->sftp.getListOfHandouts("html/pdfhandouts/");
+    this->handoutsFileNames = this->sftp.getListOfHandouts(HANDOUTS_REMOTE_PATH);
 
     this->ui->progressBar->setRange(0, this->handoutsFileNames.count());
 
+    QString localPath = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
     foreach (QString f, this->handoutsFileNames){
-        this->sftp.downloadFile("html/pdfhandouts/" + f, f);
+        QString remoteFile = QString(HANDOUTS_REMOTE_PATH) + "/" + f;
+        QString localFile = localPath + "/" + f;
+        qDebug() << "Remote:" << remoteFile;
+        qDebug() << "Local:" << localFile;
+        this->sftp.downloadFile(remoteFile, localFile);
         emit this->downloadedFile();
     }
 }
@@ -158,9 +166,9 @@ void MainWindow::switchToProgressPage(){
     this->checkProgressBar();
 
     QFuture<void> th1 = run(this, &MainWindow::downloadUploadFiles);
-    QFuture<void> th2 = run(this, &MainWindow::convertOnlineFiles);
-    //this->convertOnlineFiles();
+    //QFuture<void> th2 = run(this, &MainWindow::convertOnlineFiles);
     this->ui->stackedWidget->setCurrentIndex(3);
+    this->convertOnlineFiles();
 }
 
 //Actualiza la progress bar a medida que se van descargando los archivos y que se van convirtiendo a pdf los assignment online
@@ -184,8 +192,9 @@ void MainWindow::downloadUploadFiles(){
     for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
         if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "upload")){
             qDebug() << "A descargar: " << this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 4)->text());
-            sftp2.downloadFile(this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 4)->text()), this->ui->tableWidgetAssignments->item(i, 1)->text());
-            this->filesToMerge << this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
+            QString localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + this->ui->tableWidgetAssignments->item(i, 1)->text();
+            sftp2.downloadFile(this->sftp.fileHashToPath(this->ui->tableWidgetAssignments->item(i, 4)->text()), localFile);
+            //this->filesToMerge << this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
             emit this->downloadedFile();
         }        
     }    
@@ -198,20 +207,42 @@ void MainWindow::convertOnlineFiles(){
 
     for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
         if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "online")){            
-            qDebug() << "convertOnlineFiles 2";
-            pdfmerge.htmlToPdf(this->ui->tableWidgetAssignments->item(i, 1)->text(), this->ui->tableWidgetAssignments->item(i, 1)->text());
-            qDebug() << "convertOnlineFiles 3";
-            this->filesToMerge << this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
-            qDebug() << "convertOnlineFiles 4";
+            QString localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
+            this->pdfmerge.htmlToPdf(this->ui->tableWidgetAssignments->item(i, 1)->text(), localFile);
+            //this->filesToMerge << this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
             emit this->downloadedFile();
         }
     }
 }
 
-void MainWindow::mergeAndPrint(){
+QString MainWindow::getUserDirectory(){
+    QSettings settings(QSettings::UserScope, "Microsoft", "Windows");
+    settings.beginGroup("CurrentVersion/Explorer/Shell Folders");
+    return settings.value("Personal").toString().replace("\\", "/");
 
-    this->pdfmerge.mergePdfs(QDir::currentPath(), "salida.pdf");
-    qDebug() << this->filesToMerge;
+    //AGREGAR LINUX Y MAC
+}
+
+QStringList MainWindow::getFilesToMergeList(){
+    QString userDirectory = getUserDirectory();
+    QStringList files;
+    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
+        if (this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked){
+            QString fileName = this->ui->tableWidgetAssignments->item(i, 1)->text();
+            QString fileType = this->ui->tableWidgetAssignments->item(i, 3)->text();
+            if(fileType == "handout"){
+                files << userDirectory + "/" + HANDOUTS_LOCAL_PATH + "/" + fileName;
+            }else{
+                files << userDirectory + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + fileName + ".pdf";
+            }
+        }
+    }
+    return files;
+}
+
+void MainWindow::mergeAndPrint(){
+    qDebug() << this->getFilesToMergeList();
+    this->pdfmerge.mergePdfs(this->getFilesToMergeList(), "salida.pdf");
     qDebug() << this->ui->progressBar->maximum();
 }
 
