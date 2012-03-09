@@ -24,20 +24,26 @@ bool PDFmerge::addPdf(QString file, QString &errorString){
         try{
             document.Append(doc);
         }catch(PoDoFo::PdfError){
-            errorString = "The file could not be appended: " + file;
+            errorString = "The file couldn't be merged: " + file;
             return false;
         }
     }catch(PoDoFo::PdfError){
         qDebug() << "Error al cargar el archivo:" << file;
-        errorString = "The file could not be loaded: " + file;
+        errorString = "The file couldn't be loaded: " + file;
         return false;
     }
     return true;
 }
 
 //Imprime la salida en un archivo pdf
-void PDFmerge::writeOutput(QString outputName){    
-    document.Write(outputName.toStdString().data());
+bool PDFmerge::writeOutput(QString outputName){
+    try{
+        document.Write(outputName.toStdString().data());
+    }catch(PoDoFo::PdfError){
+        qDebug() << "Error en la escritura de la salida.";
+        return false;
+    }
+    return true;
 }
 
 //Este método se ejecuta cuando el contenido html se termina de cargar en el objeto web

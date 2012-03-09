@@ -32,8 +32,11 @@ private:
     DBConnection db;
     PDFmerge pdfmerge;
 
-    void downloadHandouts();
+    void createButtons();
+    void centerOnScreen();
     void setAssignmentTableStyle();
+    void createUserDirectories();
+    void downloadHandouts();    
     void loadAssignments();
     void downloadUploadFiles();
     void convertOnlineFiles();
@@ -43,6 +46,8 @@ private:
 private slots:
     void switchToLoginPage();
     void switchToAssignmentsPage();
+    void selectAllFiles();
+    void selectNoneFiles();
     void switchToProgressPage();
     void updateProgressBar();
     void checkProgressBar();
