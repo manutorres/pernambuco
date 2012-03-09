@@ -20,7 +20,7 @@ public:
 
     void htmlToPdf(QString html, QString outputName);
     bool addPdf(QString file, QString &errorString);
-    void writeOutput(QString outputName);
+    bool writeOutput(QString outputName);
 
 private:
     QWebView web;
