@@ -242,7 +242,7 @@ void MainWindow::mergeFiles(){
             }else{
                 fileName = userDirectory + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + fileName + ".pdf"; //Hola consistencia!
             }
-            QString errorString;
+            QString errorString;          
             if(this->pdfmerge.addPdf(fileName, errorString)){
                 this->ui->listWidgetOutputStatus->addItem("File successfully printed: " + fileName);
             }else{
@@ -262,7 +262,7 @@ void MainWindow::mergeAndPrint(){
     qDebug() << this->ui->progressBar->maximum();
 }
 
-void MainWindow::exit(){
+void MainWindow::exit(){    
     this->sftp.disconnect();
     this->db.disconnect();
     QApplication::exit();

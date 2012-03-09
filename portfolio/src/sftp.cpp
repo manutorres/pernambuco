@@ -95,8 +95,8 @@ void Sftp::disconnect(){
 
     libssh2_sftp_shutdown(this->sftp_session);
 
-    libssh2_session_disconnect(this->session, "Normal Shutdown, Thank you for playing");
-    libssh2_session_free(this->session);
+    //libssh2_session_disconnect(this->session, "Normal Shutdown, Thank you for playing");
+    //libssh2_session_free(this->session);
 
     #ifdef Q_WS_WIN
         closesocket(this->sock);

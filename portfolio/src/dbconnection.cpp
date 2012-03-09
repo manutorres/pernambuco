@@ -62,7 +62,7 @@ bool DBConnection::getOnlineFiles(QString userId){
     QString queryString = "SELECT mdl_assignment.id as assignment_id, name, intro, "
                             "mdl_assignment_submissions.id as submission_id, data1 FROM "
                             "mdl_assignment_submissions JOIN mdl_assignment "
-                            "WHERE assignment = mdl_assignment.id AND userid = " + userId;
+                            "WHERE data1 != '' AND assignment = mdl_assignment.id AND userid = " + userId;
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){

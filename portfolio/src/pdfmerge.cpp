@@ -36,7 +36,7 @@ bool PDFmerge::addPdf(QString file, QString &errorString){
 }
 
 //Imprime la salida en un archivo pdf
-void PDFmerge::writeOutput(QString outputName){
+void PDFmerge::writeOutput(QString outputName){    
     document.Write(outputName.toStdString().data());
 }
 
