@@ -31,11 +31,12 @@ private:
     QFuture<void> thread;
     DBConnection db;
     PDFmerge pdfmerge;
+    bool finishThread;
 
-    void createButtons();
     void centerOnScreen();
     void setAssignmentTableStyle();
     void createUserDirectories();
+    QString timeStampToDate(int unixTime);
     void downloadHandouts();    
     void loadAssignments();
     void downloadUploadFiles();

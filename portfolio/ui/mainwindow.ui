@@ -45,26 +45,88 @@
     </size>
    </property>
    <property name="styleSheet">
-    <string notr="true"/>
+    <string notr="true">QWidget#centralWidget{
+	background: url(:/images/background.png) 0px 0px repeat-x;
+}</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="topMargin">
      <number>9</number>
     </property>
     <item>
-     <widget class="QGraphicsView" name="graphicsView">
-      <property name="maximumSize">
+     <widget class="QFrame" name="frame">
+      <property name="minimumSize">
        <size>
-        <width>16777215</width>
+        <width>0</width>
         <height>60</height>
        </size>
       </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="lblTask">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>14</y>
+         <width>311</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Handouts</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_9">
+       <property name="geometry">
+        <rect>
+         <x>370</x>
+         <y>10</y>
+         <width>46</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="rsc.qrc">:/images/pdf.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lblSteps">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>33</y>
+         <width>71</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Step 1 of 4</string>
+       </property>
+      </widget>
      </widget>
     </item>
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -80,14 +142,14 @@
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_4">
-        <item row="2" column="1" colspan="3">
+        <item row="4" column="1" colspan="3">
          <widget class="QRadioButton" name="radioButton">
           <property name="text">
            <string>No, do not include the handouts.</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" colspan="3">
+        <item row="3" column="1" colspan="3">
          <widget class="QRadioButton" name="radioButtonHandouts">
           <property name="maximumSize">
            <size>
@@ -103,7 +165,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="3" column="0">
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -116,7 +178,7 @@
           </property>
          </spacer>
         </item>
-        <item row="0" column="0" colspan="8">
+        <item row="1" column="0" colspan="8">
          <widget class="QLabel" name="label_2">
           <property name="minimumSize">
            <size>
@@ -135,7 +197,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="8">
+        <item row="5" column="0" colspan="8">
          <spacer name="verticalSpacer_4">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -148,7 +210,7 @@
           </property>
          </spacer>
         </item>
-        <item row="4" column="1">
+        <item row="6" column="1">
          <spacer name="horizontalSpacer_6">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -161,7 +223,7 @@
           </property>
          </spacer>
         </item>
-        <item row="4" column="3">
+        <item row="6" column="3">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -174,7 +236,7 @@
           </property>
          </spacer>
         </item>
-        <item row="4" column="4">
+        <item row="6" column="4">
          <spacer name="horizontalSpacer_5">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -187,14 +249,14 @@
           </property>
          </spacer>
         </item>
-        <item row="4" column="6">
+        <item row="6" column="6">
          <widget class="QPushButton" name="btnExit_1">
           <property name="text">
            <string>&amp;Exit</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="5">
+        <item row="6" column="5">
          <widget class="QPushButton" name="btnNext_1">
           <property name="text">
            <string>&amp;Next</string>
@@ -204,173 +266,258 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page_2">
-       <layout class="QGridLayout" name="gridLayout_5">
-        <item row="6" column="7">
-         <widget class="QPushButton" name="btnExit_2">
-          <property name="text">
-           <string>&amp;Exit</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="4" colspan="2">
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="0" column="0" colspan="8">
-         <widget class="QLabel" name="label">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Please enter your user data. You have to login in order to continue.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="4">
-         <widget class="QLineEdit" name="lineEditUsername">
-          <property name="minimumSize">
-           <size>
-            <width>165</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>1000</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="4">
-         <widget class="QLineEdit" name="lineEditPassword">
-          <property name="minimumSize">
-           <size>
-            <width>165</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>1000</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="echoMode">
-           <enum>QLineEdit::Password</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2" colspan="2">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Username</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2" colspan="2">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Password</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <spacer name="horizontalSpacer_7">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="4" column="2" colspan="4">
-         <widget class="QLabel" name="lblForgotenPassword">
-          <property name="minimumSize">
-           <size>
-            <width>30</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color:rgb(3, 180, 255)</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="6">
-         <widget class="QPushButton" name="btnNext_2">
-          <property name="text">
-           <string>&amp;Next</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2" colspan="5">
-         <widget class="QLabel" name="lblLoginFail">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">font-weight: normal;
+       <widget class="QPushButton" name="btnExit_2">
+        <property name="geometry">
+         <rect>
+          <x>352</x>
+          <y>183</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&amp;Exit</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>21</x>
+          <y>13</y>
+          <width>401</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Please login with your user data or select what assignments to print (all users).</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEditUsername">
+        <property name="geometry">
+         <rect>
+          <x>48</x>
+          <y>67</y>
+          <width>141</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>1000</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEditPassword">
+        <property name="geometry">
+         <rect>
+          <x>48</x>
+          <y>106</y>
+          <width>141</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>1000</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_3">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>50</y>
+          <width>48</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Username</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_4">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>90</y>
+          <width>46</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Password</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblForgotenPassword">
+        <property name="geometry">
+         <rect>
+          <x>44</x>
+          <y>161</y>
+          <width>151</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:rgb(3, 180, 255)</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnLogin">
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>134</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&amp;Login</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblLoginFail">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>44</x>
+          <y>182</y>
+          <width>151</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-weight: normal;
 color: rgb(206, 0, 0)</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="Line" name="line">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>48</y>
+          <width>20</width>
+          <height>148</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnNext_2">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>134</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&amp;Next</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox">
+        <property name="geometry">
+         <rect>
+          <x>289</x>
+          <y>70</y>
+          <width>91</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <item>
+         <property name="text">
+          <string>Online</string>
+         </property>
         </item>
-        <item row="3" column="5">
-         <spacer name="horizontalSpacer_8">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+        <item>
+         <property name="text">
+          <string>Upload</string>
+         </property>
         </item>
-       </layout>
+       </widget>
+       <widget class="QLabel" name="label_8">
+        <property name="geometry">
+         <rect>
+          <x>252</x>
+          <y>51</y>
+          <width>141</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Select the assignment type:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_10">
+        <property name="geometry">
+         <rect>
+          <x>257</x>
+          <y>72</y>
+          <width>31</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Type:</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout">
@@ -611,6 +758,8 @@ color: rgb(206, 0, 0)</string>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="rsc.qrc"/>
+ </resources>
  <connections/>
 </ui>

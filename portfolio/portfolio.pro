@@ -43,3 +43,5 @@ HEADERS  += src/mainwindow.h \
             src/pdfmerge.h
 
 FORMS    += ui/mainwindow.ui
+
+RESOURCES += ui/rsc.qrc

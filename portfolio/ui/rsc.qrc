@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>print.png</file>
+        <file>pdf.png</file>
+        <file>background.png</file>
+    </qresource>
+</RCC>

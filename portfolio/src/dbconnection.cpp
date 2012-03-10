@@ -54,11 +54,10 @@ bool DBConnection::userLogin(QString username, QString password){
 
 bool DBConnection::getOnlineFiles(QString userId){
 
-    // mdl_assignment_submission tiene timecreated, timemodified y timemarked
     this->db.open();
 
     QString queryString = "SELECT mdl_assignment.id as assignment_id, name, intro, "
-                            "mdl_assignment_submissions.id as submission_id, data1 FROM "
+                            "mdl_assignment_submissions.id as submission_id, data1, mdl_assignment_submissions.timemodified FROM "
                             "mdl_assignment_submissions JOIN mdl_assignment "
                             "WHERE data1 != '' AND assignment = mdl_assignment.id AND userid = " + userId;
     this->model->setQuery(queryString);
@@ -71,11 +70,11 @@ bool DBConnection::getOnlineFiles(QString userId){
 
 bool DBConnection::getUploadFiles(QString userId){
 
-    // mdl_files tiene timecreated y timemodified
     this->db.open();
 
-    QString queryString = "SELECT filename, pathnamehash FROM mdl_files "
-            "WHERE filename != '.' AND filearea = 'submission' AND component = 'mod_assignment' AND userid = " + userId;
+    QString queryString = "SELECT filename, pathnamehash, mdl_assignment_submissions.timemodified FROM mdl_files JOIN mdl_assignment_submissions "
+            "WHERE itemid = mdl_assignment_submissions.id AND filename != '.' AND filename != '' "
+            "AND filearea = 'submission' AND component = 'mod_assignment' AND data1 = ''  AND mdl_files.userid = " + userId;
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){

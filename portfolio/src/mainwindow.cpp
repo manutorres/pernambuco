@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->centerOnScreen();
 
     this->ui->btnPrint->setIcon(QIcon("../ui/print2.png"));
-    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
+    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgot username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
     this->setAssignmentTableStyle();
 
@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
-    QObject::connect(this->ui->btnNext_2, SIGNAL(clicked()), this, SLOT(switchToAssignmentsPage()));
+    QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToAssignmentsPage()));
     QObject::connect(this->ui->btnNext_3, SIGNAL(clicked()), this, SLOT(switchToProgressPage()));
     QObject::connect(this->ui->btnExit_1, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_2, SIGNAL(clicked()), this, SLOT(exit()));
@@ -34,12 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
     this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD);
-}
 
-void MainWindow::createButtons(){
-    //this->ui->buttonBox1->addButton(this->ui->btnNext_1, QDialogButtonBox::ActionRole);
-    //this->ui->btnNext_1->setDefault(true);
-    //this->ui->buttonBox1->addButton(this->ui->btnExit_1, QDialogButtonBox::ActionRole);
+    this->finishThread = false;
 }
 
 void MainWindow::centerOnScreen(){
@@ -56,9 +52,9 @@ void MainWindow::setAssignmentTableStyle(){
     header << "Print" << "File" << "Date" << "Type" << "Hash";
     this->ui->tableWidgetAssignments->setColumnCount(5);
     this->ui->tableWidgetAssignments->setHorizontalHeaderLabels(header);
-    this->ui->tableWidgetAssignments->setColumnWidth(0, 10);
-    this->ui->tableWidgetAssignments->setColumnWidth(1, 250);
-    this->ui->tableWidgetAssignments->setColumnWidth(0, 50);
+    this->ui->tableWidgetAssignments->setColumnWidth(0, 36);
+    this->ui->tableWidgetAssignments->setColumnWidth(1, 286);
+    this->ui->tableWidgetAssignments->setColumnWidth(2, 81);
     this->ui->tableWidgetAssignments->hideColumn(3);
     this->ui->tableWidgetAssignments->hideColumn(4);
 }
@@ -78,6 +74,12 @@ void MainWindow::selectNoneFiles(){
         this->ui->tableWidgetAssignments->item(i, 0)->setCheckState(Qt::Unchecked);
 }
 
+QString MainWindow::timeStampToDate(int unixTime){
+    QDateTime timeStamp;
+    timeStamp.setTime_t(unixTime);
+    return timeStamp.toString("MM-dd-yyyy");
+}
+
 //Dependiendo de la eleccion del usuario descarga o no los handouts del servidor y avanza a la siguiente pantalla
 void MainWindow::switchToLoginPage(){
 
@@ -85,6 +87,8 @@ void MainWindow::switchToLoginPage(){
         thread = run(this, &MainWindow::downloadHandouts);
     else this->ui->progressBar->setRange(0, 0);
 
+    this->ui->lblTask->setText("Login");
+    this->ui->lblSteps->setText("Step 2 of 4");
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
@@ -103,6 +107,8 @@ void MainWindow::downloadHandouts(){
         qDebug() << "Local:" << localFile;
         this->sftp.downloadFile(remoteFile, localFile);
         emit this->downloadedFile();
+        if(this->finishThread)
+            return;
     }
 }
 
@@ -114,11 +120,13 @@ void MainWindow::switchToAssignmentsPage(){
     QString password = this->ui->lineEditPassword->text();
 
     if(!this->db.userLogin(username, password)){
-        this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
+        this->ui->lblLoginFail->setText("Invalid username or password.");
         qDebug() << "Usuario o contraseña incorretos.";
         return;
     }        
-    this->loadAssignments();    
+    this->loadAssignments();
+    this->ui->lblTask->setText("Assignments selection");
+    this->ui->lblSteps->setText("Step 3 of 4");
     this->ui->stackedWidget->setCurrentIndex(2);
 
     //Se agranda la ventana verticalmente manteniendola centrada.
@@ -161,14 +169,19 @@ void MainWindow::loadAssignments(){
 
         QTableWidgetItem *itemPrint = new QTableWidgetItem();
         QTableWidgetItem *itemName = new QTableWidgetItem();
+        QTableWidgetItem *itemDate = new QTableWidgetItem();
         QTableWidgetItem *itemType = new QTableWidgetItem();
         itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         itemPrint->setCheckState(Qt::Unchecked);
         itemName->setText(onlineFilesModel->record(i).value(1).toString());
+        itemDate->setText(this->timeStampToDate(onlineFilesModel->record(i).value(5).toInt()));
         itemType->setText("online");
         this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
         this->ui->tableWidgetAssignments->setItem(i + count, 1, itemName);
+        this->ui->tableWidgetAssignments->setItem(i + count, 2, itemDate);
         this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
+        QString html = "<b>" + onlineFilesModel->record(i).value(1).toString() + "</b><br /><br />" + onlineFilesModel->record(i).value(4).toString();
+        this->ui->tableWidgetAssignments->setItem(i + count, 4, new QTableWidgetItem(html));
     }
 
     count += onlineFilesModel->rowCount();
@@ -182,15 +195,18 @@ void MainWindow::loadAssignments(){
 
         QTableWidgetItem *itemPrint = new QTableWidgetItem();
         QTableWidgetItem *itemName = new QTableWidgetItem();
+        QTableWidgetItem *itemDate = new QTableWidgetItem();
         QTableWidgetItem *itemType = new QTableWidgetItem();
         QTableWidgetItem *itemPathHash = new QTableWidgetItem();
         itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         itemPrint->setCheckState(Qt::Unchecked);
         itemName->setText(uploadFilesModel->record(i).value(0).toString());
+        itemDate->setText(this->timeStampToDate(uploadFilesModel->record(i).value(2).toInt()));
         itemType->setText("upload");
         itemPathHash->setText(uploadFilesModel->record(i).value(1).toString());
         this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
         this->ui->tableWidgetAssignments->setItem(i + count, 1, itemName);
+        this->ui->tableWidgetAssignments->setItem(i + count, 2, itemName);
         this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
         this->ui->tableWidgetAssignments->setItem(i + count, 4, itemPathHash);
     }
@@ -211,9 +227,10 @@ void MainWindow::switchToProgressPage(){
     this->checkProgressBar();
 
     QFuture<void> th1 = run(this, &MainWindow::downloadUploadFiles);
-    //QFuture<void> th2 = run(this, &MainWindow::convertOnlineFiles);
-    this->ui->stackedWidget->setCurrentIndex(3);
     this->convertOnlineFiles();
+    this->ui->lblTask->setText("Print");
+    this->ui->lblSteps->setText("Step 4 of 4");
+    this->ui->stackedWidget->setCurrentIndex(3);    
 }
 
 //Actualiza la progress bar a medida que se van descargando los archivos y que se van convirtiendo a pdf los assignment online
@@ -253,8 +270,7 @@ void MainWindow::convertOnlineFiles(){
     for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
         if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "online")){            
             QString localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
-            this->pdfmerge.htmlToPdf(this->ui->tableWidgetAssignments->item(i, 1)->text(), localFile);
-            //this->filesToMerge << this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
+            this->pdfmerge.htmlToPdf(this->ui->tableWidgetAssignments->item(i, 4)->text(), localFile);
             emit this->downloadedFile();
         }
     }
@@ -309,9 +325,14 @@ void MainWindow::mergeAndPrint(){
     }
 }
 
-void MainWindow::exit(){     
-    this->sftp.disconnect();    
-    this->db.disconnect();    
+void MainWindow::exit(){
+    if (this->thread.isRunning()){
+        this->finishThread = true;
+        this->hide();
+        this->thread.waitForFinished();
+    }
+    this->sftp.disconnect();
+    this->db.disconnect();
     QApplication::exit();
 }
 
