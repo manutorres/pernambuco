@@ -52,14 +52,12 @@ bool DBConnection::userLogin(QString username, QString password){
     return true;
 }
 
-bool DBConnection::getOnlineFiles(QString userId){
-
+bool DBConnection::getOnlineAssignments(){
     this->db.open();
 
-    QString queryString = "SELECT mdl_assignment.id as assignment_id, name, intro, "
-                            "mdl_assignment_submissions.id as submission_id, data1, mdl_assignment_submissions.timemodified FROM "
+    QString queryString = "SELECT DISTINCT mdl_assignment.id as id FROM "
                             "mdl_assignment_submissions JOIN mdl_assignment "
-                            "WHERE data1 != '' AND assignment = mdl_assignment.id AND userid = " + userId;
+                            "WHERE data1 != '' AND assignment = mdl_assignment.id";
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
@@ -68,13 +66,44 @@ bool DBConnection::getOnlineFiles(QString userId){
     return true;
 }
 
-bool DBConnection::getUploadFiles(QString userId){
+bool DBConnection::getOnlineFilesByAssignment(int assignmentId){
+    this->db.open();
+
+    QString queryString = "SELECT mdl_assignment.id as assignment_id, name, intro, "
+                            "mdl_assignment_submissions.id as submission_id, data1, mdl_assignment_submissions.timemodified FROM "
+                            "mdl_assignment_submissions JOIN mdl_assignment "
+                            "WHERE data1 != '' AND assignment = mdl_assignment.id AND assignment=" + QString::number(assignmentId);
+    this->model->setQuery(queryString);
+    qDebug() << this->model->lastError();
+    if(this->model->rowCount() == 0){
+        return false;
+    }
+    return true;
+}
+
+bool DBConnection::getOnlineFilesByUser(int userId){
+
+    this->db.open();
+
+    QString queryString = "SELECT mdl_assignment.id as assignment_id, name, intro, "
+                            "mdl_assignment_submissions.id as submission_id, data1, mdl_assignment_submissions.timemodified FROM "
+                            "mdl_assignment_submissions JOIN mdl_assignment "
+                            "WHERE data1 != '' AND assignment = mdl_assignment.id AND userid=" + QString::number(userId);
+    this->model->setQuery(queryString);
+    qDebug() << this->model->lastError();
+    if(this->model->rowCount() == 0){
+        return false;
+    }
+    return true;
+}
+
+bool DBConnection::getUploadFiles(int userId){
 
     this->db.open();
 
     QString queryString = "SELECT filename, pathnamehash, mdl_assignment_submissions.timemodified FROM mdl_files JOIN mdl_assignment_submissions "
             "WHERE itemid = mdl_assignment_submissions.id AND filename != '.' AND filename != '' "
-            "AND filearea = 'submission' AND component = 'mod_assignment' AND data1 = ''  AND mdl_files.userid = " + userId;
+            "AND filearea = 'submission' AND component = 'mod_assignment' AND data1 = ''  AND mdl_files.userid = " + QString::number(userId);
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){

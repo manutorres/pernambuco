@@ -20,8 +20,10 @@ public:
     DBConnection();
     bool connect(QString host, QString database, QString user, QString password);
     bool userLogin(QString username, QString password);
-    bool getOnlineFiles(QString userId);
-    bool getUploadFiles(QString userId);
+    bool getOnlineAssignments();
+    bool getOnlineFilesByAssignment(int assignmentId);
+    bool getOnlineFilesByUser(int userId);
+    bool getUploadFiles(int userId);
     void disconnect();
     QSqlQueryModel* getModel();
     void printModel();

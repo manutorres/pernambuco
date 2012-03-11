@@ -20,7 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
-    QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToAssignmentsPage()));
+    QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTablePageFromUser()));
+    QObject::connect(this->ui->btnNext_2, SIGNAL(clicked()), this, SLOT(switchToTablePageFromAssignment()));
     QObject::connect(this->ui->btnNext_3, SIGNAL(clicked()), this, SLOT(switchToProgressPage()));
     QObject::connect(this->ui->btnExit_1, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_2, SIGNAL(clicked()), this, SLOT(exit()));
@@ -46,6 +47,16 @@ void MainWindow::centerOnScreen(){
                       currentGeometry.width(), currentGeometry.height());
 }
 
+void MainWindow::enlargeWindow(){
+    //Se agranda la ventana verticalmente manteniendola centrada.
+    QRect geometry = this->geometry();
+    int x = geometry.x();
+    int newY = geometry.y() - 50;
+    int width = geometry.width();
+    int newHeight = geometry.height() + 100;
+    this->setGeometry(x, newY, width, newHeight);
+}
+
 void MainWindow::setAssignmentTableStyle(){
 
     QStringList header;
@@ -56,7 +67,7 @@ void MainWindow::setAssignmentTableStyle(){
     this->ui->tableWidgetAssignments->setColumnWidth(1, 286);
     this->ui->tableWidgetAssignments->setColumnWidth(2, 81);
     this->ui->tableWidgetAssignments->hideColumn(3);
-    this->ui->tableWidgetAssignments->hideColumn(4);
+    //this->ui->tableWidgetAssignments->hideColumn(4);
 }
 
 void MainWindow::createUserDirectories(){
@@ -87,6 +98,12 @@ void MainWindow::switchToLoginPage(){
         thread = run(this, &MainWindow::downloadHandouts);
     else this->ui->progressBar->setRange(0, 0);
 
+    //Lleno el combo con los assignments que tienen por lo menos un assignment_submission online (data1 != '').
+    this->db.getOnlineAssignments();
+    QSqlQueryModel *onlineAssignments = this->db.getModel();
+    for(int i=0; i<onlineAssignments->rowCount(); i++)
+        this->ui->cmbAssignments->addItem(onlineAssignments->record(i).value("id").toString());
+
     this->ui->lblTask->setText("Login");
     this->ui->lblSteps->setText("Step 2 of 4");
     this->ui->stackedWidget->setCurrentIndex(1);
@@ -112,7 +129,7 @@ void MainWindow::downloadHandouts(){
     }
 }
 
-void MainWindow::switchToAssignmentsPage(){
+void MainWindow::switchToTablePageFromUser(){
     this->ui->lblLoginFail->setText("");
     //Loading gif
 
@@ -124,27 +141,28 @@ void MainWindow::switchToAssignmentsPage(){
         qDebug() << "Usuario o contraseña incorretos.";
         return;
     }        
-    this->loadAssignments();
+    this->fillTableFromUser();
     this->ui->lblTask->setText("Assignments selection");
     this->ui->lblSteps->setText("Step 3 of 4");
     this->ui->stackedWidget->setCurrentIndex(2);
-
-    //Se agranda la ventana verticalmente manteniendola centrada.
-    QRect geometry = this->geometry();
-    int x = geometry.x();
-    int newY = geometry.y() - 60;
-    int width = geometry.width();
-    int newHeight = geometry.height() + 120;
-    this->setGeometry(x, newY, width, newHeight);
+    this->enlargeWindow();
 }
 
-void MainWindow::loadAssignments(){
+void MainWindow::switchToTablePageFromAssignment(){
+    this->fillTableFromAssignment();
+    this->ui->lblTask->setText("Assignments selection");
+    this->ui->lblSteps->setText("Step 3 of 4");
+    this->ui->stackedWidget->setCurrentIndex(2);
+    this->enlargeWindow();
+}
 
-    QString userId = this->db.getModel()->record(0).value("id").toString();
+void MainWindow::fillTableFromUser(){
+
+    int userId = this->db.getModel()->record(0).value("id").toInt();
     int i;
     int count = 0;
 
-    this->db.getOnlineFiles(userId);
+    this->db.getOnlineFilesByUser(userId);
     QSqlQueryModel *onlineFilesModel = this->db.getModel();    
 
     this->ui->tableWidgetAssignments->setRowCount(this->handoutsFileNames.count() + onlineFilesModel->rowCount());
@@ -173,7 +191,7 @@ void MainWindow::loadAssignments(){
         QTableWidgetItem *itemType = new QTableWidgetItem();
         itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         itemPrint->setCheckState(Qt::Unchecked);
-        itemName->setText(onlineFilesModel->record(i).value(1).toString());
+        itemName->setText(onlineFilesModel->record(i).value("submission_id").toString() + ". " + onlineFilesModel->record(i).value("name").toString());
         itemDate->setText(this->timeStampToDate(onlineFilesModel->record(i).value(5).toInt()));
         itemType->setText("online");
         this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
@@ -184,31 +202,80 @@ void MainWindow::loadAssignments(){
         this->ui->tableWidgetAssignments->setItem(i + count, 4, new QTableWidgetItem(html));
     }
 
-    count += onlineFilesModel->rowCount();
+//    count += onlineFilesModel->rowCount();
 
-    this->db.getUploadFiles(userId);
-    QSqlQueryModel *uploadFilesModel = this->db.getModel();
+//    this->db.getUploadFiles(userId);
+//    QSqlQueryModel *uploadFilesModel = this->db.getModel();
 
-    this->ui->tableWidgetAssignments->setRowCount(this->ui->tableWidgetAssignments->rowCount() + uploadFilesModel->rowCount());
+//    this->ui->tableWidgetAssignments->setRowCount(this->ui->tableWidgetAssignments->rowCount() + uploadFilesModel->rowCount());
 
-    for (i = 0; i < uploadFilesModel->rowCount(); i++){
+//    for (i = 0; i < uploadFilesModel->rowCount(); i++){
+
+//        QTableWidgetItem *itemPrint = new QTableWidgetItem();
+//        QTableWidgetItem *itemName = new QTableWidgetItem();
+//        QTableWidgetItem *itemDate = new QTableWidgetItem();
+//        QTableWidgetItem *itemType = new QTableWidgetItem();
+//        QTableWidgetItem *itemPathHash = new QTableWidgetItem();
+//        itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+//        itemPrint->setCheckState(Qt::Unchecked);
+//        itemName->setText(uploadFilesModel->record(i).value(0).toString());
+//        itemDate->setText(this->timeStampToDate(uploadFilesModel->record(i).value(2).toInt()));
+//        itemType->setText("upload");
+//        itemPathHash->setText(uploadFilesModel->record(i).value(1).toString());
+//        this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
+//        this->ui->tableWidgetAssignments->setItem(i + count, 1, itemName);
+//        this->ui->tableWidgetAssignments->setItem(i + count, 2, itemName);
+//        this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
+//        this->ui->tableWidgetAssignments->setItem(i + count, 4, itemPathHash);
+//    }
+
+    //this->ui->tableWidgetAssignments->sortItems(1, Qt::AscendingOrder);
+}
+
+void MainWindow::fillTableFromAssignment(){
+
+    int assignmentId = this->ui->cmbAssignments->currentText().toInt();
+    int i;
+    int count = 0;
+
+    this->db.getOnlineFilesByAssignment(assignmentId);
+    QSqlQueryModel *onlineFilesModel = this->db.getModel();
+
+    this->ui->tableWidgetAssignments->setRowCount(this->handoutsFileNames.count() + onlineFilesModel->rowCount());
+
+    for (i = 0; i < this->handoutsFileNames.count(); i++){
+
+        QTableWidgetItem *itemPrint = new QTableWidgetItem();
+        QTableWidgetItem *itemName = new QTableWidgetItem();
+        QTableWidgetItem *itemType = new QTableWidgetItem();
+        itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        itemPrint->setCheckState(Qt::Checked);
+        itemName->setText(this->handoutsFileNames.at(i));
+        itemType->setText("handout");
+        this->ui->tableWidgetAssignments->setItem(i, 0, itemPrint);
+        this->ui->tableWidgetAssignments->setItem(i, 1, itemName);
+        this->ui->tableWidgetAssignments->setItem(i, 3, itemType);
+    }
+
+    count = this->handoutsFileNames.count();
+
+    for (i = 0; i < onlineFilesModel->rowCount(); i++){
 
         QTableWidgetItem *itemPrint = new QTableWidgetItem();
         QTableWidgetItem *itemName = new QTableWidgetItem();
         QTableWidgetItem *itemDate = new QTableWidgetItem();
         QTableWidgetItem *itemType = new QTableWidgetItem();
-        QTableWidgetItem *itemPathHash = new QTableWidgetItem();
         itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         itemPrint->setCheckState(Qt::Unchecked);
-        itemName->setText(uploadFilesModel->record(i).value(0).toString());
-        itemDate->setText(this->timeStampToDate(uploadFilesModel->record(i).value(2).toInt()));
-        itemType->setText("upload");
-        itemPathHash->setText(uploadFilesModel->record(i).value(1).toString());
+        itemName->setText(onlineFilesModel->record(i).value("submission_id").toString() + ". " + onlineFilesModel->record(i).value("name").toString());
+        itemDate->setText(this->timeStampToDate(onlineFilesModel->record(i).value(5).toInt()));
+        itemType->setText("online");
         this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
         this->ui->tableWidgetAssignments->setItem(i + count, 1, itemName);
-        this->ui->tableWidgetAssignments->setItem(i + count, 2, itemName);
+        this->ui->tableWidgetAssignments->setItem(i + count, 2, itemDate);
         this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
-        this->ui->tableWidgetAssignments->setItem(i + count, 4, itemPathHash);
+        QString html = "<b>" + onlineFilesModel->record(i).value(1).toString() + "</b><br /><br />" + onlineFilesModel->record(i).value(4).toString();
+        this->ui->tableWidgetAssignments->setItem(i + count, 4, new QTableWidgetItem(html));
     }
 
     //this->ui->tableWidgetAssignments->sortItems(1, Qt::AscendingOrder);
@@ -296,11 +363,11 @@ void MainWindow::mergeFiles(){
         if (this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked){
             QString fileName = this->ui->tableWidgetAssignments->item(i, 1)->text();
             QString fileType = this->ui->tableWidgetAssignments->item(i, 3)->text();
-            if(fileType == "handout"){
+            if(fileType == "handout")
                 fileName = userDirectory + "/" + HANDOUTS_LOCAL_PATH + "/" + fileName;
-            }else{
+            else
                 fileName = userDirectory + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + fileName + ".pdf"; //Hola consistencia!
-            }
+
             QString errorString;          
             if(this->pdfmerge.addPdf(fileName, errorString)){
                 this->ui->listWidgetOutputStatus->addItem("File successfully included: " + fileName);

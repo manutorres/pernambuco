@@ -34,11 +34,13 @@ private:
     bool finishThread;
 
     void centerOnScreen();
+    void enlargeWindow();
     void setAssignmentTableStyle();
     void createUserDirectories();
     QString timeStampToDate(int unixTime);
     void downloadHandouts();    
-    void loadAssignments();
+    void fillTableFromUser();
+    void fillTableFromAssignment();
     void downloadUploadFiles();
     void convertOnlineFiles();
     QString getUserDirectory();
@@ -46,7 +48,8 @@ private:
 
 private slots:
     void switchToLoginPage();
-    void switchToAssignmentsPage();
+    void switchToTablePageFromUser();
+    void switchToTablePageFromAssignment();
     void selectAllFiles();
     void selectNoneFiles();
     void switchToProgressPage();

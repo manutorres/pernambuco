@@ -295,15 +295,15 @@
          </size>
         </property>
         <property name="text">
-         <string>Please login with your user data or select what assignments to print (all users).</string>
+         <string>Please login with your user data or select an assignment for all users.</string>
         </property>
        </widget>
        <widget class="QLineEdit" name="lineEditUsername">
         <property name="geometry">
          <rect>
-          <x>48</x>
+          <x>53</x>
           <y>67</y>
-          <width>141</width>
+          <width>131</width>
           <height>22</height>
          </rect>
         </property>
@@ -330,9 +330,9 @@
        <widget class="QLineEdit" name="lineEditPassword">
         <property name="geometry">
          <rect>
-          <x>48</x>
+          <x>53</x>
           <y>106</y>
-          <width>141</width>
+          <width>131</width>
           <height>22</height>
          </rect>
         </property>
@@ -362,7 +362,7 @@
        <widget class="QLabel" name="label_3">
         <property name="geometry">
          <rect>
-          <x>50</x>
+          <x>55</x>
           <y>50</y>
           <width>48</width>
           <height>16</height>
@@ -375,7 +375,7 @@
        <widget class="QLabel" name="label_4">
         <property name="geometry">
          <rect>
-          <x>50</x>
+          <x>55</x>
           <y>90</y>
           <width>46</width>
           <height>16</height>
@@ -388,7 +388,7 @@
        <widget class="QLabel" name="lblForgotenPassword">
         <property name="geometry">
          <rect>
-          <x>44</x>
+          <x>47</x>
           <y>161</y>
           <width>151</width>
           <height>20</height>
@@ -410,7 +410,7 @@
        <widget class="QPushButton" name="btnLogin">
         <property name="geometry">
          <rect>
-          <x>80</x>
+          <x>81</x>
           <y>134</y>
           <width>75</width>
           <height>23</height>
@@ -426,7 +426,7 @@
         </property>
         <property name="geometry">
          <rect>
-          <x>44</x>
+          <x>43</x>
           <y>182</y>
           <width>151</width>
           <height>20</height>
@@ -462,7 +462,7 @@ color: rgb(206, 0, 0)</string>
        <widget class="QPushButton" name="btnNext_2">
         <property name="geometry">
          <rect>
-          <x>280</x>
+          <x>279</x>
           <y>134</y>
           <width>75</width>
           <height>23</height>
@@ -472,50 +472,40 @@ color: rgb(206, 0, 0)</string>
          <string>&amp;Next</string>
         </property>
        </widget>
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="cmbAssignments">
         <property name="geometry">
          <rect>
-          <x>289</x>
-          <y>70</y>
-          <width>91</width>
+          <x>302</x>
+          <y>72</y>
+          <width>51</width>
           <height>22</height>
          </rect>
         </property>
-        <item>
-         <property name="text">
-          <string>Online</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Upload</string>
-         </property>
-        </item>
        </widget>
        <widget class="QLabel" name="label_8">
         <property name="geometry">
          <rect>
-          <x>252</x>
+          <x>260</x>
           <y>51</y>
           <width>141</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Select the assignment type:</string>
+         <string>Select the assignment:</string>
         </property>
        </widget>
        <widget class="QLabel" name="label_10">
         <property name="geometry">
          <rect>
-          <x>257</x>
-          <y>72</y>
+          <x>280</x>
+          <y>77</y>
           <width>31</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Type:</string>
+         <string>ID:</string>
         </property>
        </widget>
       </widget>
@@ -635,39 +625,14 @@ color: rgb(206, 0, 0)</string>
         </item>
         <item row="1" column="0">
          <widget class="QProgressBar" name="progressBar">
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="btnPrint">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>50</horstretch>
-            <verstretch>50</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
-            <width>52</width>
-            <height>52</height>
+            <width>350</width>
+            <height>0</height>
            </size>
           </property>
-          <property name="maximumSize">
-           <size>
-            <width>52</width>
-            <height>52</height>
-           </size>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>64</width>
-            <height>64</height>
-           </size>
+          <property name="value">
+           <number>0</number>
           </property>
          </widget>
         </item>
@@ -691,7 +656,7 @@ color: rgb(206, 0, 0)</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="4" column="0" colspan="3">
          <widget class="QListWidget" name="listWidgetOutputStatus">
           <property name="minimumSize">
            <size>
@@ -726,7 +691,38 @@ color: rgb(206, 0, 0)</string>
           </property>
          </spacer>
         </item>
-        <item row="5" column="1">
+        <item row="1" column="2">
+         <widget class="QPushButton" name="btnPrint">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>50</horstretch>
+            <verstretch>50</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>52</width>
+            <height>52</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>52</width>
+            <height>52</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>64</width>
+            <height>64</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1" colspan="2">
          <widget class="QPushButton" name="btnExit_4">
           <property name="maximumSize">
            <size>
@@ -738,6 +734,19 @@ color: rgb(206, 0, 0)</string>
            <string>Exit</string>
           </property>
          </widget>
+        </item>
+        <item row="1" column="1">
+         <spacer name="horizontalSpacer_16">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
