@@ -112,6 +112,23 @@ bool DBConnection::getUploadFiles(int userId){
     return true;
 }
 
+bool DBConnection::getForumPostsByUser(int userId){
+    this->db.open();
+
+    //Join de la tabla con si misma para que queda respuesta quede con su pregunta.
+    QString queryString = "SELECT preg.subject as pregSubject, preg.message as pregMessage, resp.id as respId, resp.subject as "
+                            "respSubject, resp.message as respMessage, resp.modified as respModified FROM "
+                            "mdl_forum_posts as preg JOIN mdl_forum_posts as resp WHERE preg.subject NOT LIKE 'RE: %' "
+                            "AND resp.subject LIKE 'RE: %' AND preg.subject = SUBSTRING(resp.subject, 5) AND "
+                            "resp.userid = " + QString::number(userId);
+    this->model->setQuery(queryString);
+    qDebug() << this->model->lastError();
+    if(this->model->rowCount() == 0){
+        return false;
+    }
+    return true;
+}
+
 void DBConnection::disconnect(){
     this->db.close();
 }

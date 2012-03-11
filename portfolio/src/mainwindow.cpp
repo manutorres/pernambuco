@@ -204,32 +204,62 @@ void MainWindow::fillTableFromUser(){
         this->ui->tableWidgetAssignments->setItem(i + count, 4, new QTableWidgetItem(html));
     }
 
-//    count += onlineFilesModel->rowCount();
+    count += onlineFilesModel->rowCount();
 
-//    this->db.getUploadFiles(userId);
-//    QSqlQueryModel *uploadFilesModel = this->db.getModel();
+    this->db.getForumPostsByUser(7);
+    QSqlQueryModel *forumPostsModel = this->db.getModel();
 
-//    this->ui->tableWidgetAssignments->setRowCount(this->ui->tableWidgetAssignments->rowCount() + uploadFilesModel->rowCount());
+    this->ui->tableWidgetAssignments->setRowCount(this->ui->tableWidgetAssignments->rowCount() + forumPostsModel->rowCount());
 
-//    for (i = 0; i < uploadFilesModel->rowCount(); i++){
+    for (i = 0; i < forumPostsModel->rowCount(); i++){
 
-//        QTableWidgetItem *itemPrint = new QTableWidgetItem();
-//        QTableWidgetItem *itemName = new QTableWidgetItem();
-//        QTableWidgetItem *itemDate = new QTableWidgetItem();
-//        QTableWidgetItem *itemType = new QTableWidgetItem();
-//        QTableWidgetItem *itemPathHash = new QTableWidgetItem();
-//        itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-//        itemPrint->setCheckState(Qt::Unchecked);
-//        itemName->setText(uploadFilesModel->record(i).value(0).toString());
-//        itemDate->setText(this->timeStampToDate(uploadFilesModel->record(i).value(2).toInt()));
-//        itemType->setText("upload");
-//        itemPathHash->setText(uploadFilesModel->record(i).value(1).toString());
-//        this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
-//        this->ui->tableWidgetAssignments->setItem(i + count, 1, itemName);
-//        this->ui->tableWidgetAssignments->setItem(i + count, 2, itemName);
-//        this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
-//        this->ui->tableWidgetAssignments->setItem(i + count, 4, itemPathHash);
-//    }
+        QTableWidgetItem *itemPrint = new QTableWidgetItem();
+        QTableWidgetItem *itemName = new QTableWidgetItem();
+        QTableWidgetItem *itemDate = new QTableWidgetItem();
+        QTableWidgetItem *itemType = new QTableWidgetItem();
+        itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        itemPrint->setCheckState(Qt::Unchecked);
+        itemName->setText(forumPostsModel->record(i).value("respId").toString() + ". " + forumPostsModel->record(i).value("respSubject").toString());
+        itemDate->setText(this->timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()));
+        itemType->setText("forum_post");
+        this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
+        this->ui->tableWidgetAssignments->setItem(i + count, 1, itemName);
+        this->ui->tableWidgetAssignments->setItem(i + count, 2, itemDate);
+        this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
+        QString html = "<b>" + forumPostsModel->record(i).value("pregSubject").toString() + "</b>"
+                        "<b>" + forumPostsModel->record(i).value("pregMessage").toString() + "</b>"
+                        "<br /><br />" + forumPostsModel->record(i).value("respMessage").toString();
+        this->ui->tableWidgetAssignments->setItem(i + count, 4, new QTableWidgetItem(html));
+    }
+
+    /*
+    count += onlineFilesModel->rowCount();
+
+    this->db.getUploadFiles(userId);
+    QSqlQueryModel *uploadFilesModel = this->db.getModel();
+
+    this->ui->tableWidgetAssignments->setRowCount(this->ui->tableWidgetAssignments->rowCount() + uploadFilesModel->rowCount());
+
+    for (i = 0; i < uploadFilesModel->rowCount(); i++){
+
+        QTableWidgetItem *itemPrint = new QTableWidgetItem();
+        QTableWidgetItem *itemName = new QTableWidgetItem();
+        QTableWidgetItem *itemDate = new QTableWidgetItem();
+        QTableWidgetItem *itemType = new QTableWidgetItem();
+        QTableWidgetItem *itemPathHash = new QTableWidgetItem();
+        itemPrint->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        itemPrint->setCheckState(Qt::Unchecked);
+        itemName->setText(uploadFilesModel->record(i).value(0).toString());
+        itemDate->setText(this->timeStampToDate(uploadFilesModel->record(i).value(2).toInt()));
+        itemType->setText("upload");
+        itemPathHash->setText(uploadFilesModel->record(i).value(1).toString());
+        this->ui->tableWidgetAssignments->setItem(i + count, 0, itemPrint);
+        this->ui->tableWidgetAssignments->setItem(i + count, 1, itemName);
+        this->ui->tableWidgetAssignments->setItem(i + count, 2, itemName);
+        this->ui->tableWidgetAssignments->setItem(i + count, 3, itemType);
+        this->ui->tableWidgetAssignments->setItem(i + count, 4, itemPathHash);
+    }
+    */
 
     //this->ui->tableWidgetAssignments->sortItems(1, Qt::AscendingOrder);
 }
@@ -337,7 +367,9 @@ void MainWindow::convertOnlineFiles(){
     PDFmerge pdfmerge;
 
     for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
-        if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) && (this->ui->tableWidgetAssignments->item(i, 3)->text() == "online")){            
+        if ((this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked) &&
+           ((this->ui->tableWidgetAssignments->item(i, 3)->text() == "online") ||
+           (this->ui->tableWidgetAssignments->item(i, 3)->text() == "forum_post"))){
             QString localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + this->ui->tableWidgetAssignments->item(i, 1)->text() + ".pdf";
             this->pdfmerge.htmlToPdf(this->ui->tableWidgetAssignments->item(i, 4)->text(), localFile);
             emit this->downloadedFile();
@@ -355,6 +387,7 @@ QString MainWindow::getUserDirectory(){
     return QDir().homePath();
 #endif
 #ifdef Q_OS_MAC
+    return QDir().homePath();
 #endif
 }
 
