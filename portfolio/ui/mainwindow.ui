@@ -62,10 +62,13 @@
        </size>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
       </property>
       <widget class="QLabel" name="lblTask">
        <property name="geometry">
@@ -760,7 +763,7 @@ color: rgb(206, 0, 0)</string>
      <x>0</x>
      <y>0</y>
      <width>460</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

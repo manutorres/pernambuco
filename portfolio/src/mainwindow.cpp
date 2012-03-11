@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->centerOnScreen();
 
+    this->createUserDirectories();
+
     this->ui->btnPrint->setIcon(QIcon("../ui/print2.png"));
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgot username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
@@ -392,6 +394,14 @@ void MainWindow::mergeAndPrint(){
     }
 }
 
+void MainWindow::clearDirectory(QString path){
+    QDir dir(path);
+
+    foreach (QString file, dir.entryList(QDir::Files))
+        dir.remove(file);
+
+}
+
 void MainWindow::exit(){
     if (this->thread.isRunning()){
         this->finishThread = true;
@@ -400,8 +410,11 @@ void MainWindow::exit(){
     }
     this->sftp.disconnect();
     this->db.disconnect();
+    this->clearDirectory(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
+    this->clearDirectory(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
     QApplication::exit();
 }
+
 
 MainWindow::~MainWindow()
 {

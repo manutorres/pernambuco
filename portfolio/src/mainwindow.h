@@ -45,6 +45,7 @@ private:
     void convertOnlineFiles();
     QString getUserDirectory();
     void mergeFiles();
+    void clearDirectory(QString path);
 
 private slots:
     void switchToLoginPage();
