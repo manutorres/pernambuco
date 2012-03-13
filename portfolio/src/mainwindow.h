@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QSignalMapper>
 #include <QtConcurrentRun>
+#include <QTreeWidgetItem>
 #include "xmlassigment.h"
 #include "pdfmerge.h"
 #include "sftp.h"
@@ -35,24 +36,25 @@ private:
 
     void centerOnScreen();
     void enlargeWindow();
-    void setAssignmentTableStyle();
+    void setFilesTreeStyle();
+    void setFilesTreeTopItems();
+    QTreeWidgetItem* getFileTypeItem(QString type);
     void createUserDirectories();
     QString timeStampToDate(int unixTime);
     void downloadHandouts();    
-    void fillTableFromUser();
-    void fillTableFromAssignment();
+    void fillTreeFromUser();
+    void fillTreeFromAssignment();
     void downloadUploadFiles();
     void convertOnlineFiles();
+    void convertForumPostsFiles();
     QString getUserDirectory();
     void mergeFiles();
     void clearDirectory(QString path);
 
 private slots:
     void switchToLoginPage();
-    void switchToTablePageFromUser();
-    void switchToTablePageFromAssignment();
-    void selectAllFiles();
-    void selectNoneFiles();
+    void switchToTreePageFromUser();
+    void switchToTreePageFromAssignment();
     void switchToProgressPage();
     void updateProgressBar();
     void checkProgressBar();

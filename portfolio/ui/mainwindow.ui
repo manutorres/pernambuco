@@ -141,7 +141,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_4">
@@ -514,28 +514,6 @@ color: rgb(206, 0, 0)</string>
       </widget>
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout">
-        <item row="2" column="1" colspan="5">
-         <widget class="QTableWidget" name="tableWidgetAssignments">
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="tabKeyNavigation">
-           <bool>false</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::NoSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="5">
          <widget class="QPushButton" name="btnExit_3">
           <property name="text">
@@ -569,32 +547,6 @@ color: rgb(206, 0, 0)</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="5">
-         <widget class="QPushButton" name="btnSelectNone">
-          <property name="maximumSize">
-           <size>
-            <width>75</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Select None</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="4">
-         <widget class="QPushButton" name="btnSelectAll">
-          <property name="maximumSize">
-           <size>
-            <width>75</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Select All</string>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="4">
          <widget class="QPushButton" name="btnNext_3">
           <property name="text">
@@ -614,6 +566,15 @@ color: rgb(206, 0, 0)</string>
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="1" column="1" colspan="5">
+         <widget class="QTreeWidget" name="treeWidgetFiles">
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -763,7 +724,7 @@ color: rgb(206, 0, 0)</string>
      <x>0</x>
      <y>0</y>
      <width>460</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

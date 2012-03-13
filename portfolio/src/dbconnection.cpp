@@ -86,9 +86,10 @@ bool DBConnection::getOnlineFilesByUser(int userId){
     this->db.open();
 
     QString queryString = "SELECT mdl_assignment.id as assignment_id, name, intro, "
-                            "mdl_assignment_submissions.id as submission_id, data1, mdl_assignment_submissions.timemodified FROM "
-                            "mdl_assignment_submissions JOIN mdl_assignment "
-                            "WHERE data1 != '' AND assignment = mdl_assignment.id AND userid=" + QString::number(userId);
+            "mdl_assignment_submissions.id as submission_id, data1, mdl_assignment_submissions.timemodified FROM "
+            "mdl_assignment_submissions JOIN mdl_assignment "
+            "WHERE data1 != '' AND assignment = mdl_assignment.id AND userid=" + QString::number(userId) + " "
+            "ORDER BY submission_id";
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
@@ -101,9 +102,10 @@ bool DBConnection::getUploadFiles(int userId){
 
     this->db.open();
 
-    QString queryString = "SELECT filename, pathnamehash, mdl_assignment_submissions.timemodified FROM mdl_files JOIN mdl_assignment_submissions "
-            "WHERE itemid = mdl_assignment_submissions.id AND filename != '.' AND filename != '' "
-            "AND filearea = 'submission' AND component = 'mod_assignment' AND data1 = ''  AND mdl_files.userid = " + QString::number(userId);
+    QString queryString = "SELECT filename, pathnamehash, mdl_assignment_submissions.timemodified FROM mdl_files "
+            "JOIN mdl_assignment_submissions WHERE itemid = mdl_assignment_submissions.id AND filename != '.' "
+            "AND filename != '' AND filearea = 'submission' AND component = 'mod_assignment' AND data1 = '' "
+            "AND mdl_files.userid = " + QString::number(userId) + " ORDER BY itemid";
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
@@ -117,10 +119,10 @@ bool DBConnection::getForumPostsByUser(int userId){
 
     //Join de la tabla con si misma para que queda respuesta quede con su pregunta.
     QString queryString = "SELECT preg.subject as pregSubject, preg.message as pregMessage, resp.id as respId, resp.subject as "
-                            "respSubject, resp.message as respMessage, resp.modified as respModified FROM "
-                            "mdl_forum_posts as preg JOIN mdl_forum_posts as resp WHERE preg.subject NOT LIKE 'RE: %' "
-                            "AND resp.subject LIKE 'RE: %' AND preg.subject = SUBSTRING(resp.subject, 5) AND "
-                            "resp.userid = " + QString::number(userId);
+            "respSubject, resp.message as respMessage, resp.modified as respModified FROM "
+            "mdl_forum_posts as preg JOIN mdl_forum_posts as resp WHERE preg.subject NOT LIKE 'RE: %' "
+            "AND resp.subject LIKE 'RE: %' AND preg.subject = SUBSTRING(resp.subject, 5) AND "
+            "resp.userid = " + QString::number(userId) + " ORDER BY respId";
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
