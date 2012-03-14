@@ -140,7 +140,7 @@ void MainWindow::switchToTreePageFromUser(){
     QString password = this->ui->lineEditPassword->text();
 
     if(!this->db.userLogin(username, password)){
-        this->ui->lblLoginFail->setText("Invalid username or password.");
+        this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
         qDebug() << "Usuario o contraseña incorretos.";
         return;
     }        
@@ -325,8 +325,12 @@ void MainWindow::downloadUploadFiles(){
 
 void MainWindow::setHandoutsToMerge(){
     QString localFile;
-    QTreeWidgetItemIterator it(this->getFileTypeItem("Handouts"), QTreeWidgetItemIterator::Checked);
+    QTreeWidgetItem* handoutsItem = this->getFileTypeItem("Handouts");
+    QTreeWidgetItemIterator it(handoutsItem, QTreeWidgetItemIterator::Checked);
     while (*it){
+        if((*it)->parent() != handoutsItem)
+            break;
+        qDebug() << "Handout:" << (*it)->text(0);
         localFile = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH + "/"  + (*it)->text(0) + ".pdf";
         this->filesToMerge << localFile;
         ++it;
@@ -337,12 +341,12 @@ void MainWindow::setHandoutsToMerge(){
 void MainWindow::convertOnlineFiles(){
     QString localFile;
     int index = 0;
-    qDebug() << "Text:" << this->getFileTypeItem("Assignments")->text(0);
-    QTreeWidgetItemIterator it(this->getFileTypeItem("Assignments"), QTreeWidgetItemIterator::Checked);
-    while (*it){
-        qDebug() << "Girando assignment";
-        qDebug() << (*it)->text(0);
-        qDebug() << (*it)->checkState(0);
+    QTreeWidgetItem* assignmentsItem = this->getFileTypeItem("Assignments");
+    QTreeWidgetItemIterator it(assignmentsItem, QTreeWidgetItemIterator::Checked);
+    while (*it){        
+        if((*it)->parent() != assignmentsItem)
+            break;
+        qDebug() << "Assignment:" << (*it)->text(0);
         if ((*it)->text(0).contains("(Text)")){
             localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/"  + QString::number(index) + ". " +
                         (*it)->text(0) + ".pdf";
@@ -357,11 +361,13 @@ void MainWindow::convertOnlineFiles(){
 
 void MainWindow::convertForumPostsFiles(){
     QString localFile;
-    QTreeWidgetItemIterator it(this->getFileTypeItem("Forum Posts"), QTreeWidgetItemIterator::Checked);
+    QTreeWidgetItem* forumPostsItem = this->getFileTypeItem("Forum Posts");
+    QTreeWidgetItemIterator it(forumPostsItem, QTreeWidgetItemIterator::Checked);
     int index = 0;
     while (*it){
-        qDebug() << "Girando";
-        qDebug() << (*it)->text(0);
+        if((*it)->parent() != forumPostsItem)
+            break;
+        qDebug() << "Forum Posts:" << (*it)->text(0);
         localFile = this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH + "/" + QString::number(index) + ". " +
                     (*it)->text(0).replace(":", "") + ".pdf";
         this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
