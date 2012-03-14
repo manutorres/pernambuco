@@ -44,6 +44,7 @@ private:
     void downloadHandouts();    
     void fillTreeFromUser();
     void fillTreeFromAssignment();
+    void setHandoutsToMerge();
     void downloadUploadFiles();
     void convertOnlineFiles();
     void convertForumPostsFiles();

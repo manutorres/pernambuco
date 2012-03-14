@@ -22,8 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
-    QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
-    QObject::connect(this->ui->btnNext_2, SIGNAL(clicked()), this, SLOT(switchToTreePageFromAssignment()));
+    //QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
+    //QObject::connect(this->ui->btnNext_2b, SIGNAL(clicked()), this, SLOT(switchToTreePageFromAssignment()));
+    QObject::connect(this->ui->btnNext_2, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
     QObject::connect(this->ui->btnNext_3, SIGNAL(clicked()), this, SLOT(switchToProgressPage()));
     QObject::connect(this->ui->btnExit_1, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_2, SIGNAL(clicked()), this, SLOT(exit()));
@@ -144,9 +145,10 @@ void MainWindow::switchToTreePageFromUser(){
         return;
     }        
     this->setFilesTreeTopItems();
+    this->fillTreeFromUser();
     this->ui->lblTask->setText("Files selection");
     this->ui->lblSteps->setText("Step 3 of 4");
-    this->ui->stackedWidget->setCurrentIndex(2);
+    this->ui->stackedWidget->setCurrentIndex(3);
     this->enlargeWindow();
 }
 
@@ -172,7 +174,7 @@ void MainWindow::fillTreeFromUser(){
 
     for (i = 0; i < this->handoutsFileNames.count(); i++){
 
-        itemData << this->handoutsFileNames.at(i);
+        itemData << QString(this->handoutsFileNames.at(i)).replace(".pdf", "");
         QTreeWidgetItem *item = new QTreeWidgetItem(handouts, itemData);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(0, Qt::Checked);
@@ -281,10 +283,11 @@ void MainWindow::switchToProgressPage(){
     this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + countChecked);
     this->checkProgressBar();
 
-    //QFuture<void> th1 = run(this, &MainWindow::downloadUploadFiles);
     this->ui->lblTask->setText("Print");
     this->ui->lblSteps->setText("Step 4 of 4");
-    this->ui->stackedWidget->setCurrentIndex(3);    
+    this->ui->stackedWidget->setCurrentIndex(4);
+    //QFuture<void> th1 = run(this, &MainWindow::downloadUploadFiles);
+    this->setHandoutsToMerge();
     this->convertOnlineFiles();
     this->convertForumPostsFiles();
 }
@@ -295,7 +298,6 @@ void MainWindow::updateProgressBar(){
 }
 
 void MainWindow::checkProgressBar(){
-
     this->ui->btnPrint->setEnabled(this->ui->progressBar->value() == this->ui->progressBar->maximum());
 }
 
@@ -321,18 +323,31 @@ void MainWindow::downloadUploadFiles(){
     }
 }
 
+void MainWindow::setHandoutsToMerge(){
+    QString localFile;
+    QTreeWidgetItemIterator it(this->getFileTypeItem("Handouts"), QTreeWidgetItemIterator::Checked);
+    while (*it){
+        localFile = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH + "/"  + (*it)->text(0) + ".pdf";
+        this->filesToMerge << localFile;
+        ++it;
+    }
+}
+
 //Convierte a pdf el contenido de los assignment de tipo online de la tabla
 void MainWindow::convertOnlineFiles(){
     QString localFile;
     int index = 0;
+    qDebug() << "Text:" << this->getFileTypeItem("Assignments")->text(0);
     QTreeWidgetItemIterator it(this->getFileTypeItem("Assignments"), QTreeWidgetItemIterator::Checked);
     while (*it){
-        qDebug() << "girando";
+        qDebug() << "Girando assignment";
         qDebug() << (*it)->text(0);
+        qDebug() << (*it)->checkState(0);
         if ((*it)->text(0).contains("(Text)")){
             localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/"  + QString::number(index) + ". " +
                         (*it)->text(0) + ".pdf";
             this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
+            this->filesToMerge << localFile;
             emit this->downloadedFile();
         }
         index++;
@@ -345,11 +360,12 @@ void MainWindow::convertForumPostsFiles(){
     QTreeWidgetItemIterator it(this->getFileTypeItem("Forum Posts"), QTreeWidgetItemIterator::Checked);
     int index = 0;
     while (*it){
-        qDebug() << "girando";
+        qDebug() << "Girando";
         qDebug() << (*it)->text(0);
         localFile = this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH + "/" + QString::number(index) + ". " +
                     (*it)->text(0).replace(":", "") + ".pdf";
         this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
+        this->filesToMerge << localFile;
         emit this->downloadedFile();
         index++;
         ++it;
@@ -371,30 +387,19 @@ QString MainWindow::getUserDirectory(){
 }
 
 void MainWindow::mergeFiles(){
-    /*
-    QString userDirectory = getUserDirectory();
-    QStringList files;
-    for (int i = 0; i < this->ui->tableWidgetAssignments->rowCount(); i++){
-        if (this->ui->tableWidgetAssignments->item(i, 0)->checkState() == Qt::Checked){
-            QString fileName = this->ui->tableWidgetAssignments->item(i, 1)->text();
-            QString fileType = this->ui->tableWidgetAssignments->item(i, 3)->text();
-            if(fileType == "handout")
-                fileName = userDirectory + "/" + HANDOUTS_LOCAL_PATH + "/" + fileName;
-            else
-                fileName = userDirectory + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + fileName + ".pdf"; //Hola consistencia!
 
-            QString errorString;          
-            if(this->pdfmerge.addPdf(fileName, errorString)){
-                this->ui->listWidgetOutputStatus->addItem("File successfully included: " + fileName);
-            }else{
-                QListWidgetItem *item = new QListWidgetItem();
-                item->setForeground(QBrush(QColor(255, 0, 0)));
-                item->setText(errorString);
-                this->ui->listWidgetOutputStatus->addItem(item);
-            }
+    qDebug() << "Files to merge:" << this->filesToMerge;
+    foreach(QString fileName, this->filesToMerge){
+        QString errorString;
+        if(this->pdfmerge.addPdf(fileName, errorString)){
+            this->ui->listWidgetOutputStatus->addItem("File successfully included: " + fileName);
+        }else{
+            QListWidgetItem *item = new QListWidgetItem();
+            item->setForeground(QBrush(QColor(255, 0, 0)));
+            item->setText(errorString);
+            this->ui->listWidgetOutputStatus->addItem(item);
         }
     }
-    */
 }
 
 void MainWindow::mergeAndPrint(){

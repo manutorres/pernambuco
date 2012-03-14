@@ -141,7 +141,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_4">
@@ -269,7 +269,164 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page_2">
-       <widget class="QPushButton" name="btnExit_2">
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="6" column="7">
+         <widget class="QPushButton" name="btnExit_2">
+          <property name="text">
+           <string>&amp;Exit</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="4" colspan="2">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="0" colspan="8">
+         <widget class="QLabel" name="labelLoginTitle_2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Please enter your user data. You have to login in order to continue.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
+         <widget class="QLineEdit" name="lineEditUsername">
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="4">
+         <widget class="QLineEdit" name="lineEditPassword">
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="echoMode">
+           <enum>QLineEdit::Password</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" colspan="2">
+         <widget class="QLabel" name="labelUsername_2">
+          <property name="text">
+           <string>Username</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2" colspan="2">
+         <widget class="QLabel" name="labelPassword_2">
+          <property name="text">
+           <string>Password</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="4" column="2" colspan="4">
+         <widget class="QLabel" name="lblForgotenPassword">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color:rgb(3, 180, 255)</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <spacer name="horizontalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="6" column="6">
+         <widget class="QPushButton" name="btnNext_2">
+          <property name="text">
+           <string>&amp;Next</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2" colspan="5">
+         <widget class="QLabel" name="lblLoginFail">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font-weight: normal;
+color: rgb(206, 0, 0)</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_2b">
+       <widget class="QPushButton" name="btnExit_2b">
         <property name="geometry">
          <rect>
           <x>352</x>
@@ -301,7 +458,7 @@
          <string>Please login with your user data or select an assignment for all users.</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEditUsername">
+       <widget class="QLineEdit" name="lineEditUsername2b">
         <property name="geometry">
          <rect>
           <x>53</x>
@@ -330,7 +487,7 @@
          </font>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEditPassword">
+       <widget class="QLineEdit" name="lineEditPassword2b">
         <property name="geometry">
          <rect>
           <x>53</x>
@@ -388,7 +545,7 @@
          <string>Password</string>
         </property>
        </widget>
-       <widget class="QLabel" name="lblForgotenPassword">
+       <widget class="QLabel" name="lblForgotenPassword_2b">
         <property name="geometry">
          <rect>
           <x>47</x>
@@ -423,7 +580,7 @@
          <string>&amp;Login</string>
         </property>
        </widget>
-       <widget class="QLabel" name="lblLoginFail">
+       <widget class="QLabel" name="lblLoginFail_2b">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -462,7 +619,7 @@ color: rgb(206, 0, 0)</string>
          <enum>Qt::Vertical</enum>
         </property>
        </widget>
-       <widget class="QPushButton" name="btnNext_2">
+       <widget class="QPushButton" name="btnNext_2b">
         <property name="geometry">
          <rect>
           <x>279</x>
