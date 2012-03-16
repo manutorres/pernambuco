@@ -46,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD);
 
     this->finishThread = false;
+
+    this->ui->treeWidgetFiles->setIconSize(QSize(32,32));
 }
 
 void MainWindow::centerOnScreen(){
@@ -84,6 +86,7 @@ void MainWindow::setTreeTopLevelItems(){
         QTreeWidgetItem *item = new QTreeWidgetItem(this->ui->treeWidgetFiles, QStringList() << type);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(0, Qt::Unchecked);
+        item->setIcon(0, QIcon("../ui/folder.png"));
     }
 }
 
@@ -219,13 +222,14 @@ void MainWindow::fillTreeFromUser(){
     handouts->setCheckState(0, Qt::Checked);
     QStringList itemData;
     QString html, name;
-    int count;
+    int count;    
 
     for (i = 0; i < this->handoutsFileNames.count(); i++){
         itemData << QString(this->handoutsFileNames.at(i)).replace(".pdf", "");
         QTreeWidgetItem *item = new QTreeWidgetItem(handouts, itemData);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(0, Qt::Checked);
+        item->setIcon(0, QIcon("../ui/pdf_file.png"));
         itemData.clear();
     }    
 
@@ -244,6 +248,7 @@ void MainWindow::fillTreeFromUser(){
         QTreeWidgetItem *item = new QTreeWidgetItem(onlineAssignments, itemData);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(0, Qt::Unchecked);
+        item->setIcon(0, QIcon("../ui/html_file.png"));
         itemData.clear();
 
     }
@@ -265,6 +270,7 @@ void MainWindow::fillTreeFromUser(){
         QTreeWidgetItem *item = new QTreeWidgetItem(forumPosts, itemData);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(0, Qt::Unchecked);
+        item->setIcon(0, QIcon("../ui/forum_file.png"));
         itemData.clear();
     }
 
@@ -506,7 +512,7 @@ void MainWindow::exit(){
     this->clearDirectory(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
     this->clearDirectory(this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
     this->clearDirectory(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
-    QApplication::exit();
+    QApplication::exit();    
 }
 
 
