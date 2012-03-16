@@ -3,6 +3,8 @@
 #include <QCheckBox>
 #include <QDesktopWidget>
 #include <QMessageBox>
+#include <QApplication>
+#include <QNetworkAccessManager>
 
 const int MainWindow::HANDOUT;
 const int MainWindow::ASSIGNMENT;
@@ -20,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->createUserDirectories();
 
     this->ui->btnPrint->setIcon(QIcon("../ui/print2.png"));
-    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgot username or password?</a>");
+    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
     this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
@@ -47,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->finishThread = false;
 
-    this->ui->treeWidgetFiles->setIconSize(QSize(32,32));
+    this->ui->treeWidgetFiles->setIconSize(QSize(22, 22));
 }
 
 void MainWindow::centerOnScreen(){
@@ -147,9 +149,20 @@ QString MainWindow::timeStampToDate(int unixTime){
 //Dependiendo de la eleccion del usuario descarga o no los handouts del servidor y avanza a la siguiente pantalla
 void MainWindow::switchToLoginPage(){
 
-    if (this->ui->radioButtonHandouts->isChecked())
+    if (this->ui->radioButtonHandouts->isChecked()){
         thread = run(this, &MainWindow::downloadHandouts);
-    else this->ui->progressBar->setRange(0, 0);
+
+        //Prueba
+        QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+        connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
+        QUrl postData;
+        postData.addQueryItem("username", LOGIN_TEST_USERNAME);
+        postData.addQueryItem("password", LOGIN_TEST_PASSWORD);
+        networkManager->post(QNetworkRequest(QUrl("http://kidsplaymath.org/pdfhandouts/index.php")), postData.encodedQuery());
+
+    }else{
+        this->ui->progressBar->setRange(0, 0);
+    }
 
     //Lleno el combo con los assignments que tienen por lo menos un assignment_submission online (data1 != '').
     this->db.getOnlineAssignments();
@@ -163,8 +176,8 @@ void MainWindow::switchToLoginPage(){
 }
 
 //Descarga los handouts en background
-void MainWindow::downloadHandouts(){
-
+void MainWindow::downloadHandouts(){    
+    //Descarga anterior
     this->handoutsFileNames = this->sftp.getListOfHandouts(HANDOUTS_REMOTE_PATH);
 
     this->ui->progressBar->setRange(0, this->handoutsFileNames.count());
@@ -182,18 +195,24 @@ void MainWindow::downloadHandouts(){
     }
 }
 
-void MainWindow::switchToTreePageFromUser(){
-    this->ui->lblLoginFail->setText("");
-    //Loading gif
+void MainWindow::requestFinished(QNetworkReply *reply){
+    QByteArray bytes = reply->readAll();
+    QString string(bytes);
+    qDebug() << string;
+}
 
+void MainWindow::switchToTreePageFromUser(){
     QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
-
+    this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: #006EA8;}");
+    this->ui->lblLoginFail->setText("Please wait while the application connects to the database...");
+    qApp->processEvents();
     if(!this->db.userLogin(username, password)){
+        this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: red;}");
         this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
         qDebug() << "Usuario o contraseña incorretos.";
         return;
-    }        
+    }
     this->setTreeTopLevelItems();
     this->fillTreeFromUser();
     this->ui->lblTask->setText("Files selection");
@@ -502,7 +521,7 @@ void MainWindow::clearDirectory(QString path){
 }
 
 void MainWindow::exit(){
-    if (this->thread.isRunning()){
+    if(this->thread.isRunning()){
         this->finishThread = true;
         this->hide();
         this->thread.waitForFinished();

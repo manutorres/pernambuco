@@ -1,7 +1,4 @@
-QT += core gui \
-        xml \
-        webkit \
-        sql
+QT += core \ gui \ xml \ webkit \ sql \ network
 
 macx{
     CONFIG-=app_bundle
