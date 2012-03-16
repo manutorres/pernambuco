@@ -27,8 +27,14 @@ public:
 private:
     Ui::MainWindow *ui;
 
+    //Constantes para determinar el orden entre tipos de archivo.
+    static const int HANDOUT = 0;
+    static const int ASSIGNMENT = 1;
+    static const int FORUM_POST = 2;
+
     Sftp sftp;
-    QStringList handoutsFileNames, filesToMerge;
+    QStringList handoutsFileNames;
+    QList<QPair<QString, int> > filesToMerge;
     QFuture<void> thread;
     DBConnection db;
     PDFmerge pdfmerge;
@@ -36,11 +42,12 @@ private:
 
     void centerOnScreen();
     void enlargeWindow();
-    void setFilesTreeStyle();
-    void setFilesTreeTopItems();
-    QTreeWidgetItem* getFileTypeItem(QString type);
+    void setTreeStyle();
+    void setTreeTopLevelItems();
+    QTreeWidgetItem* getFileTypeItem(int type);
     void createUserDirectories();
     QString timeStampToDate(int unixTime);
+    int getTreeNameCount(QString name);
     void downloadHandouts();    
     void fillTreeFromUser();
     void fillTreeFromAssignment();
@@ -50,9 +57,13 @@ private:
     void convertForumPostsFiles();
     QString getUserDirectory();
     void mergeFiles();
+    static bool customSort(QPair<QString, int> item1, QPair<QString, int> item2);
     void clearDirectory(QString path);
+    void updateParentCheckState(QTreeWidgetItem* item);
+    void updateChildrenCheckState(QTreeWidgetItem* item);
 
 private slots:
+    void updateCheckState(QTreeWidgetItem *item, int column);
     void switchToLoginPage();
     void switchToTreePageFromUser();
     void switchToTreePageFromAssignment();

@@ -4,13 +4,18 @@
 #include <QDesktopWidget>
 #include <QMessageBox>
 
+const int MainWindow::HANDOUT;
+const int MainWindow::ASSIGNMENT;
+const int MainWindow::FORUM_POST;
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     this->centerOnScreen();
-    this->setFilesTreeStyle();
+    this->setTreeStyle();
 
     this->createUserDirectories();
 
@@ -34,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->btnPrint, SIGNAL(clicked()), this, SLOT(mergeAndPrint()));
     QObject::connect(this->ui->progressBar, SIGNAL(valueChanged(int)), this, SLOT(checkProgressBar()));
     QObject::connect(this, SIGNAL(downloadedFile()), this, SLOT(updateProgressBar()));
+    QObject::connect(this->ui->treeWidgetFiles, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+                     this, SLOT(updateCheckState(QTreeWidgetItem*, int)));
 
     this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
     this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD);
@@ -59,27 +66,67 @@ void MainWindow::enlargeWindow(){
     this->setGeometry(x, newY, width, newHeight);
 }
 
-void MainWindow::setFilesTreeStyle(){
+void MainWindow::setTreeStyle(){
 
     QStringList treeHeaders;
     treeHeaders << "File" << "Date" << "PrintData";
     this->ui->treeWidgetFiles->setColumnCount(3);
     this->ui->treeWidgetFiles->hideColumn(2);
     this->ui->treeWidgetFiles->setHeaderLabels(treeHeaders);
-    this->ui->treeWidgetFiles->setColumnWidth(0, 310);
-    this->ui->treeWidgetFiles->setColumnWidth(1, 76);
-
+    this->ui->treeWidgetFiles->setColumnWidth(0, 320);
+    this->ui->treeWidgetFiles->setColumnWidth(1, 66);
 }
 
-void MainWindow::setFilesTreeTopItems(){
+void MainWindow::setTreeTopLevelItems(){
     QStringList fileTypes;
     fileTypes << "Handouts" << "Assignments" << "Forum Posts";
-    foreach(QString type, fileTypes)
-        QTreeWidgetItem *handoutsItem = new QTreeWidgetItem(this->ui->treeWidgetFiles, QStringList() << type);
+    foreach(QString type, fileTypes){
+        QTreeWidgetItem *item = new QTreeWidgetItem(this->ui->treeWidgetFiles, QStringList() << type);
+        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        item->setCheckState(0, Qt::Unchecked);
+    }
 }
 
-QTreeWidgetItem* MainWindow::getFileTypeItem(QString type){
-    return this->ui->treeWidgetFiles->findItems(type, Qt::MatchExactly)[0];
+void MainWindow::updateCheckState(QTreeWidgetItem* item, int column){
+    if(column != 0)
+        return;
+    bool oldState = this->ui->treeWidgetFiles->blockSignals(true);
+    if(!item->parent()){ //item es top-level
+        this->updateChildrenCheckState(item);
+    }else{
+        this->updateParentCheckState(item);
+    }
+    this->ui->treeWidgetFiles->blockSignals(oldState);
+}
+
+void MainWindow::updateChildrenCheckState(QTreeWidgetItem* item){
+    if(item->checkState(0) == Qt::PartiallyChecked)
+        return;
+    QTreeWidgetItem* child;
+    for(int i=0; i<item->childCount(); i++){
+        item->child(i)->setCheckState(0, item->checkState(0));
+    }
+}
+
+void MainWindow::updateParentCheckState(QTreeWidgetItem* item){
+    QTreeWidgetItem* child;
+    for(int i=0; i<item->parent()->childCount(); i++){
+        child = item->parent()->child(i);
+        if((child != item) && (child->checkState(0) != item->checkState(0))){
+            item->parent()->setCheckState(0, Qt::PartiallyChecked);
+            return;
+        }
+    }
+    item->parent()->setCheckState(0, item->checkState(0));
+}
+
+QTreeWidgetItem* MainWindow::getFileTypeItem(int type){
+    return this->ui->treeWidgetFiles->topLevelItem(type);
+}
+
+int MainWindow::getTreeNameCount(QString name){
+    int count = this->ui->treeWidgetFiles->findItems(name, Qt::MatchStartsWith | Qt::MatchRecursive).count();
+    return count;
 }
 
 void MainWindow::createUserDirectories(){
@@ -144,7 +191,7 @@ void MainWindow::switchToTreePageFromUser(){
         qDebug() << "Usuario o contraseña incorretos.";
         return;
     }        
-    this->setFilesTreeTopItems();
+    this->setTreeTopLevelItems();
     this->fillTreeFromUser();
     this->ui->lblTask->setText("Files selection");
     this->ui->lblSteps->setText("Step 3 of 4");
@@ -168,29 +215,32 @@ void MainWindow::fillTreeFromUser(){
     this->db.getOnlineFilesByUser(userId);
 
     QSqlQueryModel *onlineFilesModel = this->db.getModel();    
-    QTreeWidgetItem *handouts = this->getFileTypeItem("Handouts");
+    QTreeWidgetItem *handouts = this->getFileTypeItem(HANDOUT);
+    handouts->setCheckState(0, Qt::Checked);
     QStringList itemData;
-    QString html;
+    QString html, name;
+    int count;
 
     for (i = 0; i < this->handoutsFileNames.count(); i++){
-
         itemData << QString(this->handoutsFileNames.at(i)).replace(".pdf", "");
         QTreeWidgetItem *item = new QTreeWidgetItem(handouts, itemData);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(0, Qt::Checked);
         itemData.clear();
-    }
+    }    
 
-    QTreeWidgetItem *onlineAssignments = this->getFileTypeItem("Assignments");
+    QTreeWidgetItem *onlineAssignments = this->getFileTypeItem(ASSIGNMENT);
 
     for (i = 0; i < onlineFilesModel->rowCount(); i++){
-
+        name = onlineFilesModel->record(i).value("name").toString() + " (Text)";
+        count = this->getTreeNameCount(name);
+        if(count > 0)
+            name += " [" + QString::number(count + 1) + "]";
         html = "<b>" + onlineFilesModel->record(i).value("name").toString() + "</b>"
                 "<br />" + onlineFilesModel->record(i).value("intro").toString();
                 "<br /><br />" + onlineFilesModel->record(i).value("data1").toString();
-        itemData << onlineFilesModel->record(i).value("name").toString() + " (Text)" <<
-                    this->timeStampToDate(onlineFilesModel->record(i).value(5).toInt()) <<
-                    html;
+
+        itemData << name << this->timeStampToDate(onlineFilesModel->record(i).value(5).toInt()) << html;
         QTreeWidgetItem *item = new QTreeWidgetItem(onlineAssignments, itemData);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(0, Qt::Unchecked);
@@ -198,19 +248,20 @@ void MainWindow::fillTreeFromUser(){
 
     }
 
-    this->db.getForumPostsByUser(7);
+    this->db.getForumPostsByUser(userId);
     QSqlQueryModel *forumPostsModel = this->db.getModel();
-    QTreeWidgetItem *forumPosts = this->getFileTypeItem("Forum Posts");
+    QTreeWidgetItem *forumPosts = this->getFileTypeItem(FORUM_POST);
 
     for (i = 0; i < forumPostsModel->rowCount(); i++){
-
+        name = forumPostsModel->record(i).value("pregSubject").toString();
+        count = this->getTreeNameCount(name);
+        if(count > 0)
+            name += " [" + QString::number(count + 1) + "]";
         html = "<b>" + forumPostsModel->record(i).value("pregSubject").toString() + "</b>"
-                        "<br />" + forumPostsModel->record(i).value("pregMessage").toString() +
-                        "<br /><br />" + forumPostsModel->record(i).value("respMessage").toString();
+                "<br />" + forumPostsModel->record(i).value("pregMessage").toString() +
+                "<br /><br />" + forumPostsModel->record(i).value("respMessage").toString();
 
-        itemData << forumPostsModel->record(i).value("respSubject").toString() <<
-                    this->timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()) <<
-                    html;
+        itemData << name << this->timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()) << html;
         QTreeWidgetItem *item = new QTreeWidgetItem(forumPosts, itemData);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(0, Qt::Unchecked);
@@ -271,10 +322,12 @@ void MainWindow::switchToProgressPage(){
 
     int countChecked = 0;//sin tener en cuenta los handouts
 
-    QTreeWidgetItemIterator it(this->ui->treeWidgetFiles, QTreeWidgetItemIterator::Checked);
+    QTreeWidgetItemIterator it(this->ui->treeWidgetFiles, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
     while (*it){
-        if((*it)->parent()->text(0) != "Handouts")
-        countChecked++;
+        if((*it)->parent()->text(0) != "Handouts"){
+            qDebug() << "Iterator:" << (*it)->text(0);
+            countChecked++;
+        }
         ++it;
     }
     qDebug() << countChecked;
@@ -308,9 +361,8 @@ void MainWindow::downloadUploadFiles(){
     sftp2.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
     QString localFile;
     int index = 0;
-    QTreeWidgetItemIterator it(this->getFileTypeItem("Assignments"), QTreeWidgetItemIterator::Checked);
-    while (*it){
-        qDebug() << "girando";
+    QTreeWidgetItemIterator it(this->getFileTypeItem(ASSIGNMENT), QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
+    while (*it){        
         qDebug() << (*it)->text(0);
         if ((*it)->text(0).contains("(Document)")){
             localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/"  + QString::number(index) + ". " +
@@ -325,55 +377,46 @@ void MainWindow::downloadUploadFiles(){
 
 void MainWindow::setHandoutsToMerge(){
     QString localFile;
-    QTreeWidgetItem* handoutsItem = this->getFileTypeItem("Handouts");
-    QTreeWidgetItemIterator it(handoutsItem, QTreeWidgetItemIterator::Checked);
-    while (*it){
+    QTreeWidgetItem* handoutsItem = this->getFileTypeItem(HANDOUT);
+    QTreeWidgetItemIterator it(handoutsItem, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
+    while(*it){
         if((*it)->parent() != handoutsItem)
-            break;
-        qDebug() << "Handout:" << (*it)->text(0);
-        localFile = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH + "/"  + (*it)->text(0) + ".pdf";
-        this->filesToMerge << localFile;
+            break;       
+        localFile = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH + "/"  + (*it)->text(0) + ".pdf";        
+        this->filesToMerge << QPair<QString, int>(localFile, MainWindow::HANDOUT);
         ++it;
     }
 }
 
 //Convierte a pdf el contenido de los assignment de tipo online de la tabla
 void MainWindow::convertOnlineFiles(){
-    QString localFile;
-    int index = 0;
-    QTreeWidgetItem* assignmentsItem = this->getFileTypeItem("Assignments");
-    QTreeWidgetItemIterator it(assignmentsItem, QTreeWidgetItemIterator::Checked);
-    while (*it){        
+    QString localFile;    
+    QTreeWidgetItem* assignmentsItem = this->getFileTypeItem(ASSIGNMENT);
+    QTreeWidgetItemIterator it(assignmentsItem, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
+    while(*it){
         if((*it)->parent() != assignmentsItem)
-            break;
-        qDebug() << "Assignment:" << (*it)->text(0);
+            break;       
         if ((*it)->text(0).contains("(Text)")){
-            localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/"  + QString::number(index) + ". " +
-                        (*it)->text(0) + ".pdf";
+            localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + (*it)->text(0) + ".pdf";
             this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
-            this->filesToMerge << localFile;
+            this->filesToMerge << QPair<QString, int>(localFile, MainWindow::ASSIGNMENT);
             emit this->downloadedFile();
-        }
-        index++;
+        }        
         ++it;
     }
 }
 
 void MainWindow::convertForumPostsFiles(){
     QString localFile;
-    QTreeWidgetItem* forumPostsItem = this->getFileTypeItem("Forum Posts");
-    QTreeWidgetItemIterator it(forumPostsItem, QTreeWidgetItemIterator::Checked);
-    int index = 0;
-    while (*it){
+    QTreeWidgetItem* forumPostsItem = this->getFileTypeItem(FORUM_POST);
+    QTreeWidgetItemIterator it(forumPostsItem, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
+    while(*it){
         if((*it)->parent() != forumPostsItem)
-            break;
-        qDebug() << "Forum Posts:" << (*it)->text(0);
-        localFile = this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH + "/" + QString::number(index) + ". " +
-                    (*it)->text(0).replace(":", "") + ".pdf";
+            break;        
+        localFile = this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH + "/" + (*it)->text(0).replace(":", "") + ".pdf";
         this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
-        this->filesToMerge << localFile;
-        emit this->downloadedFile();
-        index++;
+        this->filesToMerge << QPair<QString, int>(localFile, MainWindow::FORUM_POST);
+        emit this->downloadedFile();        
         ++it;
     }
 }
@@ -394,11 +437,13 @@ QString MainWindow::getUserDirectory(){
 
 void MainWindow::mergeFiles(){
 
+    qSort(this->filesToMerge.begin(), this->filesToMerge.end(), customSort);
     qDebug() << "Files to merge:" << this->filesToMerge;
-    foreach(QString fileName, this->filesToMerge){
+    QPair<QString, int> file;
+    foreach(file, this->filesToMerge){
         QString errorString;
-        if(this->pdfmerge.addPdf(fileName, errorString)){
-            this->ui->listWidgetOutputStatus->addItem("File successfully included: " + fileName);
+        if(this->pdfmerge.addPdf(file.first, errorString)){
+            this->ui->listWidgetOutputStatus->addItem("File successfully included: " + file.first);
         }else{
             QListWidgetItem *item = new QListWidgetItem();
             item->setForeground(QBrush(QColor(255, 0, 0)));
@@ -406,6 +451,29 @@ void MainWindow::mergeFiles(){
             this->ui->listWidgetOutputStatus->addItem(item);
         }
     }
+}
+
+bool MainWindow::customSort(QPair<QString, int> item1, QPair<QString, int> item2){
+    QString fileItem1 = item1.first.section('/', -1);
+    QString fileItem2 = item2.first.section('/', -1);
+    QStringList numbersItem1 = fileItem1.section(' ', 0, 0).split(".");
+    QStringList numbersItem2 = fileItem2.section(' ', 0, 0).split(".");
+    QString nameItem1 = fileItem1.section(' ', 1);
+    QString nameItem2 = fileItem2.section(' ', 1);
+    qDebug() << "Name1:" << nameItem1 << numbersItem1 << item1.second;
+    qDebug() << "Name2:" << nameItem2 << numbersItem2 << item2.second;
+
+    for(int i=0; i<numbersItem1.count() && i<numbersItem2.count(); i++){
+        if(numbersItem1[i].toInt() < numbersItem2[i].toInt())
+            return true;
+        if(numbersItem1[i].toInt() > numbersItem2[i].toInt())
+            return false;
+    }
+    if(item1.second < item2.second)
+        return true;
+    if(item1.second > item2.second)
+        return false;
+    return nameItem1 <= nameItem2;
 }
 
 void MainWindow::mergeAndPrint(){
