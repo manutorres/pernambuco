@@ -25,6 +25,7 @@ public:
     bool getOnlineFilesByUser(int userId);
     bool getUploadFiles(int userId);
     bool getForumPostsByUser(int userId);
+    bool getUserCourse(int userId);
     void disconnect();
     QSqlQueryModel* getModel();
     void printModel();

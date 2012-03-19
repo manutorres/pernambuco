@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QNetworkAccessManager>
+#include "webmanager.h"
 
 const int MainWindow::HANDOUT;
 const int MainWindow::ASSIGNMENT;
@@ -151,14 +152,18 @@ void MainWindow::switchToLoginPage(){
 
     if (this->ui->radioButtonHandouts->isChecked()){
         thread = run(this, &MainWindow::downloadHandouts);
+        WebManager *manager = new WebManager();
+        this->db.getUserCourse(2);
+        int courseId = this->db.getModel()->record(0).value("id").toInt(); //Cambiar: puede haber más de uno
+        manager->getHandouts(courseId);
 
         //Prueba
-        QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
-        connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
-        QUrl postData;
-        postData.addQueryItem("username", LOGIN_TEST_USERNAME);
-        postData.addQueryItem("password", LOGIN_TEST_PASSWORD);
-        networkManager->post(QNetworkRequest(QUrl("http://kidsplaymath.org/pdfhandouts/index.php")), postData.encodedQuery());
+//        QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+//        connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
+//        QUrl postData;
+//        postData.addQueryItem("username", "frogg");
+//        postData.addQueryItem("password", LOGIN_TEST_PASSWORD);
+//        networkManager->post(QNetworkRequest(QUrl("http://kidsplaymath.org/moodle/login/index.php")), ""); //, postData.encodedQuery());
 
     }else{
         this->ui->progressBar->setRange(0, 0);
@@ -186,8 +191,8 @@ void MainWindow::downloadHandouts(){
     foreach (QString f, this->handoutsFileNames){
         QString remoteFile = QString(HANDOUTS_REMOTE_PATH) + "/" + f;
         QString localFile = localPath + "/" + f;
-        qDebug() << "Remote:" << remoteFile;
-        qDebug() << "Local:" << localFile;
+        //qDebug() << "Remote:" << remoteFile;
+        //qDebug() << "Local:" << localFile;
         this->sftp.downloadFile(remoteFile, localFile);
         emit this->downloadedFile();
         if(this->finishThread)

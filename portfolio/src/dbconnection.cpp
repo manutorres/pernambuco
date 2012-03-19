@@ -131,6 +131,18 @@ bool DBConnection::getForumPostsByUser(int userId){
     return true;
 }
 
+bool DBConnection::getUserCourse(int userId){
+    this->db.open();
+
+    QString queryString = "SELECT id FROM mdl_user_enrolments WHERE userid = " + QString::number(userId);
+    this->model->setQuery(queryString);
+    qDebug() << this->model->lastError();
+    if(this->model->rowCount() == 0){
+        return false;
+    }
+    return true;
+}
+
 void DBConnection::disconnect(){
     this->db.close();
 }
