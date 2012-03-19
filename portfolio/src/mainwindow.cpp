@@ -152,12 +152,14 @@ void MainWindow::switchToLoginPage(){
 
     if (this->ui->radioButtonHandouts->isChecked()){
         thread = run(this, &MainWindow::downloadHandouts);
-        WebManager *manager = new WebManager();
-        this->db.getUserCourse(2);
-        int courseId = this->db.getModel()->record(0).value("id").toInt(); //Cambiar: puede haber más de uno
-        manager->getHandouts(courseId);
 
-        //Prueba
+        //Prueba con QWebView
+//        WebManager *manager = new WebManager();
+//        this->db.getUserCourse(2);
+//        int courseId = this->db.getModel()->record(0).value("id").toInt(); //Cambiar: puede haber más de uno
+//        manager->getHandouts(courseId);
+
+        //Prueba directa
 //        QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
 //        connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
 //        QUrl postData;
