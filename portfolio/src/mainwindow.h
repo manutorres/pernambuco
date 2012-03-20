@@ -70,7 +70,9 @@ private:
     void clearDirectory(QString path);
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);
-    void updatePrintEnabledState();    
+    void updatePrintEnabledState();
+
+    void closeEvent(QCloseEvent *event);
 
 private slots:
     void updateCheckState(QTreeWidgetItem *item, int column);

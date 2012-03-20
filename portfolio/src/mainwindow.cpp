@@ -566,11 +566,12 @@ bool MainWindow::customSort(QPair<QString, int> item1, QPair<QString, int> item2
 
 void MainWindow::mergeAndPrint(){
     this->ui->listWidgetOutputStatus->setEnabled(true);
+    this->ui->listWidgetOutputStatus->clear();
     this->mergeFiles();
     QString outputFile = this->getUserDirectory() + "/" + OUTPUT_LOCAL_FILE;
     if(this->pdfmerge.writeOutput(outputFile)){
         //QMessageBox::information(this, "Printing finished", "The output file was successfully created.");
-        QDesktopServices::openUrl(QUrl(outputFile));
+        QDesktopServices::openUrl(QUrl("file:///" + outputFile));
     }else{
         //Ver si se puede sacar alguna conclusión con un archivo de Qt.
         QMessageBox::critical(this, "Printing failed", "The program couldn't save the output file.");
@@ -585,6 +586,10 @@ void MainWindow::clearDirectory(QString path){
 
 }
 
+void MainWindow::closeEvent(QCloseEvent *event){
+    exit();
+}
+
 void MainWindow::exit(){    
     if(this->thread.isRunning()){
         this->finishThread = true;
@@ -595,10 +600,8 @@ void MainWindow::exit(){
     this->db.disconnect();
     this->clearDirectory(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
     this->clearDirectory(this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
-    this->clearDirectory(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
-    qDebug() << "ESTOY SALIENDO";
-    //QApplication::exit();
-    QApplication::quit();
+    this->clearDirectory(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);    
+    QApplication::exit(0);
 }
 
 
