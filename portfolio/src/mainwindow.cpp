@@ -120,7 +120,6 @@ void MainWindow::updateCheckState(QTreeWidgetItem* item, int column){
 void MainWindow::updateChildrenCheckState(QTreeWidgetItem* item){
     if(item->checkState(0) == Qt::PartiallyChecked)
         return;
-    QTreeWidgetItem* child;
     for(int i=0; i<item->childCount(); i++){
         item->child(i)->setCheckState(0, item->checkState(0));
     }
@@ -568,7 +567,8 @@ void MainWindow::mergeAndPrint(){
     this->ui->listWidgetOutputStatus->setEnabled(true);
     this->ui->listWidgetOutputStatus->clear();
     this->mergeFiles();
-    QString outputFile = this->getUserDirectory() + "/" + OUTPUT_LOCAL_FILE;
+    QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/" + OUTPUT_FILE_NAME;
+    qDebug() << "Output file:" << outputFile;
     if(this->pdfmerge.writeOutput(outputFile)){
         //QMessageBox::information(this, "Printing finished", "The output file was successfully created.");
         QDesktopServices::openUrl(QUrl("file:///" + outputFile));
