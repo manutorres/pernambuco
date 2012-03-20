@@ -11,10 +11,10 @@ macx{
 
 win32{
     LIBS += -LC:\Windows\System32 -lwsock32 \
-            -L"C:\Program Files (x86)\libssh2\lib" -lssh2 \
-            -L"C:\Program Files (x86)\PoDoFo\lib" -lpodofo
-    INCLUDEPATH +=  "C:\Program Files (x86)\libssh2\include" \
-                    "C:\Program Files (x86)\PoDoFo\include"
+            -Llibssh2\lib -lssh2 \
+            -Lpodofo\lib -lpodofo
+    INCLUDEPATH +=  libssh2\include \
+                    podofo\include
 }
 
 unix{
