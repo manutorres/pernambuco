@@ -17,7 +17,7 @@ win32{
             -Lpodofo\lib -lpodofo
     INCLUDEPATH +=  libssh2\include \
                     podofo\include
-    RC_FILE = icon.rc
+    RC_FILE = icons/win/icon.rc
 }
 
 unix{
