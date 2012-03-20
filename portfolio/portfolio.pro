@@ -1,7 +1,12 @@
 QT += core \ gui \ xml \ webkit \ sql \ network
 
 macx{
-    CONFIG-=app_bundle
+    CONFIG +=app_bundle
+    QRENCODE_FILE.files = /opt/local/share/qt4/plugins/sqldrivers
+    QRENCODE_FILE.path = Contents/MacOS
+    QMAKE_BUNDLE_DATA += QRENCODE_FILE
+    LIBS +=  -L/usr/local/lib/ -lfreetype -lfontconfig -ljpeg -lz
+    INCLUDEPATH += /usr/local/podofo/include
 }
 
 win32{
