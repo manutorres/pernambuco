@@ -1,11 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QCheckBox>
-#include <QDesktopWidget>
-#include <QMessageBox>
-#include <QApplication>
-#include <QNetworkAccessManager>
-#include "webmanager.h"
 
 const int MainWindow::HANDOUT;
 const int MainWindow::ASSIGNMENT;
@@ -51,12 +45,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->finishThread = false;
 
-    this->ui->treeWidgetFiles->setIconSize(QSize(22, 22));
-
     this->ui->lblSteps->setText("Step 1 of 3");
     this->ui->lblTask->setText("Login");
+    this->ui->btnNext_3->setEnabled(false);
     this->ui->progressBar->setRange(0, 0);
+    this->ui->listWidgetOutputStatus->setEnabled(false);
     this->ui->stackedWidget->setCurrentIndex(1);
+
 }
 
 //Metodo para centrar el mainwindow en la pantalla
@@ -89,6 +84,7 @@ void MainWindow::setTreeStyle(){
     this->ui->treeWidgetFiles->setHeaderLabels(treeHeaders);
     this->ui->treeWidgetFiles->setColumnWidth(0, 320);
     this->ui->treeWidgetFiles->setColumnWidth(1, 66);
+    this->ui->treeWidgetFiles->setIconSize(QSize(22, 22));
 }
 
 void MainWindow::setTreeTopLevelItems(QString fileType){
@@ -108,6 +104,7 @@ void MainWindow::updateCheckState(QTreeWidgetItem* item, int column){
     }else{
         this->updateParentCheckState(item);
     }
+    this->updatePrintEnabledState();
     this->ui->treeWidgetFiles->blockSignals(oldState);
 }
 
@@ -130,6 +127,18 @@ void MainWindow::updateParentCheckState(QTreeWidgetItem* item){
         }
     }
     item->parent()->setCheckState(0, item->checkState(0));
+}
+
+void MainWindow::updatePrintEnabledState(){
+    QTreeWidgetItem* child;
+    for(int i=0; i<this->ui->treeWidgetFiles->topLevelItemCount(); i++){
+        child = this->ui->treeWidgetFiles->topLevelItem(i);
+        if(child->checkState(0) == Qt::PartiallyChecked || child->checkState(0) == Qt::Checked){
+            this->ui->btnNext_3->setEnabled(true);
+            return;
+        }
+    }
+    this->ui->btnNext_3->setEnabled(false);
 }
 
 //Metodo que dado un item del QTreeWidget retorna si es un Assignment, un Forum Post o un Handout
@@ -504,7 +513,6 @@ QString MainWindow::getUserDirectory(){
 }
 
 void MainWindow::mergeFiles(){
-
     qSort(this->filesToMerge.begin(), this->filesToMerge.end(), customSort);
     qDebug() << "Files to merge:" << this->filesToMerge;
     QPair<QString, int> file;
@@ -545,10 +553,12 @@ bool MainWindow::customSort(QPair<QString, int> item1, QPair<QString, int> item2
 }
 
 void MainWindow::mergeAndPrint(){
+    this->ui->listWidgetOutputStatus->setEnabled(true);
     this->mergeFiles();
     QString outputFile = this->getUserDirectory() + "/" + OUTPUT_LOCAL_FILE;
     if(this->pdfmerge.writeOutput(outputFile)){
-        QMessageBox::information(this, "Printing finished", "The output file was successfully created.");
+        //QMessageBox::information(this, "Printing finished", "The output file was successfully created.");
+        QDesktopServices::openUrl(QUrl(outputFile));
     }else{
         //Ver si se puede sacar alguna conclusión con un archivo de Qt.
         QMessageBox::critical(this, "Printing failed", "The program couldn't save the output file.");

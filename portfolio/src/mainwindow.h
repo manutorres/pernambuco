@@ -5,6 +5,14 @@
 #include <QSignalMapper>
 #include <QtConcurrentRun>
 #include <QTreeWidgetItem>
+#include <QCheckBox>
+#include <QDesktopWidget>
+#include <QMessageBox>
+#include <QApplication>
+#include <QNetworkAccessManager>
+#include <QDesktopServices>
+
+#include "webmanager.h"
 #include "xmlassigment.h"
 #include "pdfmerge.h"
 #include "sftp.h"
@@ -61,6 +69,7 @@ private:
     void clearDirectory(QString path);
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);
+    void updatePrintEnabledState();
 
 private slots:
     void updateCheckState(QTreeWidgetItem *item, int column);
