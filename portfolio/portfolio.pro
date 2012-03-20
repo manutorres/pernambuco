@@ -34,7 +34,7 @@ SOURCES += src/main.cpp \
            src/dbconnection.cpp \
            src/sftp.cpp \
            src/pdfmerge.cpp \
-    src/webmanager.cpp
+           src/webmanager.cpp
 
 HEADERS  += src/mainwindow.h \
             src/xmlassigment.h \
@@ -44,7 +44,7 @@ HEADERS  += src/mainwindow.h \
             src/sftp.h \
             src/libssh2_config.h \
             src/pdfmerge.h \
-    src/webmanager.h
+            src/webmanager.h
 
 FORMS    += ui/mainwindow.ui
 

@@ -45,14 +45,20 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->treeWidgetFiles, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
                      this, SLOT(updateCheckState(QTreeWidgetItem*, int)));
 
-    this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
+    //Hasta que se restablezca el tema de los handouts
+    //this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
     this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD);
 
     this->finishThread = false;
 
     this->ui->treeWidgetFiles->setIconSize(QSize(22, 22));
+
+    this->ui->lblSteps->setText("Step 1 of 3");
+    this->ui->lblTask->setText("Login");
+    this->ui->stackedWidget->setCurrentIndex(1);
 }
 
+//Metodo para centrar el mainwindow en la pantalla
 void MainWindow::centerOnScreen(){
     QRect availableGeometry = QDesktopWidget().availableGeometry();
     QRect currentGeometry = this->geometry();
@@ -61,6 +67,7 @@ void MainWindow::centerOnScreen(){
                       currentGeometry.width(), currentGeometry.height());
 }
 
+//Metodo para acomodar el tamanio de la ventana al momento de desplegar el QTreeWidget
 void MainWindow::enlargeWindow(){
     //Se agranda la ventana verticalmente manteniendola centrada.
     QRect geometry = this->geometry();
@@ -71,6 +78,7 @@ void MainWindow::enlargeWindow(){
     this->setGeometry(x, newY, width, newHeight);
 }
 
+//Metodo para setear el estilo del QTreeWidget
 void MainWindow::setTreeStyle(){
 
     QStringList treeHeaders;
@@ -84,7 +92,8 @@ void MainWindow::setTreeStyle(){
 
 void MainWindow::setTreeTopLevelItems(){
     QStringList fileTypes;
-    fileTypes << "Handouts" << "Assignments" << "Forum Posts";
+    //fileTypes << "Handouts" << "Assignments" << "Forum Posts";
+    fileTypes << "Assignments" << "Forum Posts";
     foreach(QString type, fileTypes){
         QTreeWidgetItem *item = new QTreeWidgetItem(this->ui->treeWidgetFiles, QStringList() << type);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
@@ -136,7 +145,7 @@ int MainWindow::getTreeNameCount(QString name){
 }
 
 void MainWindow::createUserDirectories(){
-    QDir().mkpath(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
+    //QDir().mkpath(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
     QDir().mkpath(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
     QDir().mkpath(this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
 }
@@ -178,7 +187,8 @@ void MainWindow::switchToLoginPage(){
         this->ui->cmbAssignments->addItem(onlineAssignments->record(i).value("id").toString());
 
     this->ui->lblTask->setText("Login");
-    this->ui->lblSteps->setText("Step 2 of 4");
+    //this->ui->lblSteps->setText("Step 2 of 4");
+    this->ui->lblSteps->setText("Step 1 of 3");
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
@@ -223,7 +233,8 @@ void MainWindow::switchToTreePageFromUser(){
     this->setTreeTopLevelItems();
     this->fillTreeFromUser();
     this->ui->lblTask->setText("Files selection");
-    this->ui->lblSteps->setText("Step 3 of 4");
+    //this->ui->lblSteps->setText("Step 3 of 4");
+    this->ui->lblSteps->setText("Step 2 of 3");
     this->ui->stackedWidget->setCurrentIndex(3);
     this->enlargeWindow();
 }
@@ -231,7 +242,8 @@ void MainWindow::switchToTreePageFromUser(){
 void MainWindow::switchToTreePageFromAssignment(){
     this->fillTreeFromAssignment();
     this->ui->lblTask->setText("Assignments selection");
-    this->ui->lblSteps->setText("Step 3 of 4");
+    //this->ui->lblSteps->setText("Step 3 of 4");
+    this->ui->lblSteps->setText("Step 2 of 3");
     this->ui->stackedWidget->setCurrentIndex(2);
     this->enlargeWindow();
 }
@@ -369,7 +381,8 @@ void MainWindow::switchToProgressPage(){
     this->checkProgressBar();
 
     this->ui->lblTask->setText("Print");
-    this->ui->lblSteps->setText("Step 4 of 4");
+    //this->ui->lblSteps->setText("Step 4 of 4");
+    this->ui->lblSteps->setText("Step 3 of 3");
     this->ui->stackedWidget->setCurrentIndex(4);
     //QFuture<void> th1 = run(this, &MainWindow::downloadUploadFiles);
     this->setHandoutsToMerge();
