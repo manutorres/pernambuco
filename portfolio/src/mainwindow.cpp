@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->ui->lblSteps->setText("Step 1 of 3");
     this->ui->lblTask->setText("Login");
+    this->ui->progressBar->setRange(0, 0);
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
@@ -90,17 +91,13 @@ void MainWindow::setTreeStyle(){
     this->ui->treeWidgetFiles->setColumnWidth(1, 66);
 }
 
-void MainWindow::setTreeTopLevelItems(){
-    QStringList fileTypes;
-    //fileTypes << "Handouts" << "Assignments" << "Forum Posts";
-    fileTypes << "Assignments" << "Forum Posts";
-    foreach(QString type, fileTypes){
-        QTreeWidgetItem *item = new QTreeWidgetItem(this->ui->treeWidgetFiles, QStringList() << type);
-        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        item->setCheckState(0, Qt::Unchecked);
-        item->setIcon(0, QIcon("../ui/folder.png"));
-    }
+void MainWindow::setTreeTopLevelItems(QString fileType){
+    QTreeWidgetItem *item = new QTreeWidgetItem(this->ui->treeWidgetFiles, QStringList() << fileType);
+    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+    item->setCheckState(0, Qt::Unchecked);
+    item->setIcon(0, QIcon("../ui/folder.png"));
 }
+
 
 void MainWindow::updateCheckState(QTreeWidgetItem* item, int column){
     if(column != 0)
@@ -135,15 +132,23 @@ void MainWindow::updateParentCheckState(QTreeWidgetItem* item){
     item->parent()->setCheckState(0, item->checkState(0));
 }
 
-QTreeWidgetItem* MainWindow::getFileTypeItem(int type){
-    return this->ui->treeWidgetFiles->topLevelItem(type);
+//Metodo que dado un item del QTreeWidget retorna si es un Assignment, un Forum Post o un Handout
+QTreeWidgetItem* MainWindow::getFileTypeItem(QString type){    
+    for(int i=0; i < this->ui->treeWidgetFiles->topLevelItemCount(); i++){        
+        if (this->ui->treeWidgetFiles->topLevelItem(i)->text(0) == type){
+            return this->ui->treeWidgetFiles->topLevelItem(i);
+        }
+    }
+    return NULL;
 }
 
+//Metodo que retorna la cantidad de veces que aparece repetido el nombre de un item dentro del QTreeWidget
 int MainWindow::getTreeNameCount(QString name){
     int count = this->ui->treeWidgetFiles->findItems(name, Qt::MatchStartsWith | Qt::MatchRecursive).count();
     return count;
 }
 
+//Metodo que crea los directorios en donde luego se almacenan los Assignment, los Forum Posts y los Handouts
 void MainWindow::createUserDirectories(){
     //QDir().mkpath(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
     QDir().mkpath(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
@@ -176,8 +181,6 @@ void MainWindow::switchToLoginPage(){
 //        postData.addQueryItem("password", LOGIN_TEST_PASSWORD);
 //        networkManager->post(QNetworkRequest(QUrl("http://kidsplaymath.org/moodle/login/index.php")), ""); //, postData.encodedQuery());
 
-    }else{
-        this->ui->progressBar->setRange(0, 0);
     }
 
     //Lleno el combo con los assignments que tienen por lo menos un assignment_submission online (data1 != '').
@@ -229,8 +232,7 @@ void MainWindow::switchToTreePageFromUser(){
         this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
         qDebug() << "Usuario o contraseña incorretos.";
         return;
-    }
-    this->setTreeTopLevelItems();
+    }    
     this->fillTreeFromUser();
     this->ui->lblTask->setText("Files selection");
     //this->ui->lblSteps->setText("Step 3 of 4");
@@ -251,65 +253,74 @@ void MainWindow::switchToTreePageFromAssignment(){
 void MainWindow::fillTreeFromUser(){
 
     int userId = this->db.getModel()->record(0).value("id").toInt();
-    int i;
-
-    this->db.getOnlineFilesByUser(userId);
-
-    QSqlQueryModel *onlineFilesModel = this->db.getModel();    
-    QTreeWidgetItem *handouts = this->getFileTypeItem(HANDOUT);
-    handouts->setCheckState(0, Qt::Checked);
+    int i, count;
     QStringList itemData;
     QString html, name;
-    int count;    
 
-    for (i = 0; i < this->handoutsFileNames.count(); i++){
-        itemData << QString(this->handoutsFileNames.at(i)).replace(".pdf", "");
-        QTreeWidgetItem *item = new QTreeWidgetItem(handouts, itemData);
-        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        item->setCheckState(0, Qt::Checked);
-        item->setIcon(0, QIcon("../ui/pdf_file.png"));
-        itemData.clear();
-    }    
+    if (this->handoutsFileNames.count() != 0){
+        setTreeTopLevelItems("Handouts");
+        QTreeWidgetItem *handouts = this->getFileTypeItem("Handouts");
+        handouts->setCheckState(0, Qt::Checked);
 
-    QTreeWidgetItem *onlineAssignments = this->getFileTypeItem(ASSIGNMENT);
+        for (i = 0; i < this->handoutsFileNames.count(); i++){            
+            itemData << QString(this->handoutsFileNames.at(i)).replace(".pdf", "");
+            QTreeWidgetItem *item = new QTreeWidgetItem(handouts, itemData);
+            item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+            item->setCheckState(0, Qt::Checked);
+            item->setIcon(0, QIcon("../ui/pdf_file.png"));
+            itemData.clear();
+        }
+    }
 
-    for (i = 0; i < onlineFilesModel->rowCount(); i++){
-        name = onlineFilesModel->record(i).value("name").toString() + " (Text)";
-        count = this->getTreeNameCount(name);
-        if(count > 0)
-            name += " [" + QString::number(count + 1) + "]";
-        html = "<b>" + onlineFilesModel->record(i).value("name").toString() + "</b>"
-                "<br />" + onlineFilesModel->record(i).value("intro").toString();
-                "<br /><br />" + onlineFilesModel->record(i).value("data1").toString();
+    this->db.getOnlineFilesByUser(userId);
+    QSqlQueryModel *onlineFilesModel = this->db.getModel();
 
-        itemData << name << this->timeStampToDate(onlineFilesModel->record(i).value(5).toInt()) << html;
-        QTreeWidgetItem *item = new QTreeWidgetItem(onlineAssignments, itemData);
-        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        item->setCheckState(0, Qt::Unchecked);
-        item->setIcon(0, QIcon("../ui/html_file.png"));
-        itemData.clear();
+    if (onlineFilesModel->rowCount() != 0){
+        setTreeTopLevelItems("Assignments");
+        QTreeWidgetItem *onlineAssignments = this->getFileTypeItem("Assignments");
 
+        for (i = 0; i < onlineFilesModel->rowCount(); i++){
+            name = onlineFilesModel->record(i).value("name").toString() + " (Text)";
+            count = this->getTreeNameCount(name);
+            if(count > 0)
+                name += " [" + QString::number(count + 1) + "]";
+            html = "<b>" + onlineFilesModel->record(i).value("name").toString() + "</b>"
+                    "<br />" + onlineFilesModel->record(i).value("intro").toString();
+                    "<br /><br />" + onlineFilesModel->record(i).value("data1").toString();
+
+            itemData << name << this->timeStampToDate(onlineFilesModel->record(i).value(5).toInt()) << html;
+            QTreeWidgetItem *item = new QTreeWidgetItem(onlineAssignments, itemData);
+            item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+            item->setCheckState(0, Qt::Unchecked);
+            item->setIcon(0, QIcon("../ui/html_file.png"));
+            itemData.clear();
+        }
     }
 
     this->db.getForumPostsByUser(userId);
     QSqlQueryModel *forumPostsModel = this->db.getModel();
-    QTreeWidgetItem *forumPosts = this->getFileTypeItem(FORUM_POST);
 
-    for (i = 0; i < forumPostsModel->rowCount(); i++){
-        name = forumPostsModel->record(i).value("pregSubject").toString();
-        count = this->getTreeNameCount(name);
-        if(count > 0)
-            name += " [" + QString::number(count + 1) + "]";
-        html = "<b>" + forumPostsModel->record(i).value("pregSubject").toString() + "</b>"
-                "<br />" + forumPostsModel->record(i).value("pregMessage").toString() +
-                "<br /><br />" + forumPostsModel->record(i).value("respMessage").toString();
+    if (forumPostsModel->rowCount() != 0){
 
-        itemData << name << this->timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()) << html;
-        QTreeWidgetItem *item = new QTreeWidgetItem(forumPosts, itemData);
-        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        item->setCheckState(0, Qt::Unchecked);
-        item->setIcon(0, QIcon("../ui/forum_file.png"));
-        itemData.clear();
+        setTreeTopLevelItems("Forum Posts");
+        QTreeWidgetItem *forumPosts = this->getFileTypeItem("Forum Posts");
+
+        for (i = 0; i < forumPostsModel->rowCount(); i++){
+            name = forumPostsModel->record(i).value("pregSubject").toString();
+            count = this->getTreeNameCount(name);
+            if(count > 0)
+                name += " [" + QString::number(count + 1) + "]";
+            html = "<b>" + forumPostsModel->record(i).value("pregSubject").toString() + "</b>"
+                    "<br />" + forumPostsModel->record(i).value("pregMessage").toString() +
+                    "<br /><br />" + forumPostsModel->record(i).value("respMessage").toString();
+
+            itemData << name << this->timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()) << html;
+            QTreeWidgetItem *item = new QTreeWidgetItem(forumPosts, itemData);
+            item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+            item->setCheckState(0, Qt::Unchecked);
+            item->setIcon(0, QIcon("../ui/forum_file.png"));
+            itemData.clear();
+        }
     }
 
     /*
@@ -406,7 +417,7 @@ void MainWindow::downloadUploadFiles(){
     sftp2.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
     QString localFile;
     int index = 0;
-    QTreeWidgetItemIterator it(this->getFileTypeItem(ASSIGNMENT), QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
+    QTreeWidgetItemIterator it(this->getFileTypeItem("Assignments"), QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
     while (*it){        
         qDebug() << (*it)->text(0);
         if ((*it)->text(0).contains("(Document)")){
@@ -420,9 +431,13 @@ void MainWindow::downloadUploadFiles(){
     }
 }
 
-void MainWindow::setHandoutsToMerge(){
+void MainWindow::setHandoutsToMerge(){    
+    QTreeWidgetItem* handoutsItem = this->getFileTypeItem("Handouts");
+
+    if (handoutsItem == NULL)
+        return;
+
     QString localFile;
-    QTreeWidgetItem* handoutsItem = this->getFileTypeItem(HANDOUT);
     QTreeWidgetItemIterator it(handoutsItem, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
     while(*it){
         if((*it)->parent() != handoutsItem)
@@ -434,9 +449,13 @@ void MainWindow::setHandoutsToMerge(){
 }
 
 //Convierte a pdf el contenido de los assignment de tipo online de la tabla
-void MainWindow::convertOnlineFiles(){
-    QString localFile;    
-    QTreeWidgetItem* assignmentsItem = this->getFileTypeItem(ASSIGNMENT);
+void MainWindow::convertOnlineFiles(){    
+    QTreeWidgetItem* assignmentsItem = this->getFileTypeItem("Assignments");
+
+    if (assignmentsItem == NULL)
+        return;
+
+    QString localFile;
     QTreeWidgetItemIterator it(assignmentsItem, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
     while(*it){
         if((*it)->parent() != assignmentsItem)
@@ -451,9 +470,13 @@ void MainWindow::convertOnlineFiles(){
     }
 }
 
-void MainWindow::convertForumPostsFiles(){
+void MainWindow::convertForumPostsFiles(){    
+    QTreeWidgetItem* forumPostsItem = this->getFileTypeItem("Forum Posts");
+
+    if (forumPostsItem == NULL)
+        return;
+
     QString localFile;
-    QTreeWidgetItem* forumPostsItem = this->getFileTypeItem(FORUM_POST);
     QTreeWidgetItemIterator it(forumPostsItem, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
     while(*it){
         if((*it)->parent() != forumPostsItem)

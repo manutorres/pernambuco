@@ -43,8 +43,8 @@ private:
     void centerOnScreen();
     void enlargeWindow();
     void setTreeStyle();
-    void setTreeTopLevelItems();
-    QTreeWidgetItem* getFileTypeItem(int type);
+    void setTreeTopLevelItems(QString fileType);
+    QTreeWidgetItem* getFileTypeItem(QString type);
     void createUserDirectories();
     QString timeStampToDate(int unixTime);
     int getTreeNameCount(QString name);
