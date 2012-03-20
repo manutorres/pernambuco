@@ -50,6 +50,7 @@ private:
 
     void centerOnScreen();
     void enlargeWindow();
+    void connectToDatabase();
     void setTreeStyle();
     void setTreeTopLevelItems(QString fileType);
     QTreeWidgetItem* getFileTypeItem(QString type);
@@ -69,7 +70,7 @@ private:
     void clearDirectory(QString path);
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);
-    void updatePrintEnabledState();
+    void updatePrintEnabledState();    
 
 private slots:
     void updateCheckState(QTreeWidgetItem *item, int column);

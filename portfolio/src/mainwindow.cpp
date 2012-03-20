@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->createUserDirectories();
 
-    this->ui->btnPrint->setIcon(QIcon("../ui/print2.png"));
+    this->ui->btnPrint->setIcon(QIcon(":/images/print2.png"));
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
@@ -40,8 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
                      this, SLOT(updateCheckState(QTreeWidgetItem*, int)));
 
     //Hasta que se restablezca el tema de los handouts
-    //this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
-    this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD);
+    //this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);        
 
     this->finishThread = false;
 
@@ -51,7 +50,17 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->progressBar->setRange(0, 0);
     this->ui->listWidgetOutputStatus->setEnabled(false);
     this->ui->stackedWidget->setCurrentIndex(1);
+}
 
+void MainWindow::connectToDatabase(){
+    if (!this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD)){
+        int ret = QMessageBox::critical(this, "Database connection error", "The program was unable to connect to the database.", QMessageBox::Retry, QMessageBox::Abort);
+        switch (ret){
+            case QMessageBox::Retry : connectToDatabase();
+                                      break;
+            case QMessageBox::Abort : this->exit();
+        }
+    }
 }
 
 //Metodo para centrar el mainwindow en la pantalla
@@ -91,7 +100,7 @@ void MainWindow::setTreeTopLevelItems(QString fileType){
     QTreeWidgetItem *item = new QTreeWidgetItem(this->ui->treeWidgetFiles, QStringList() << fileType);
     item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
     item->setCheckState(0, Qt::Unchecked);
-    item->setIcon(0, QIcon("../ui/folder.png"));
+    item->setIcon(0, QIcon(":/images/folder.png"));
 }
 
 
@@ -231,6 +240,8 @@ void MainWindow::requestFinished(QNetworkReply *reply){
 }
 
 void MainWindow::switchToTreePageFromUser(){
+    this->ui->btnNext_2->setEnabled(false);
+    connectToDatabase();
     QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
     this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: #006EA8;}");
@@ -240,6 +251,7 @@ void MainWindow::switchToTreePageFromUser(){
         this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: red;}");
         this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
         qDebug() << "Usuario o contraseña incorretos.";
+        this->ui->btnNext_2->setEnabled(true);
         return;
     }    
     this->fillTreeFromUser();
@@ -276,7 +288,7 @@ void MainWindow::fillTreeFromUser(){
             QTreeWidgetItem *item = new QTreeWidgetItem(handouts, itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Checked);
-            item->setIcon(0, QIcon("../ui/pdf_file.png"));
+            item->setIcon(0, QIcon(":/images/pdf_file.png"));
             itemData.clear();
         }
     }
@@ -301,7 +313,7 @@ void MainWindow::fillTreeFromUser(){
             QTreeWidgetItem *item = new QTreeWidgetItem(onlineAssignments, itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Unchecked);
-            item->setIcon(0, QIcon("../ui/html_file.png"));
+            item->setIcon(0, QIcon(":/images/html_file.png"));
             itemData.clear();
         }
     }
@@ -327,7 +339,7 @@ void MainWindow::fillTreeFromUser(){
             QTreeWidgetItem *item = new QTreeWidgetItem(forumPosts, itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Unchecked);
-            item->setIcon(0, QIcon("../ui/forum_file.png"));
+            item->setIcon(0, QIcon(":/images/forum_file.png"));
             itemData.clear();
         }
     }
@@ -573,18 +585,20 @@ void MainWindow::clearDirectory(QString path){
 
 }
 
-void MainWindow::exit(){
+void MainWindow::exit(){    
     if(this->thread.isRunning()){
         this->finishThread = true;
         this->hide();
         this->thread.waitForFinished();
     }
-    this->sftp.disconnect();
+    //this->sftp.disconnect();
     this->db.disconnect();
     this->clearDirectory(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
     this->clearDirectory(this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
     this->clearDirectory(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
-    QApplication::exit();    
+    qDebug() << "ESTOY SALIENDO";
+    //QApplication::exit();
+    QApplication::quit();
 }
 
 
