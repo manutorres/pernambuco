@@ -7,6 +7,8 @@ macx{
     QMAKE_BUNDLE_DATA += QRENCODE_FILE
     LIBS +=  -L/usr/local/lib/ -lfreetype -lfontconfig -ljpeg -lz
     INCLUDEPATH += /usr/local/podofo/include
+
+    ICON = icons/osx/icon.icns
 }
 
 win32{
@@ -15,6 +17,7 @@ win32{
             -Lpodofo\lib -lpodofo
     INCLUDEPATH +=  libssh2\include \
                     podofo\include
+    RC_FILE = icon.rc
 }
 
 unix{
@@ -49,3 +52,5 @@ HEADERS  += src/mainwindow.h \
 FORMS    += ui/mainwindow.ui
 
 RESOURCES += ui/rsc.qrc
+
+OTHER_FILES += icons/win/icon.rc
