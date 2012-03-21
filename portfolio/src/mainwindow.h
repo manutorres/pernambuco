@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QNetworkAccessManager>
 #include <QDesktopServices>
+#include <QFont>
 
 #include "webmanager.h"
 #include "xmlassigment.h"

@@ -2,17 +2,21 @@
 
 PDFmerge::PDFmerge()
 {    
-    printer.setPageSize(QPrinter::A4);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    dir.setNameFilters(QStringList() << "*.pdf");
+    this->printer.setPageSize(QPrinter::A4);
+    this->printer.setOutputFormat(QPrinter::PdfFormat);
+    this->dir.setNameFilters(QStringList() << "*.pdf");
 
-    QObject::connect(&this->web,SIGNAL(loadFinished(bool)),this,SLOT(printHtmlToPdf()));
+    QObject::connect(&this->web, SIGNAL(loadFinished(bool)), this, SLOT(printHtmlToPdf()));
 }
 
 //Convierte contenido html en un documento pdf
 void PDFmerge::htmlToPdf(QString html, QString outputName){
     this->printer.setOutputFileName(outputName);
+    this->web.setStyleSheet("p {font: 18px arial, sans-serif;}");
+    html = "<body style='font: 18px arial, sans-serif;'>" + html + "</body>";
     this->web.setHtml(html);
+    qDebug() << this->web.styleSheet();
+    qDebug() << this->web.page()->mainFrame()->toHtml();
 }
 
 //Mezcla todos los documentos pdf contenidos en un dado directorio
