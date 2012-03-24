@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
                      this, SLOT(updateCheckState(QTreeWidgetItem*, int)));
 
     //Hasta que se restablezca el tema de los handouts
-    //this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);        
+    //this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
 
     this->finishThread = false;
 
@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
+//Metodo encargado de llevar a cabo la conexion con la base de datos
 void MainWindow::connectToDatabase(){
     if (!this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD)){
         int ret = QMessageBox::critical(this, "Database connection error", "The program was unable to connect to the database.", QMessageBox::Retry, QMessageBox::Abort);
@@ -102,7 +103,6 @@ void MainWindow::setTreeTopLevelItems(QString fileType){
     item->setCheckState(0, Qt::Unchecked);
     item->setIcon(0, QIcon(":/images/folder.png"));
 }
-
 
 void MainWindow::updateCheckState(QTreeWidgetItem* item, int column){
     if(column != 0)
@@ -167,7 +167,7 @@ int MainWindow::getTreeNameCount(QString name){
 
 //Metodo que crea los directorios en donde luego se almacenan los Assignment, los Forum Posts y los Handouts
 void MainWindow::createUserDirectories(){
-    //QDir().mkpath(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
+    QDir().mkpath(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
     QDir().mkpath(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
     QDir().mkpath(this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
 }
@@ -182,7 +182,7 @@ QString MainWindow::timeStampToDate(int unixTime){
 void MainWindow::switchToLoginPage(){
 
     if (this->ui->radioButtonHandouts->isChecked()){
-        thread = run(this, &MainWindow::downloadHandouts);
+        //thread = run(this, &MainWindow::downloadHandouts);
 
         //Prueba con QWebView
 //        WebManager *manager = new WebManager();
@@ -212,10 +212,32 @@ void MainWindow::switchToLoginPage(){
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
+void MainWindow::getHandoutsFileNames(QString userId){
+    QString remoteFile;
+    QString fileName;
+    QSqlQueryModel *model;
+    QStringList coursesId;
+
+    this->db.getUserCourse(userId.toInt());
+    model = this->db.getModel();
+
+    for (int i = 0; i < model->rowCount(); i++)
+        coursesId << model->record(i).value("enrolid").toString();
+
+    foreach (QString courseId, coursesId){
+        this->db.getCourseHandouts(courseId.toInt());
+        model = this->db.getModel();
+        for (int i = 0; i < model->rowCount(); i++){
+            remoteFile = QString(HANDOUTS_REMOTE_PATH) + "/" + this->sftp.fileHashToPath(model->record(i).value("contenthash").toString());
+            fileName = model->record(i).value("filename").toString();
+            this->handoutsFileNames.append(QPair<QString, QString>(remoteFile, fileName));
+        }
+    }
+}
+
 //Descarga los handouts en background
-void MainWindow::downloadHandouts(){    
-    //Descarga anterior
-    this->handoutsFileNames = this->sftp.getListOfHandouts(HANDOUTS_REMOTE_PATH);
+void MainWindow::downloadHandouts(){
+    /*this->handoutsFileNames = this->sftp.getListOfHandouts(HANDOUTS_REMOTE_PATH);
 
     this->ui->progressBar->setRange(0, this->handoutsFileNames.count());
 
@@ -223,10 +245,25 @@ void MainWindow::downloadHandouts(){
     foreach (QString f, this->handoutsFileNames){
         QString remoteFile = QString(HANDOUTS_REMOTE_PATH) + "/" + f;
         QString localFile = localPath + "/" + f;
-        //qDebug() << "Remote:" << remoteFile;
-        //qDebug() << "Local:" << localFile;
+        qDebug() << "Remote:" << remoteFile;
+        qDebug() << "Local:" << localFile;
         this->sftp.downloadFile(remoteFile, localFile);
         emit this->downloadedFile();
+        if(this->finishThread)
+            return;
+    }*/
+    QString localPath = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
+    QString remoteFile;
+    QString localFile;
+
+    this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
+
+    for (int i = 0; i < this->handoutsFileNames.count(); i++){
+        remoteFile = this->handoutsFileNames.at(i).first;
+        localFile = localPath + "/" + this->handoutsFileNames.at(i).second;
+        this->sftp.downloadFile(remoteFile, localFile);
+        emit this->downloadedFile();
+
         if(this->finishThread)
             return;
     }
@@ -238,7 +275,7 @@ void MainWindow::requestFinished(QNetworkReply *reply){
     qDebug() << string;
 }
 
-void MainWindow::switchToTreePageFromUser(){
+void MainWindow::switchToTreePageFromUser(){       
     this->ui->btnNext_2->setEnabled(false);
     connectToDatabase();
     QString username = this->ui->lineEditUsername->text();
@@ -252,8 +289,17 @@ void MainWindow::switchToTreePageFromUser(){
         qDebug() << "Usuario o contraseña incorretos.";
         this->ui->btnNext_2->setEnabled(true);
         return;
-    }    
-    this->fillTreeFromUser();
+    }
+    QString userId = this->db.getModel()->record(0).value("id").toString();
+
+    //Mensaje de descarga de handouts
+    int ret = QMessageBox::question(this, "Download Handouts", "Do you want to include the handouts in the printing?", QMessageBox::Accepted, QMessageBox::Cancel);
+    if (ret == QMessageBox::Accepted){
+        getHandoutsFileNames(userId);
+        thread = run(this, &MainWindow::downloadHandouts);
+    }
+    //
+    this->fillTreeFromUser(userId.toInt());
     this->ui->lblTask->setText("Files selection");
     //this->ui->lblSteps->setText("Step 3 of 4");
     this->ui->lblSteps->setText("Step 2 of 3");
@@ -270,9 +316,9 @@ void MainWindow::switchToTreePageFromAssignment(){
     this->enlargeWindow();
 }
 
-void MainWindow::fillTreeFromUser(){
+void MainWindow::fillTreeFromUser(int userId){
 
-    int userId = this->db.getModel()->record(0).value("id").toInt();
+    //int userId = this->db.getModel()->record(0).value("id").toInt();
     int i, count;
     QStringList itemData;
     QString html, name;
@@ -283,7 +329,7 @@ void MainWindow::fillTreeFromUser(){
         handouts->setCheckState(0, Qt::Checked);
 
         for (i = 0; i < this->handoutsFileNames.count(); i++){            
-            itemData << QString(this->handoutsFileNames.at(i)).replace(".pdf", "");
+            itemData << QString(this->handoutsFileNames.at(i).second).replace(".pdf", "");
             QTreeWidgetItem *item = new QTreeWidgetItem(handouts, itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Checked);
@@ -369,14 +415,14 @@ void MainWindow::fillTreeFromAssignment(){
     QSqlQueryModel *onlineFilesModel = this->db.getModel();
     QStringList itemData;
 
-    for (i = 0; i < this->handoutsFileNames.count(); i++){
+    /*for (i = 0; i < this->handoutsFileNames.count(); i++){
 
-        itemData << this->handoutsFileNames.at(i);
+        itemData << QString(this->handoutsFileNames.at(i).second).replace(".pdf", "");;
         QTreeWidgetItem *item = new QTreeWidgetItem(this->ui->treeWidgetFiles, itemData);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         item->setCheckState(0, Qt::Checked);
         itemData.clear();
-    }
+    }*/
 
     for (i = 0; i < onlineFilesModel->rowCount(); i++){
 
@@ -408,7 +454,7 @@ void MainWindow::switchToProgressPage(){
     qDebug() << countChecked;
 
     //Se actualiza la cantidad de archivos a descargar y/o convertir
-    this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + countChecked);
+    this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + countChecked + this->handoutsFileNames.count());
     this->checkProgressBar();
 
     this->ui->lblTask->setText("Print");

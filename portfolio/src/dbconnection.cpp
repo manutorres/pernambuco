@@ -134,7 +134,19 @@ bool DBConnection::getForumPostsByUser(int userId){
 bool DBConnection::getUserCourse(int userId){
     this->db.open();
 
-    QString queryString = "SELECT id FROM mdl_user_enrolments WHERE userid = " + QString::number(userId);
+    QString queryString = "SELECT enrolid FROM mdl_user_enrolments WHERE userid = " + QString::number(userId);
+    this->model->setQuery(queryString);
+    qDebug() << this->model->lastError();
+    if(this->model->rowCount() == 0){
+        return false;
+    }
+    return true;
+}
+
+bool DBConnection::getCourseHandouts(int courseId){
+    this->db.open();
+    QString queryString = "SELECT filepath, filename, contenthash FROM mdl_files WHERE filename LIKE '%.pdf' AND filepath = '/folder1/'";
+    //+ QString::number(courseId);
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){

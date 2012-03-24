@@ -42,7 +42,7 @@ private:
     static const int FORUM_POST = 2;
 
     Sftp sftp;
-    QStringList handoutsFileNames;
+    QList<QPair<QString,QString > > handoutsFileNames;
     QList<QPair<QString, int> > filesToMerge;
     QFuture<void> thread;
     DBConnection db;
@@ -58,8 +58,9 @@ private:
     void createUserDirectories();
     QString timeStampToDate(int unixTime);
     int getTreeNameCount(QString name);
-    void downloadHandouts();    
-    void fillTreeFromUser();
+    void getHandoutsFileNames(QString userId);
+    void downloadHandouts();
+    void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();
     void setHandoutsToMerge();
     void downloadUploadFiles();
