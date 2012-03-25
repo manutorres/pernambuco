@@ -86,8 +86,6 @@ private slots:
     void checkProgressBar();
     void mergeAndPrint();
     void exit();
-    //Prueba
-    void requestFinished(QNetworkReply *reply);
 
 signals:
     void downloadedFile();    

@@ -236,22 +236,7 @@ void MainWindow::getHandoutsFileNames(QString userId){
 }
 
 //Descarga los handouts en background
-void MainWindow::downloadHandouts(){
-    /*this->handoutsFileNames = this->sftp.getListOfHandouts(HANDOUTS_REMOTE_PATH);
-
-    this->ui->progressBar->setRange(0, this->handoutsFileNames.count());
-
-    QString localPath = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
-    foreach (QString f, this->handoutsFileNames){
-        QString remoteFile = QString(HANDOUTS_REMOTE_PATH) + "/" + f;
-        QString localFile = localPath + "/" + f;
-        qDebug() << "Remote:" << remoteFile;
-        qDebug() << "Local:" << localFile;
-        this->sftp.downloadFile(remoteFile, localFile);
-        emit this->downloadedFile();
-        if(this->finishThread)
-            return;
-    }*/
+void MainWindow::downloadHandouts(){    
     QString localPath = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
     QString remoteFile;
     QString localFile;
@@ -267,12 +252,6 @@ void MainWindow::downloadHandouts(){
         if(this->finishThread)
             return;
     }
-}
-
-void MainWindow::requestFinished(QNetworkReply *reply){
-    QByteArray bytes = reply->readAll();
-    QString string(bytes);
-    qDebug() << string;
 }
 
 void MainWindow::switchToTreePageFromUser(){       
@@ -293,8 +272,8 @@ void MainWindow::switchToTreePageFromUser(){
     QString userId = this->db.getModel()->record(0).value("id").toString();
 
     //Mensaje de descarga de handouts
-    int ret = QMessageBox::question(this, "Download Handouts", "Do you want to include the handouts in the printing?", QMessageBox::Accepted, QMessageBox::Cancel);
-    if (ret == QMessageBox::Accepted){
+    int ret = QMessageBox::question(this, "Handouts download", "Do you want to include the handouts in the portfolio?", QMessageBox::Yes, QMessageBox::No);
+    if (ret == QMessageBox::Yes){
         getHandoutsFileNames(userId);
         thread = run(this, &MainWindow::downloadHandouts);
     }
@@ -318,7 +297,6 @@ void MainWindow::switchToTreePageFromAssignment(){
 
 void MainWindow::fillTreeFromUser(int userId){
 
-    //int userId = this->db.getModel()->record(0).value("id").toInt();
     int i, count;
     QStringList itemData;
     QString html, name;
