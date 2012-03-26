@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
+    <width>480</width>
     <height>340</height>
    </rect>
   </property>
@@ -21,13 +21,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>460</width>
+    <width>480</width>
     <height>340</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>460</width>
+    <width>480</width>
     <height>460</height>
    </size>
   </property>
@@ -40,7 +40,7 @@
   <widget class="QWidget" name="centralWidget">
    <property name="maximumSize">
     <size>
-     <width>461</width>
+     <width>480</width>
      <height>16777215</height>
     </size>
    </property>
@@ -73,8 +73,8 @@
       <widget class="QLabel" name="lblTask">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>4</y>
+         <x>16</x>
+         <y>2</y>
          <width>311</width>
          <height>26</height>
         </rect>
@@ -93,8 +93,8 @@
       <widget class="QLabel" name="label_9">
        <property name="geometry">
         <rect>
-         <x>370</x>
-         <y>6</y>
+         <x>401</x>
+         <y>5</y>
          <width>46</width>
          <height>41</height>
         </rect>
@@ -109,9 +109,9 @@
       <widget class="QLabel" name="lblSteps">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>30</y>
-         <width>71</width>
+         <x>16</x>
+         <y>28</y>
+         <width>111</width>
          <height>16</height>
         </rect>
        </property>
@@ -124,6 +124,11 @@
         <string>Step 1 of 4</string>
        </property>
       </widget>
+      <zorder>lblTask</zorder>
+      <zorder>label_9</zorder>
+      <zorder>lblSteps</zorder>
+      <zorder>stackedWidget</zorder>
+      <zorder>stackedWidget</zorder>
      </widget>
     </item>
     <item>
@@ -141,7 +146,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_4">
@@ -314,7 +319,7 @@
           <property name="maximumSize">
            <size>
             <width>140</width>
-            <height>200</height>
+            <height>24</height>
            </size>
           </property>
           <property name="font">
@@ -337,7 +342,7 @@
           <property name="maximumSize">
            <size>
             <width>140</width>
-            <height>200</height>
+            <height>24</height>
            </size>
           </property>
           <property name="font">
@@ -689,14 +694,14 @@ color: rgb(206, 0, 0)</string>
       </widget>
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout">
-        <item row="3" column="5">
+        <item row="6" column="5">
          <widget class="QPushButton" name="btnExit_3">
           <property name="text">
            <string>&amp;Exit</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1" colspan="3">
+        <item row="6" column="1" colspan="3">
          <spacer name="horizontalSpacer_4">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -709,46 +714,42 @@ color: rgb(206, 0, 0)</string>
           </property>
          </spacer>
         </item>
-        <item row="0" column="1" colspan="2">
-         <widget class="QLabel" name="label_5">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Select the files you want to include:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="4">
+        <item row="6" column="4">
          <widget class="QPushButton" name="btnNext_3">
           <property name="text">
            <string>&amp;Next</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
-         <spacer name="horizontalSpacer_11">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="1" colspan="5">
+        <item row="4" column="1" colspan="5">
          <widget class="QTreeWidget" name="treeWidgetFiles">
           <column>
            <property name="text">
             <string notr="true">1</string>
            </property>
           </column>
+         </widget>
+        </item>
+        <item row="3" column="1" colspan="5">
+         <widget class="QLabel" name="label_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>60</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Select the files you want to include in your portfolio. If you don't do anything, the portfolio will include ALL of your handouts, assignments and forum posts. Click on a box to unselect all handouts, assignments and/or forum posts. Click on a triangle to view and unselect specific items.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -766,8 +767,14 @@ color: rgb(206, 0, 0)</string>
          <widget class="QProgressBar" name="progressBar">
           <property name="minimumSize">
            <size>
-            <width>350</width>
+            <width>330</width>
             <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>330</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="value">
@@ -791,7 +798,7 @@ color: rgb(206, 0, 0)</string>
         <item row="3" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
-           <string>File printing progress:</string>
+           <string>Files included:</string>
           </property>
          </widget>
         </item>
@@ -840,18 +847,19 @@ color: rgb(206, 0, 0)</string>
           </property>
           <property name="minimumSize">
            <size>
-            <width>52</width>
-            <height>52</height>
+            <width>96</width>
+            <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>52</width>
-            <height>52</height>
+            <width>96</width>
+            <height>50</height>
            </size>
           </property>
           <property name="text">
-           <string/>
+           <string>Print 
+Portfolio</string>
           </property>
           <property name="iconSize">
            <size>
@@ -861,11 +869,11 @@ color: rgb(206, 0, 0)</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1" colspan="2">
+        <item row="5" column="2">
          <widget class="QPushButton" name="btnExit_4">
           <property name="maximumSize">
            <size>
-            <width>75</width>
+            <width>84</width>
             <height>16777215</height>
            </size>
           </property>
@@ -875,7 +883,7 @@ color: rgb(206, 0, 0)</string>
          </widget>
         </item>
         <item row="1" column="1">
-         <spacer name="horizontalSpacer_16">
+         <spacer name="horizontalSpacer_9">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -898,7 +906,7 @@ color: rgb(206, 0, 0)</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>460</width>
+     <width>480</width>
      <height>21</height>
     </rect>
    </property>

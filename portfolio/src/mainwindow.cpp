@@ -16,12 +16,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->createUserDirectories();
 
-    this->ui->btnPrint->setIcon(QIcon(":/images/print2.png"));
+    this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
-    this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
-    this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
+    //this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
+    //this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
+    this->ui->lineEditUsername->setText("sandalon61");
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
     //QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
@@ -262,25 +263,29 @@ void MainWindow::switchToTreePageFromUser(){
     this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: #006EA8;}");
     this->ui->lblLoginFail->setText("Please wait while the application connects to the database...");
     qApp->processEvents();
+
     if(!this->db.userLogin(username, password)){
         this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: red;}");
         this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
-        qDebug() << "Usuario o contraseña incorretos.";
         this->ui->btnNext_2->setEnabled(true);
         return;
     }
-    QString userId = this->db.getModel()->record(0).value("id").toString();
+    //Seteo el nombre del archivo de salida ahora que el modelo tiene los datos del usuario.
+    QSqlRecord userRecord = this->db.getModel()->record(0);
+    QString userId = userRecord.value("id").toString();
+    QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/KpmPortfolio " +
+            userRecord.value("firstname").toString() + userRecord.value("lastname").toString()[0].toUpper() + ".pdf";
+    this->pdfmerge.setOutputFileName(outputFile);
+    qDebug() << "Output file:" << outputFile;
 
     //Mensaje de descarga de handouts
-    int ret = QMessageBox::question(this, "Handouts download", "Do you want to include the handouts in the portfolio?", QMessageBox::Yes, QMessageBox::No);
-    if (ret == QMessageBox::Yes){
-        getHandoutsFileNames(userId);
-        thread = run(this, &MainWindow::downloadHandouts);
-    }
-    //
+    //int ret = QMessageBox::question(this, "Handouts download", "Do you want to include the handouts in the portfolio?", QMessageBox::Yes, QMessageBox::No);
+    //if(ret == QMessageBox::Yes){
+    getHandoutsFileNames(userId);
+    thread = run(this, &MainWindow::downloadHandouts);
+
     this->fillTreeFromUser(userId.toInt());
-    this->ui->lblTask->setText("Files selection");
-    //this->ui->lblSteps->setText("Step 3 of 4");
+    this->ui->lblTask->setText("File selection");
     this->ui->lblSteps->setText("Step 2 of 3");
     this->ui->stackedWidget->setCurrentIndex(3);
     this->enlargeWindow();
@@ -288,8 +293,7 @@ void MainWindow::switchToTreePageFromUser(){
 
 void MainWindow::switchToTreePageFromAssignment(){
     this->fillTreeFromAssignment();
-    this->ui->lblTask->setText("Assignments selection");
-    //this->ui->lblSteps->setText("Step 3 of 4");
+    this->ui->lblTask->setText("Assignment selection");
     this->ui->lblSteps->setText("Step 2 of 3");
     this->ui->stackedWidget->setCurrentIndex(2);
     this->enlargeWindow();
@@ -322,6 +326,7 @@ void MainWindow::fillTreeFromUser(int userId){
     if (onlineFilesModel->rowCount() != 0){
         setTreeTopLevelItems("Assignments");
         QTreeWidgetItem *onlineAssignments = this->getFileTypeItem("Assignments");
+        onlineAssignments->setCheckState(0, Qt::Checked);
 
         for (i = 0; i < onlineFilesModel->rowCount(); i++){
             name = onlineFilesModel->record(i).value("name").toString() + " (Text)";
@@ -329,13 +334,13 @@ void MainWindow::fillTreeFromUser(int userId){
             if(count > 0)
                 name += " [" + QString::number(count + 1) + "]";
             html = "<b>" + onlineFilesModel->record(i).value("name").toString() + "</b>"
-                    "<br />" + onlineFilesModel->record(i).value("intro").toString() +
+                    "<br /><br />" + onlineFilesModel->record(i).value("intro").toString() +
                     "<br /><br />" + onlineFilesModel->record(i).value("data1").toString();
 
             itemData << name << this->timeStampToDate(onlineFilesModel->record(i).value(5).toInt()) << html;
             QTreeWidgetItem *item = new QTreeWidgetItem(onlineAssignments, itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-            item->setCheckState(0, Qt::Unchecked);
+            item->setCheckState(0, Qt::Checked);
             item->setIcon(0, QIcon(":/images/html_file.png"));
             itemData.clear();
         }
@@ -348,6 +353,7 @@ void MainWindow::fillTreeFromUser(int userId){
 
         setTreeTopLevelItems("Forum Posts");
         QTreeWidgetItem *forumPosts = this->getFileTypeItem("Forum Posts");
+        forumPosts->setCheckState(0, Qt::Checked);
 
         for (i = 0; i < forumPostsModel->rowCount(); i++){
             name = forumPostsModel->record(i).value("pregSubject").toString();
@@ -355,13 +361,13 @@ void MainWindow::fillTreeFromUser(int userId){
             if(count > 0)
                 name += " [" + QString::number(count + 1) + "]";
             html = "<b>" + forumPostsModel->record(i).value("pregSubject").toString() + "</b>"
-                    "<br />" + forumPostsModel->record(i).value("pregMessage").toString() +
+                    "<br /><br />" + forumPostsModel->record(i).value("pregMessage").toString() +
                     "<br /><br />" + forumPostsModel->record(i).value("respMessage").toString();
 
             itemData << name << this->timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()) << html;
             QTreeWidgetItem *item = new QTreeWidgetItem(forumPosts, itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-            item->setCheckState(0, Qt::Unchecked);
+            item->setCheckState(0, Qt::Checked);
             item->setIcon(0, QIcon(":/images/forum_file.png"));
             itemData.clear();
         }
@@ -436,7 +442,6 @@ void MainWindow::switchToProgressPage(){
     this->checkProgressBar();
 
     this->ui->lblTask->setText("Print");
-    //this->ui->lblSteps->setText("Step 4 of 4");
     this->ui->lblSteps->setText("Step 3 of 3");
     this->ui->stackedWidget->setCurrentIndex(4);
     //QFuture<void> th1 = run(this, &MainWindow::downloadUploadFiles);
@@ -505,7 +510,7 @@ void MainWindow::convertOnlineFiles(){
         if((*it)->parent() != assignmentsItem)
             break;       
         if ((*it)->text(0).contains("(Text)")){
-            localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + (*it)->text(0) + ".pdf";
+            localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + (*it)->text(0).replace(" (Text)", "") + ".pdf";
             this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
             this->filesToMerge << QPair<QString, int>(localFile, MainWindow::ASSIGNMENT);
             emit this->downloadedFile();
@@ -554,10 +559,11 @@ void MainWindow::mergeFiles(){
     foreach(file, this->filesToMerge){
         QString errorString;
         if(this->pdfmerge.addPdf(file.first, errorString)){
-            this->ui->listWidgetOutputStatus->addItem("File successfully included: " + file.first);
+            this->ui->listWidgetOutputStatus->addItem("File successfully included: " + file.first.section('/', -2));
         }else{
             QListWidgetItem *item = new QListWidgetItem();
             item->setForeground(QBrush(QColor(255, 0, 0)));
+            errorString = errorString.replace(".", ": ") + file.first.section('/', -2);
             item->setText(errorString);
             this->ui->listWidgetOutputStatus->addItem(item);
         }
@@ -591,11 +597,8 @@ void MainWindow::mergeAndPrint(){
     this->ui->listWidgetOutputStatus->setEnabled(true);
     this->ui->listWidgetOutputStatus->clear();
     this->mergeFiles();
-    QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/" + OUTPUT_FILE_NAME;
-    qDebug() << "Output file:" << outputFile;
-    if(this->pdfmerge.writeOutput(outputFile)){
-        //QMessageBox::information(this, "Printing finished", "The output file was successfully created.");
-        QDesktopServices::openUrl(QUrl("file:///" + outputFile));
+    if(this->pdfmerge.writeOutput()){
+        QDesktopServices::openUrl(QUrl("file:///" + this->pdfmerge.outputFileName()));
     }else{
         //Ver si se puede sacar alguna conclusión con un archivo de Qt.
         QMessageBox::critical(this, "Printing failed", "The program couldn't save the output file.");

@@ -19,13 +19,16 @@ public:
     PDFmerge();      
 
     void htmlToPdf(QString html, QString outputName);
-    bool addPdf(QString file, QString &errorString);
-    bool writeOutput(QString outputName);
+    bool addPdf(QString file, QString &errorString);    
+    void setOutputFileName(QString outputFile);
+    QString outputFileName();
+    bool writeOutput(QString outputFile = "");
 
 private:
     QWebView web;
     QPrinter printer;
     PdfMemDocument document;
+    QString outputFile;
     QDir dir;
 
 private slots:

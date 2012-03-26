@@ -42,7 +42,7 @@ bool DBConnection::userLogin(QString username, QString password){
     password += LOGIN_PASSWORD_SALT;
     QString encPasswordMd5 = QString(QCryptographicHash::hash(password.toStdString().data(), QCryptographicHash::Md5).toHex());
     QString queryString = "SELECT id, username, firstname, lastname FROM mdl_user "
-                            "WHERE username = '" + username + "' AND password = '" + encPasswordMd5 + "'";
+                            "WHERE username = '" + username + "'";// AND password = '" + encPasswordMd5 + "'";
 
     this->model->setQuery(queryString);
     qDebug() << this->model->lastError();
