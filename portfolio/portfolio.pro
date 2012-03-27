@@ -45,8 +45,7 @@ HEADERS  += src/mainwindow.h \
             src/kpm_settings.h \
             src/sftp.h \
             src/libssh2_config.h \
-            src/pdfmerge.h \
-            src/webmanager.h
+            src/pdfmerge.h
 
 FORMS    += ui/mainwindow.ui
 

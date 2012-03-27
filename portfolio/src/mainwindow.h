@@ -13,7 +13,6 @@
 #include <QDesktopServices>
 #include <QFont>
 
-#include "webmanager.h"
 #include "xmlassigment.h"
 #include "pdfmerge.h"
 #include "sftp.h"
