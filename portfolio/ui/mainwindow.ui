@@ -986,8 +986,8 @@ Portfolio</string>
           </property>
           <property name="iconSize">
            <size>
-            <width>40</width>
-            <height>40</height>
+            <width>35</width>
+            <height>35</height>
            </size>
           </property>
          </widget>
