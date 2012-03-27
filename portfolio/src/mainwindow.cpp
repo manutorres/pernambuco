@@ -20,9 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
-    //this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
-    //this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
-    this->ui->lineEditUsername->setText("sandalon61");
+    this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
+    //this->ui->lineEditUsername->setText("sandalon61");
+    this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
     //QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
@@ -571,14 +571,14 @@ void MainWindow::mergeFiles(){
 }
 
 bool MainWindow::customSort(QPair<QString, int> item1, QPair<QString, int> item2){
-    QString fileItem1 = item1.first.section('/', -1);
-    QString fileItem2 = item2.first.section('/', -1);
+    QString fileItem1 = item1.first.section('/', -1).remove(".pdf");
+    QString fileItem2 = item2.first.section('/', -1).remove(".pdf");
     QStringList numbersItem1 = fileItem1.section(' ', 0, 0).split(".");
     QStringList numbersItem2 = fileItem2.section(' ', 0, 0).split(".");
     QString nameItem1 = fileItem1.section(' ', 1);
     QString nameItem2 = fileItem2.section(' ', 1);
-    //qDebug() << "Name1:" << nameItem1 << numbersItem1 << item1.second;
-    //qDebug() << "Name2:" << nameItem2 << numbersItem2 << item2.second;
+    qDebug() << "Name1:" << nameItem1 << numbersItem1 << item1.second;
+    qDebug() << "Name2:" << nameItem2 << numbersItem2 << item2.second;
 
     for(int i=0; i<numbersItem1.count() && i<numbersItem2.count(); i++){
         if(numbersItem1[i].toInt() < numbersItem2[i].toInt())
