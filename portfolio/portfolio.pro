@@ -8,7 +8,7 @@ macx{
     LIBS +=  -L/usr/local/lib/ -lfreetype -lfontconfig -ljpeg -lz
     INCLUDEPATH += /usr/local/podofo/include
 
-    ICON = icons/osx/icon.icns
+    ICON = icons/osx/portfolio.icns
 }
 
 win32{
@@ -51,4 +51,4 @@ FORMS    += ui/mainwindow.ui
 
 RESOURCES += ui/rsc.qrc
 
-OTHER_FILES += icons/win/icon.rc
+OTHER_FILES += icons/win.portfolio.rc #icons/win/icon.rc
