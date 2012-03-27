@@ -143,7 +143,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_4">
@@ -299,6 +299,12 @@
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="6" column="7">
          <widget class="QPushButton" name="btnExit_2">
+          <property name="minimumSize">
+           <size>
+            <width>84</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <family>Arial</family>
@@ -462,6 +468,12 @@
         </item>
         <item row="6" column="6">
          <widget class="QPushButton" name="btnNext_2">
+          <property name="minimumSize">
+           <size>
+            <width>84</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <family>Arial</family>
@@ -826,6 +838,9 @@ color: rgb(206, 0, 0)</string>
         </item>
         <item row="4" column="1" colspan="5">
          <widget class="QTreeWidget" name="treeWidgetFiles">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::NoSelection</enum>
+          </property>
           <column>
            <property name="text">
             <string notr="true">1</string>
@@ -997,7 +1012,7 @@ Portfolio</string>
          <widget class="QPushButton" name="btnExit_4">
           <property name="maximumSize">
            <size>
-            <width>84</width>
+            <width>96</width>
             <height>16777215</height>
            </size>
           </property>
@@ -1036,7 +1051,7 @@ Portfolio</string>
      <x>0</x>
      <y>0</y>
      <width>480</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
