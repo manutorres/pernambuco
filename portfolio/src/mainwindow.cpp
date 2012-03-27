@@ -276,7 +276,7 @@ void MainWindow::switchToTreePageFromUser(){
     QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/KpmPortfolio " +
             userRecord.value("firstname").toString() + userRecord.value("lastname").toString()[0].toUpper() + ".pdf";
     this->pdfmerge.setOutputFileName(outputFile);
-    qDebug() << "Output file:" << outputFile;
+    //qDebug() << "Output file:" << outputFile;
 
     //Mensaje de descarga de handouts
     //int ret = QMessageBox::question(this, "Handouts download", "Do you want to include the handouts in the portfolio?", QMessageBox::Yes, QMessageBox::No);
@@ -430,12 +430,12 @@ void MainWindow::switchToProgressPage(){
     QTreeWidgetItemIterator it(this->ui->treeWidgetFiles, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
     while (*it){
         if((*it)->parent()->text(0) != "Handouts"){
-            qDebug() << "Iterator:" << (*it)->text(0);
+            //qDebug() << "Iterator:" << (*it)->text(0);
             countChecked++;
         }
         ++it;
     }
-    qDebug() << countChecked;
+    //qDebug() << countChecked;
 
     //Se actualiza la cantidad de archivos a descargar y/o convertir
     this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + countChecked + this->handoutsFileNames.count());
@@ -468,7 +468,7 @@ void MainWindow::downloadUploadFiles(){
     int index = 0;
     QTreeWidgetItemIterator it(this->getFileTypeItem("Assignments"), QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
     while (*it){        
-        qDebug() << (*it)->text(0);
+        //qDebug() << (*it)->text(0);
         if ((*it)->text(0).contains("(Document)")){
             localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/"  + QString::number(index) + ". " +
                         (*it)->text(0);
@@ -554,7 +554,7 @@ QString MainWindow::getUserDirectory(){
 
 void MainWindow::mergeFiles(){
     qSort(this->filesToMerge.begin(), this->filesToMerge.end(), customSort);
-    qDebug() << "Files to merge:" << this->filesToMerge;
+    //qDebug() << "Files to merge:" << this->filesToMerge;
     QPair<QString, int> file;
     foreach(file, this->filesToMerge){
         QString errorString;
@@ -577,8 +577,8 @@ bool MainWindow::customSort(QPair<QString, int> item1, QPair<QString, int> item2
     QStringList numbersItem2 = fileItem2.section(' ', 0, 0).split(".");
     QString nameItem1 = fileItem1.section(' ', 1);
     QString nameItem2 = fileItem2.section(' ', 1);
-    qDebug() << "Name1:" << nameItem1 << numbersItem1 << item1.second;
-    qDebug() << "Name2:" << nameItem2 << numbersItem2 << item2.second;
+    //qDebug() << "Name1:" << nameItem1 << numbersItem1 << item1.second;
+    //qDebug() << "Name2:" << nameItem2 << numbersItem2 << item2.second;
 
     for(int i=0; i<numbersItem1.count() && i<numbersItem2.count(); i++){
         if(numbersItem1[i].toInt() < numbersItem2[i].toInt())

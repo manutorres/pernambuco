@@ -19,7 +19,7 @@ void PDFmerge::htmlToPdf(QString html, QString outputName){
 
 //Agrega el pdf file al final del documento de salida.
 bool PDFmerge::addPdf(QString file, QString &errorString){
-    qDebug() << file;
+    //qDebug() << file;
     PdfMemDocument doc;
     try{
         doc.Load(file.toStdString().data());
@@ -30,7 +30,7 @@ bool PDFmerge::addPdf(QString file, QString &errorString){
             return false;
         }
     }catch(PoDoFo::PdfError){
-        qDebug() << "Error al cargar el archivo:" << file;
+        //qDebug() << "Error al cargar el archivo:" << file;
         errorString = "The file couldn't be opened.";
         return false;
     }
@@ -52,7 +52,7 @@ bool PDFmerge::writeOutput(QString outputFile){
     try{
         document.Write(outputFile.toStdString().data());
     }catch(PoDoFo::PdfError){
-        qDebug() << "Error en la escritura de la salida.";
+        //qDebug() << "Error en la escritura de la salida.";
         return false;
     }
     return true;

@@ -36,8 +36,7 @@ SOURCES += src/main.cpp \
            src/xmlassigment.cpp \
            src/dbconnection.cpp \
            src/sftp.cpp \
-           src/pdfmerge.cpp \
-           src/webmanager.cpp
+           src/pdfmerge.cpp
 
 HEADERS  += src/mainwindow.h \
             src/xmlassigment.h \

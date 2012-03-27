@@ -11,7 +11,7 @@ bool DBConnection::connect(QString host, QString database, QString user, QString
     this->db.setPassword(password);
 
     if(!this->db.open()){
-        qDebug() << "Error en la apertura de la base de datos.";
+        //qDebug() << "Error en la apertura de la base de datos.";
         return false;
     }
     this->query = QSqlQuery(this->db);
@@ -24,8 +24,8 @@ QSqlQueryModel* DBConnection::getModel(){
 }
 
 void DBConnection::printModel(){
-    qDebug() << "Rows:" << this->model->rowCount();
-    qDebug() << "Columns:" << this->model->columnCount();
+    //qDebug() << "Rows:" << this->model->rowCount();
+    //qDebug() << "Columns:" << this->model->columnCount();
     for(int i=0; i<this->model->rowCount(); i++){
         for(int j=0; j<this->model->columnCount(); j++){
             qDebug() << this->model->record(i).value(j).toString();
@@ -45,7 +45,7 @@ bool DBConnection::userLogin(QString username, QString password){
                             "WHERE username = '" + username + "'";// AND password = '" + encPasswordMd5 + "'";
 
     this->model->setQuery(queryString);
-    qDebug() << this->model->lastError();
+    //qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
         return false;
     }
@@ -59,7 +59,7 @@ bool DBConnection::getOnlineAssignments(){
                             "mdl_assignment_submissions JOIN mdl_assignment "
                             "WHERE data1 != '' AND assignment = mdl_assignment.id";
     this->model->setQuery(queryString);
-    qDebug() << this->model->lastError();
+    //qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
         return false;
     }
@@ -74,7 +74,7 @@ bool DBConnection::getOnlineFilesByAssignment(int assignmentId){
                             "mdl_assignment_submissions JOIN mdl_assignment "
                             "WHERE data1 != '' AND assignment = mdl_assignment.id AND assignment=" + QString::number(assignmentId);
     this->model->setQuery(queryString);
-    qDebug() << this->model->lastError();
+    //qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
         return false;
     }
@@ -91,7 +91,7 @@ bool DBConnection::getOnlineFilesByUser(int userId){
             "WHERE data1 != '' AND assignment = mdl_assignment.id AND userid=" + QString::number(userId) + " "
             "ORDER BY submission_id";
     this->model->setQuery(queryString);
-    qDebug() << this->model->lastError();
+    //qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
         return false;
     }
@@ -107,7 +107,7 @@ bool DBConnection::getUploadFiles(int userId){
             "AND filename != '' AND filearea = 'submission' AND component = 'mod_assignment' AND data1 = '' "
             "AND mdl_files.userid = " + QString::number(userId) + " ORDER BY itemid";
     this->model->setQuery(queryString);
-    qDebug() << this->model->lastError();
+    //qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
         return false;
     }
@@ -124,7 +124,7 @@ bool DBConnection::getForumPostsByUser(int userId){
             "AND resp.subject LIKE 'RE: %' AND preg.subject = SUBSTRING(resp.subject, 5) AND "
             "resp.userid = " + QString::number(userId) + " ORDER BY respId";
     this->model->setQuery(queryString);
-    qDebug() << this->model->lastError();
+    //qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
         return false;
     }
@@ -135,7 +135,7 @@ bool DBConnection::getUserCourse(int userId){
     this->db.open();
     QString queryString = "SELECT MAX(enrolid) + 1 as enrolid FROM mdl_user_enrolments WHERE userid = " + QString::number(userId);
     this->model->setQuery(queryString);
-    qDebug() << this->model->lastError();
+    //qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
         return false;
     }
@@ -146,7 +146,7 @@ bool DBConnection::getCourseHandouts(int courseId){
     this->db.open();
     QString queryString = "SELECT filepath, filename, contenthash FROM mdl_files WHERE component = 'mod_resource' AND filename LIKE '%.pdf' AND filepath = '/Folder of Handouts " + QString::number(courseId) + "/'";
     this->model->setQuery(queryString);
-    qDebug() << this->model->lastError();
+    //qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){
         return false;
     }
