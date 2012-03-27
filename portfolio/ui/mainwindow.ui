@@ -81,6 +81,7 @@
        </property>
        <property name="font">
         <font>
+         <family>Arial</family>
          <pointsize>11</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -117,6 +118,7 @@
        </property>
        <property name="font">
         <font>
+         <family>Arial</family>
          <pointsize>10</pointsize>
         </font>
        </property>
@@ -124,11 +126,6 @@
         <string>Step 1 of 4</string>
        </property>
       </widget>
-      <zorder>lblTask</zorder>
-      <zorder>label_9</zorder>
-      <zorder>lblSteps</zorder>
-      <zorder>stackedWidget</zorder>
-      <zorder>stackedWidget</zorder>
      </widget>
     </item>
     <item>
@@ -152,6 +149,11 @@
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="4" column="1" colspan="3">
          <widget class="QRadioButton" name="radioButton">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>No, do not include the handouts.</string>
           </property>
@@ -164,6 +166,11 @@
             <width>209</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
           </property>
           <property name="text">
            <string>Yes, download and print the handouts.</string>
@@ -199,6 +206,11 @@
             <width>16777215</width>
             <height>100</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
           </property>
           <property name="text">
            <string>Do you want to include the handouts in the printing?</string>
@@ -259,6 +271,11 @@
         </item>
         <item row="6" column="6">
          <widget class="QPushButton" name="btnExit_1">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>&amp;Exit</string>
           </property>
@@ -266,6 +283,11 @@
         </item>
         <item row="6" column="5">
          <widget class="QPushButton" name="btnNext_1">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>&amp;Next</string>
           </property>
@@ -277,6 +299,11 @@
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="6" column="7">
          <widget class="QPushButton" name="btnExit_2">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>&amp;Exit</string>
           </property>
@@ -302,6 +329,11 @@
             <width>0</width>
             <height>50</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
           </property>
           <property name="text">
            <string>Please enter your user information. You have to login in order to continue.</string>
@@ -359,6 +391,11 @@
         </item>
         <item row="2" column="2" colspan="2">
          <widget class="QLabel" name="labelUsername_2">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>Username</string>
           </property>
@@ -366,6 +403,11 @@
         </item>
         <item row="3" column="2" colspan="2">
          <widget class="QLabel" name="labelPassword_2">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>Password</string>
           </property>
@@ -392,6 +434,11 @@
             <height>20</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="styleSheet">
            <string notr="true">color:rgb(3, 180, 255)</string>
           </property>
@@ -415,6 +462,11 @@
         </item>
         <item row="6" column="6">
          <widget class="QPushButton" name="btnNext_2">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>&amp;Next</string>
           </property>
@@ -433,6 +485,7 @@
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <weight>50</weight>
             <bold>false</bold>
            </font>
@@ -458,6 +511,11 @@ color: rgb(255, 0, 0)</string>
           <height>23</height>
          </rect>
         </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
         <property name="text">
          <string>&amp;Exit</string>
         </property>
@@ -476,6 +534,11 @@ color: rgb(255, 0, 0)</string>
           <width>0</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
         </property>
         <property name="text">
          <string>Please login with your user data or select an assignment for all users.</string>
@@ -547,9 +610,14 @@ color: rgb(255, 0, 0)</string>
          <rect>
           <x>55</x>
           <y>50</y>
-          <width>48</width>
+          <width>71</width>
           <height>16</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
         </property>
         <property name="text">
          <string>Username</string>
@@ -560,9 +628,14 @@ color: rgb(255, 0, 0)</string>
          <rect>
           <x>55</x>
           <y>90</y>
-          <width>46</width>
+          <width>71</width>
           <height>16</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
         </property>
         <property name="text">
          <string>Password</string>
@@ -598,6 +671,11 @@ color: rgb(255, 0, 0)</string>
           <width>75</width>
           <height>23</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
         </property>
         <property name="text">
          <string>&amp;Login</string>
@@ -651,6 +729,11 @@ color: rgb(206, 0, 0)</string>
           <height>23</height>
          </rect>
         </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
         <property name="text">
          <string>&amp;Next</string>
         </property>
@@ -674,6 +757,11 @@ color: rgb(206, 0, 0)</string>
           <height>16</height>
          </rect>
         </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
         <property name="text">
          <string>Select the assignment:</string>
         </property>
@@ -687,6 +775,11 @@ color: rgb(206, 0, 0)</string>
           <height>16</height>
          </rect>
         </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+         </font>
+        </property>
         <property name="text">
          <string>ID:</string>
         </property>
@@ -696,6 +789,11 @@ color: rgb(206, 0, 0)</string>
        <layout class="QGridLayout" name="gridLayout">
         <item row="6" column="5">
          <widget class="QPushButton" name="btnExit_3">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>&amp;Exit</string>
           </property>
@@ -716,6 +814,11 @@ color: rgb(206, 0, 0)</string>
         </item>
         <item row="6" column="4">
          <widget class="QPushButton" name="btnNext_3">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>&amp;Next</string>
           </property>
@@ -744,6 +847,11 @@ color: rgb(206, 0, 0)</string>
             <height>60</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>Select the files you want to include in your portfolio. If you don't do anything, the portfolio will include ALL of your handouts, assignments and forum posts. Click on a box to unselect all handouts, assignments and/or forum posts. Click on a triangle to view and unselect specific items.</string>
           </property>
@@ -758,6 +866,11 @@ color: rgb(206, 0, 0)</string>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <widget class="QLabel" name="label_6">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>File downloading progress:</string>
           </property>
@@ -797,6 +910,11 @@ color: rgb(206, 0, 0)</string>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_7">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>Files included:</string>
           </property>
@@ -857,6 +975,11 @@ color: rgb(206, 0, 0)</string>
             <height>50</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
           <property name="text">
            <string>Print 
 Portfolio</string>
@@ -876,6 +999,11 @@ Portfolio</string>
             <width>84</width>
             <height>16777215</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
           </property>
           <property name="text">
            <string>Exit</string>
@@ -907,7 +1035,7 @@ Portfolio</string>
      <x>0</x>
      <y>0</y>
      <width>480</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>
