@@ -50,7 +50,7 @@ private:
 
     void centerOnScreen();
     void enlargeWindow();
-    void connectToDatabase();
+    bool connectToDatabase();
     void setTreeStyle();
     void setTreeTopLevelItems(QString fileType);
     QTreeWidgetItem* getFileTypeItem(QString type);

@@ -40,9 +40,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->treeWidgetFiles, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
                      this, SLOT(updateCheckState(QTreeWidgetItem*, int)));
 
-    //Hasta que se restablezca el tema de los handouts
-    //this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
-
     this->finishThread = false;
 
     this->ui->lblSteps->setText("Step 1 of 3");
@@ -54,13 +51,18 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 //Metodo encargado de llevar a cabo la conexion con la base de datos
-void MainWindow::connectToDatabase(){
-    if (!this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD)){
-        int ret = QMessageBox::critical(this, "Database connection error", "The program was unable to connect to the database.", QMessageBox::Retry, QMessageBox::Abort);
+bool MainWindow::connectToDatabase(){
+    if(this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD)){
+        return true;
+    }else{
+        int ret = QMessageBox::critical(this, "Connection error", "The program was unable to connect to the database.", QMessageBox::Retry, QMessageBox::Abort);
         switch (ret){
-            case QMessageBox::Retry : connectToDatabase();
-                                      break;
-            case QMessageBox::Abort : this->exit();
+        case QMessageBox::Retry :
+            connectToDatabase();
+            break;
+        case QMessageBox::Abort :
+            this->exit();
+            return false;
         }
     }
 }
@@ -250,14 +252,18 @@ void MainWindow::downloadHandouts(){
         this->sftp.downloadFile(remoteFile, localFile);
         emit this->downloadedFile();
 
-        if(this->finishThread)
+        if(this->finishThread){
+            this->sftp.disconnect();
             return;
+        }
     }
+    this->sftp.disconnect();
 }
 
 void MainWindow::switchToTreePageFromUser(){       
     this->ui->btnNext_2->setEnabled(false);
-    connectToDatabase();
+    if(!connectToDatabase())
+        return;
     QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
     this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: #006EA8;}");
@@ -623,12 +629,11 @@ void MainWindow::exit(){
         this->hide();
         this->thread.waitForFinished();
     }
-    //this->sftp.disconnect();
     this->db.disconnect();
     this->clearDirectory(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
     this->clearDirectory(this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
     this->clearDirectory(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);    
-    QApplication::exit(0);
+    QApplication::exit();
 }
 
 

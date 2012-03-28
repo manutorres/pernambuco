@@ -154,5 +154,6 @@ bool DBConnection::getCourseHandouts(int courseId){
 }
 
 void DBConnection::disconnect(){
-    this->db.close();
+    if(this->db.open())
+        this->db.close();
 }
