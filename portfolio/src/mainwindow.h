@@ -11,8 +11,8 @@
 #include <QApplication>
 #include <QNetworkAccessManager>
 #include <QDesktopServices>
+#include <QFont>
 
-#include "webmanager.h"
 #include "xmlassigment.h"
 #include "pdfmerge.h"
 #include "sftp.h"
@@ -41,7 +41,7 @@ private:
     static const int FORUM_POST = 2;
 
     Sftp sftp;
-    QStringList handoutsFileNames;
+    QList<QPair<QString,QString > > handoutsFileNames;
     QList<QPair<QString, int> > filesToMerge;
     QFuture<void> thread;
     DBConnection db;
@@ -57,8 +57,9 @@ private:
     void createUserDirectories();
     QString timeStampToDate(int unixTime);
     int getTreeNameCount(QString name);
-    void downloadHandouts();    
-    void fillTreeFromUser();
+    void getHandoutsFileNames(QString userId);
+    void downloadHandouts();
+    void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();
     void setHandoutsToMerge();
     void downloadUploadFiles();
@@ -84,8 +85,6 @@ private slots:
     void checkProgressBar();
     void mergeAndPrint();
     void exit();
-    //Prueba
-    void requestFinished(QNetworkReply *reply);
 
 signals:
     void downloadedFile();    

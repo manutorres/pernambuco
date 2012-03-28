@@ -8,7 +8,7 @@ macx{
     LIBS +=  -L/usr/local/lib/ -lfreetype -lfontconfig -ljpeg -lz
     INCLUDEPATH += /usr/local/podofo/include
 
-    ICON = icons/osx/icon.icns
+    ICON = icons/osx/portfolio.icns
 }
 
 win32{
@@ -36,8 +36,7 @@ SOURCES += src/main.cpp \
            src/xmlassigment.cpp \
            src/dbconnection.cpp \
            src/sftp.cpp \
-           src/pdfmerge.cpp \
-           src/webmanager.cpp
+           src/pdfmerge.cpp
 
 HEADERS  += src/mainwindow.h \
             src/xmlassigment.h \
@@ -46,11 +45,10 @@ HEADERS  += src/mainwindow.h \
             src/kpm_settings.h \
             src/sftp.h \
             src/libssh2_config.h \
-            src/pdfmerge.h \
-            src/webmanager.h
+            src/pdfmerge.h
 
 FORMS    += ui/mainwindow.ui
 
 RESOURCES += ui/rsc.qrc
 
-OTHER_FILES += icons/win/icon.rc
+OTHER_FILES += icons/win.portfolio.rc #icons/win/icon.rc

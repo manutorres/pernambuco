@@ -7,5 +7,7 @@
         <file>forum_file.png</file>
         <file>pdf_file.png</file>
         <file>folder.png</file>
+        <file>printer32.png</file>
+        <file>greenprinter32.png</file>
     </qresource>
 </RCC>

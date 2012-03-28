@@ -19,7 +19,7 @@ bool Sftp::open(QString host, QString username, QString password){
     this->rc = libssh2_init (0);
 
     if (this->rc != 0) {
-        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        //fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
 
@@ -33,7 +33,7 @@ bool Sftp::open(QString host, QString username, QString password){
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
     if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0) {
-        fprintf(stderr, "failed to connect!\n");
+        //fprintf(stderr, "failed to connect!\n");
         return -1;
     }
 
@@ -58,7 +58,7 @@ bool Sftp::open(QString host, QString username, QString password){
     #endif
 
     if(this->rc) {
-        fprintf(stderr, "Failure establishing SSH session: %d\n", this->rc);
+        //fprintf(stderr, "Failure establishing SSH session: %d\n", this->rc);
         return false;
     }
 
@@ -71,19 +71,19 @@ bool Sftp::open(QString host, QString username, QString password){
     //if (libssh2_userauth_password(session, username, password)) {
     if (libssh2_userauth_password(this->session, username.toStdString().data(), password.toStdString().data())) {
 
-        fprintf(stderr, "Authentication by password failed.\n");
+        //fprintf(stderr, "Authentication by password failed.\n");
         return false;
     }
 
-    fprintf(stderr, "libssh2_sftp_init()!\n");
+    //fprintf(stderr, "libssh2_sftp_init()!\n");
 
     this->sftp_session = libssh2_sftp_init(this->session);
 
     if (!this->sftp_session) {
-        fprintf(stderr, "Unable to init SFTP session\n");
+        //fprintf(stderr, "Unable to init SFTP session\n");
     }
 
-    fprintf(stderr, "libssh2_sftp_open()!\n");
+    //fprintf(stderr, "libssh2_sftp_open()!\n");
 
     return true;
 }
@@ -109,7 +109,6 @@ void Sftp::disconnect(){
 
 //Descarga el archivo serverFile y lo almacena en outputFile
 bool Sftp::downloadFile(QString serverFile, QString outputFile){
-
     /*Request a file via SFTP */
     FILE *fd;
     fd = fopen(outputFile.toStdString().data(),"w");
@@ -117,23 +116,23 @@ bool Sftp::downloadFile(QString serverFile, QString outputFile){
     this->sftp_handle = libssh2_sftp_open(this->sftp_session, serverFile.toStdString().data(), LIBSSH2_FXF_READ, 0);
     if (!this->sftp_handle) {
 
-        fprintf(stderr, "Unable to open file with SFTP: %ld\n", libssh2_sftp_last_error(this->sftp_session));
+        //fprintf(stderr, "Unable to open file with SFTP: %ld\n", libssh2_sftp_last_error(this->sftp_session));
         return false;
     }
 
-    fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
+    //fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
 
-    do {
+    do {        
         char mem[131072];
 
         //loop until we fail
-        this->rc = libssh2_sftp_read(this->sftp_handle, mem, sizeof(mem));
+        this->rc = libssh2_sftp_read(this->sftp_handle, mem, sizeof(mem));        
 
-        if (this->rc > 0) {
+        if (this->rc > 0) {        
             fwrite(mem,1,this->rc,fd);
         } else {
             break;
-        }
+        }        
     } while (1);
 
     fclose(fd);
@@ -148,7 +147,7 @@ QStringList Sftp::getListOfHandouts(QString handsoutDirectory){
     this->sftp_handle = libssh2_sftp_opendir(this->sftp_session, handsoutDirectory.toStdString().data());
 
     if (!this->sftp_handle) {
-        fprintf(stderr, "Unable to open dir with SFTP\n");
+        //fprintf(stderr, "Unable to open dir with SFTP\n");
     }
 
     QStringList result;
@@ -179,6 +178,6 @@ QStringList Sftp::getListOfHandouts(QString handsoutDirectory){
     return result;
 }
 
-QString Sftp::fileHashToPath(QString fileHash){
-    return UPLOAD_FILES_PATH + fileHash.left(2) + "/" + fileHash.mid(2, 2) + "/" + fileHash;
+QString Sftp::fileHashToPath(QString fileHash){    
+    return fileHash.left(2) + "/" + fileHash.mid(2, 2) + "/" + fileHash;
 }
