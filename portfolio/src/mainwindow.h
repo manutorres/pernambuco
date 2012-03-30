@@ -17,6 +17,7 @@
 #include "pdfmerge.h"
 #include "sftp.h"
 #include "dbconnection.h"
+#include "utils.h"
 
 namespace Ui {
     class MainWindow;
@@ -48,14 +49,14 @@ private:
     PDFmerge pdfmerge;
     bool finishThread;
 
+    void createAppDirectories();
+    void clearAppDirectories();
     void centerOnScreen();
     void enlargeWindow();
     bool connectToDatabase();
     void setTreeStyle();
     void setTreeTopLevelItems(QString fileType);
     QTreeWidgetItem* getFileTypeItem(QString type);
-    void createUserDirectories();
-    QString timeStampToDate(int unixTime);
     int getTreeNameCount(QString name);
     void getHandoutsFileNames(QString userId);
     void downloadHandouts();
@@ -65,10 +66,7 @@ private:
     void downloadUploadFiles();
     void convertOnlineFiles();
     void convertForumPostsFiles();
-    QString getUserDirectory();
     void mergeFiles();
-    static bool customSort(QPair<QString, int> item1, QPair<QString, int> item2);
-    void clearDirectory(QString path);
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);
     void updatePrintEnabledState();

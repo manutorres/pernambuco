@@ -52,7 +52,6 @@ public:
     void disconnect();
     bool downloadFile(QString serverFile, QString outputFile);
     QStringList getListOfHandouts(QString handsoutDirectory);
-    QString fileHashToPath(QString fileHash);
 
 private:
 

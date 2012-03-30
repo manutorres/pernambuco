@@ -4,16 +4,15 @@ PDFmerge::PDFmerge()
 {    
     this->printer.setPageSize(QPrinter::Letter);
     this->printer.setOutputFormat(QPrinter::PdfFormat);
+    this->printer.setPageMargins(60, 80, 60, 80, QPrinter::DevicePixel);
     this->dir.setNameFilters(QStringList() << "*.pdf");
-
     QObject::connect(&this->web, SIGNAL(loadFinished(bool)), this, SLOT(printHtmlToPdf()));
 }
 
 //Convierte contenido html en un documento pdf
 void PDFmerge::htmlToPdf(QString html, QString outputName){
     this->printer.setOutputFileName(outputName);
-    //this->web.setStyleSheet("p {font: 18px arial, sans-serif;}");
-    html = "<body style='font: 18px arial, sans-serif;'>" + html + "</body>";
+    //html = "<body style='font: 18px arial, sans-serif;'>" + html + "</body>";
     this->web.setHtml(html);
 }
 
@@ -22,6 +21,7 @@ bool PDFmerge::addPdf(QString file, QString &errorString){
     //qDebug() << file;
     PdfMemDocument doc;
     try{
+        doc.CreateFont("Calibri");
         doc.Load(file.toStdString().data());
         try{
             document.Append(doc);
@@ -29,8 +29,9 @@ bool PDFmerge::addPdf(QString file, QString &errorString){
             errorString = "The file couldn't be included.";
             return false;
         }
-    }catch(PoDoFo::PdfError){
-        //qDebug() << "Error al cargar el archivo:" << file;
+    }catch(PdfError){
+        qDebug() << "Error al abrir el archivo" << file;
+        //PdfError::ErrorMessage();
         errorString = "The file couldn't be opened.";
         return false;
     }
