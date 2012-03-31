@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->centerOnScreen();
     this->setTreeStyle();
 
-    this->createUserDirectories();
+    this->createAppDirectories();
 
     this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
@@ -40,9 +40,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->treeWidgetFiles, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
                      this, SLOT(updateCheckState(QTreeWidgetItem*, int)));
 
-    //Hasta que se restablezca el tema de los handouts
-    //this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
-
     this->finishThread = false;
 
     this->ui->lblSteps->setText("Step 1 of 3");
@@ -53,14 +50,31 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
+void MainWindow::createAppDirectories(){
+    Utils::createDirectory(Utils::getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
+    Utils::createDirectory(Utils::getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
+    Utils::createDirectory(Utils::getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
+}
+
+void MainWindow::clearAppDirectories(){
+    Utils::clearDirectory(Utils::getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
+    Utils::clearDirectory(Utils::getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
+    Utils::clearDirectory(Utils::getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
+}
+
 //Metodo encargado de llevar a cabo la conexion con la base de datos
-void MainWindow::connectToDatabase(){
-    if (!this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD)){
-        int ret = QMessageBox::critical(this, "Database connection error", "The program was unable to connect to the database.", QMessageBox::Retry, QMessageBox::Abort);
+bool MainWindow::connectToDatabase(){
+    if(this->db.connect(MYSQL_HOST_NAME, MYSQL_DATABASE_NAME, MYSQL_USERNAME, MYSQL_PASSWORD)){
+        return true;
+    }else{
+        int ret = QMessageBox::critical(this, "Connection error", "The program was unable to connect to the database.", QMessageBox::Retry, QMessageBox::Abort);
         switch (ret){
-            case QMessageBox::Retry : connectToDatabase();
-                                      break;
-            case QMessageBox::Abort : this->exit();
+        case QMessageBox::Retry :
+            return this->connectToDatabase();
+            break;
+        case QMessageBox::Abort :
+            this->exit();
+            return false;
         }
     }
 }
@@ -166,39 +180,11 @@ int MainWindow::getTreeNameCount(QString name){
     return count;
 }
 
-//Metodo que crea los directorios en donde luego se almacenan los Assignment, los Forum Posts y los Handouts
-void MainWindow::createUserDirectories(){
-    QDir().mkpath(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
-    QDir().mkpath(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
-    QDir().mkpath(this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
-}
-
-QString MainWindow::timeStampToDate(int unixTime){
-    QDateTime timeStamp;
-    timeStamp.setTime_t(unixTime);
-    return timeStamp.toString("MM-dd-yyyy");
-}
-
 //Dependiendo de la eleccion del usuario descarga o no los handouts del servidor y avanza a la siguiente pantalla
 void MainWindow::switchToLoginPage(){
 
     if (this->ui->radioButtonHandouts->isChecked()){
         //thread = run(this, &MainWindow::downloadHandouts);
-
-        //Prueba con QWebView
-//        WebManager *manager = new WebManager();
-//        this->db.getUserCourse(2);
-//        int courseId = this->db.getModel()->record(0).value("id").toInt(); //Cambiar: puede haber más de uno
-//        manager->getHandouts(courseId);
-
-        //Prueba directa
-//        QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
-//        connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
-//        QUrl postData;
-//        postData.addQueryItem("username", "frogg");
-//        postData.addQueryItem("password", LOGIN_TEST_PASSWORD);
-//        networkManager->post(QNetworkRequest(QUrl("http://kidsplaymath.org/moodle/login/index.php")), ""); //, postData.encodedQuery());
-
     }
 
     //Lleno el combo con los assignments que tienen por lo menos un assignment_submission online (data1 != '').
@@ -229,7 +215,7 @@ void MainWindow::getHandoutsFileNames(QString userId){
         this->db.getCourseHandouts(courseId.toInt());
         model = this->db.getModel();
         for (int i = 0; i < model->rowCount(); i++){
-            remoteFile = QString(HANDOUTS_REMOTE_PATH) + "/" + this->sftp.fileHashToPath(model->record(i).value("contenthash").toString());
+            remoteFile = QString(HANDOUTS_REMOTE_PATH) + "/" + Utils::fileHashToPath(model->record(i).value("contenthash").toString());
             fileName = model->record(i).value("filename").toString();
             this->handoutsFileNames.append(QPair<QString, QString>(remoteFile, fileName));
         }
@@ -237,8 +223,8 @@ void MainWindow::getHandoutsFileNames(QString userId){
 }
 
 //Descarga los handouts en background
-void MainWindow::downloadHandouts(){    
-    QString localPath = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
+void MainWindow::downloadHandouts(){
+    QString localPath = Utils::getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
     QString remoteFile;
     QString localFile;
 
@@ -248,16 +234,24 @@ void MainWindow::downloadHandouts(){
         remoteFile = this->handoutsFileNames.at(i).first;
         localFile = localPath + "/" + this->handoutsFileNames.at(i).second;
         this->sftp.downloadFile(remoteFile, localFile);
+        qDebug() << "Downloaded file:" << localFile;
+#ifdef Q_OS_WIN32
+        Utils::toUnixFile(localFile);
+#endif
         emit this->downloadedFile();
 
-        if(this->finishThread)
+        if(this->finishThread){
+            this->sftp.disconnect();
             return;
+        }
     }
+    this->sftp.disconnect();
 }
 
 void MainWindow::switchToTreePageFromUser(){       
     this->ui->btnNext_2->setEnabled(false);
-    connectToDatabase();
+    if(!connectToDatabase())
+        return;
     QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
     this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: #006EA8;}");
@@ -333,11 +327,19 @@ void MainWindow::fillTreeFromUser(int userId){
             count = this->getTreeNameCount(name);
             if(count > 0)
                 name += " [" + QString::number(count + 1) + "]";
-            html = "<b>" + onlineFilesModel->record(i).value("name").toString() + "</b>"
-                    "<br /><br />" + onlineFilesModel->record(i).value("intro").toString() +
-                    "<br /><br />" + onlineFilesModel->record(i).value("data1").toString();
+            html = "<h2 style='font: bold 22px arial, sans-serif;'>" +
+                        onlineFilesModel->record(i).value("name").toString() +
+                    "</h2>"
+                    "<br />"
+                    "<div style='font: 20px arial, sans-serif;'>" +
+                        onlineFilesModel->record(i).value("intro").toString() +
+                    "</div>"
+                    "<br />"
+                    "<div style='font: 20px arial, sans-serif;'>" +
+                        onlineFilesModel->record(i).value("data1").toString() +
+                    "</div>";
 
-            itemData << name << this->timeStampToDate(onlineFilesModel->record(i).value(5).toInt()) << html;
+            itemData << name << Utils::timeStampToDate(onlineFilesModel->record(i).value(5).toInt()) << html;
             QTreeWidgetItem *item = new QTreeWidgetItem(onlineAssignments, itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Checked);
@@ -360,11 +362,21 @@ void MainWindow::fillTreeFromUser(int userId){
             count = this->getTreeNameCount(name);
             if(count > 0)
                 name += " [" + QString::number(count + 1) + "]";
-            html = "<b>" + forumPostsModel->record(i).value("pregSubject").toString() + "</b>"
-                    "<br /><br />" + forumPostsModel->record(i).value("pregMessage").toString() +
-                    "<br /><br />" + forumPostsModel->record(i).value("respMessage").toString();
+            html = "<h2 style='font: bold 22px arial, sans-serif;'>" +
+                        forumPostsModel->record(i).value("pregSubject").toString() +
+                    "</h2>"
+                    "<br />"
+                    "<div style='font: 20px arial, sans-serif;'>" +
+                        forumPostsModel->record(i).value("pregMessage").toString() +
+                    "</div>"
+                    "<br />"
+                    "<div style='font: 20px arial, sans-serif;'>" +
+                        forumPostsModel->record(i).value("respMessage").toString() +
+                    "</div>";
 
-            itemData << name << this->timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()) << html;
+            qDebug() << forumPostsModel->record(i).value("pregMessage").toString();
+
+            itemData << name << Utils::timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()) << html;
             QTreeWidgetItem *item = new QTreeWidgetItem(forumPosts, itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Checked);
@@ -414,7 +426,7 @@ void MainWindow::fillTreeFromAssignment(){
                 "<br />" + onlineFilesModel->record(i).value("intro").toString();
                 "<br /><br />" + onlineFilesModel->record(i).value("data1").toString();
         itemData << onlineFilesModel->record(i).value("name").toString() + " (Text)" <<
-                    this->timeStampToDate(onlineFilesModel->record(i).value("timemodified").toInt()) <<
+                    Utils::timeStampToDate(onlineFilesModel->record(i).value("timemodified").toInt()) <<
                     html;
         QTreeWidgetItem *item = new QTreeWidgetItem(this->ui->treeWidgetFiles, itemData);
         item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
@@ -470,9 +482,9 @@ void MainWindow::downloadUploadFiles(){
     while (*it){        
         //qDebug() << (*it)->text(0);
         if ((*it)->text(0).contains("(Document)")){
-            localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/"  + QString::number(index) + ". " +
+            localFile = Utils::getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/"  + QString::number(index) + ". " +
                         (*it)->text(0);
-            sftp2.downloadFile(this->sftp.fileHashToPath((*it)->text(2)), localFile);
+            sftp2.downloadFile(Utils::fileHashToPath((*it)->text(2)), localFile);
             emit this->downloadedFile();
         }
         index++;
@@ -491,7 +503,7 @@ void MainWindow::setHandoutsToMerge(){
     while(*it){
         if((*it)->parent() != handoutsItem)
             break;       
-        localFile = this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH + "/"  + (*it)->text(0) + ".pdf";        
+        localFile = Utils::getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH + "/"  + (*it)->text(0) + ".pdf";
         this->filesToMerge << QPair<QString, int>(localFile, MainWindow::HANDOUT);
         ++it;
     }
@@ -510,7 +522,7 @@ void MainWindow::convertOnlineFiles(){
         if((*it)->parent() != assignmentsItem)
             break;       
         if ((*it)->text(0).contains("(Text)")){
-            localFile = this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + (*it)->text(0).replace(" (Text)", "") + ".pdf";
+            localFile = Utils::getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + (*it)->text(0).replace(" (Text)", "") + ".pdf";
             this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
             this->filesToMerge << QPair<QString, int>(localFile, MainWindow::ASSIGNMENT);
             emit this->downloadedFile();
@@ -530,7 +542,7 @@ void MainWindow::convertForumPostsFiles(){
     while(*it){
         if((*it)->parent() != forumPostsItem)
             break;        
-        localFile = this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH + "/" + (*it)->text(0).replace(":", "") + ".pdf";
+        localFile = Utils::getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH + "/" + (*it)->text(0).replace(":", "") + ".pdf";
         this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
         this->filesToMerge << QPair<QString, int>(localFile, MainWindow::FORUM_POST);
         emit this->downloadedFile();        
@@ -538,22 +550,8 @@ void MainWindow::convertForumPostsFiles(){
     }
 }
 
-QString MainWindow::getUserDirectory(){
-#ifdef Q_OS_WIN32
-    QSettings settings(QSettings::UserScope, "Microsoft", "Windows");
-    settings.beginGroup("CurrentVersion/Explorer/Shell Folders");
-    return settings.value("Personal").toString().replace("\\", "/");
-#endif
-#ifdef Q_OS_UNIX
-    return QDir().homePath();
-#endif
-#ifdef Q_OS_MAC
-    return QDir().homePath();
-#endif
-}
-
 void MainWindow::mergeFiles(){
-    qSort(this->filesToMerge.begin(), this->filesToMerge.end(), customSort);
+    qSort(this->filesToMerge.begin(), this->filesToMerge.end(), Utils::customSort);
     //qDebug() << "Files to merge:" << this->filesToMerge;
     QPair<QString, int> file;
     foreach(file, this->filesToMerge){
@@ -570,29 +568,6 @@ void MainWindow::mergeFiles(){
     }
 }
 
-bool MainWindow::customSort(QPair<QString, int> item1, QPair<QString, int> item2){
-    QString fileItem1 = item1.first.section('/', -1).remove(".pdf");
-    QString fileItem2 = item2.first.section('/', -1).remove(".pdf");
-    QStringList numbersItem1 = fileItem1.section(' ', 0, 0).split(".");
-    QStringList numbersItem2 = fileItem2.section(' ', 0, 0).split(".");
-    QString nameItem1 = fileItem1.section(' ', 1);
-    QString nameItem2 = fileItem2.section(' ', 1);
-    qDebug() << "Name1:" << nameItem1 << numbersItem1 << item1.second;
-    qDebug() << "Name2:" << nameItem2 << numbersItem2 << item2.second;
-
-    for(int i=0; i<numbersItem1.count() && i<numbersItem2.count(); i++){
-        if(numbersItem1[i].toInt() < numbersItem2[i].toInt())
-            return true;
-        if(numbersItem1[i].toInt() > numbersItem2[i].toInt())
-            return false;
-    }
-    if(item1.second < item2.second)
-        return true;
-    if(item1.second > item2.second)
-        return false;
-    return nameItem1 <= nameItem2;
-}
-
 void MainWindow::mergeAndPrint(){
     this->ui->listWidgetOutputStatus->setEnabled(true);
     this->ui->listWidgetOutputStatus->clear();
@@ -605,32 +580,20 @@ void MainWindow::mergeAndPrint(){
     }
 }
 
-void MainWindow::clearDirectory(QString path){
-    QDir dir(path);
-
-    foreach (QString file, dir.entryList(QDir::Files))
-        dir.remove(file);
-
-}
-
-void MainWindow::closeEvent(QCloseEvent *event){
-    exit();
-}
-
 void MainWindow::exit(){    
     if(this->thread.isRunning()){
         this->finishThread = true;
         this->hide();
         this->thread.waitForFinished();
     }
-    //this->sftp.disconnect();
     this->db.disconnect();
-    this->clearDirectory(this->getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
-    this->clearDirectory(this->getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
-    this->clearDirectory(this->getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);    
-    QApplication::exit(0);
+    this->clearAppDirectories();
+    QApplication::exit();
 }
 
+void MainWindow::closeEvent(QCloseEvent *event){
+    exit();
+}
 
 MainWindow::~MainWindow()
 {
