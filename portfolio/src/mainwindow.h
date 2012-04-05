@@ -82,6 +82,8 @@ private slots:
     void updateProgressBar();
     void checkProgressBar();
     void mergeAndPrint();
+    void backToLoginPage();
+    void backTotreePageFromUser();
     void exit();
 
 signals:

@@ -33,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->btnExit_2, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_3, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_4, SIGNAL(clicked()), this, SLOT(exit()));
+    QObject::connect(this->ui->btnBack_3, SIGNAL(clicked()), this, SLOT(backToLoginPage()));
+    QObject::connect(this->ui->btnBack_4, SIGNAL(clicked()), this, SLOT(backTotreePageFromUser()));
     QObject::connect(this, SIGNAL(destroyed()), this, SLOT(exit()));
     QObject::connect(this->ui->btnPrint, SIGNAL(clicked()), this, SLOT(mergeAndPrint()));
     QObject::connect(this->ui->progressBar, SIGNAL(valueChanged(int)), this, SLOT(checkProgressBar()));
@@ -46,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblTask->setText("Login");
     this->ui->btnNext_3->setEnabled(false);
     this->ui->progressBar->setRange(0, 0);
-    this->ui->listWidgetOutputStatus->setEnabled(false);
+    //this->ui->listWidgetOutputStatus->setEnabled(false);
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
@@ -200,6 +202,7 @@ void MainWindow::switchToLoginPage(){
 }
 
 void MainWindow::getHandoutsFileNames(QString userId){
+    this->handoutsFileNames.clear();
     QString remoteFile;
     QString fileName;
     QSqlQueryModel *model;
@@ -220,6 +223,7 @@ void MainWindow::getHandoutsFileNames(QString userId){
             this->handoutsFileNames.append(QPair<QString, QString>(remoteFile, fileName));
         }
     }
+    qDebug() << this->handoutsFileNames;
 }
 
 //Descarga los handouts en background
@@ -556,7 +560,8 @@ void MainWindow::mergeFiles(){
     QPair<QString, int> file;
     foreach(file, this->filesToMerge){
         QString errorString;
-        if(this->pdfmerge.addPdf(file.first, errorString)){
+        this->pdfmerge.addPdf(file.first, errorString);
+        /*if(this->pdfmerge.addPdf(file.first, errorString)){
             this->ui->listWidgetOutputStatus->addItem("File successfully included: " + file.first.section('/', -2));
         }else{
             QListWidgetItem *item = new QListWidgetItem();
@@ -564,20 +569,49 @@ void MainWindow::mergeFiles(){
             errorString = errorString.replace(".", ": ") + file.first.section('/', -2);
             item->setText(errorString);
             this->ui->listWidgetOutputStatus->addItem(item);
-        }
+        }*/
     }
 }
 
 void MainWindow::mergeAndPrint(){
-    this->ui->listWidgetOutputStatus->setEnabled(true);
-    this->ui->listWidgetOutputStatus->clear();
+    //this->ui->listWidgetOutputStatus->setEnabled(true);
+    //this->ui->listWidgetOutputStatus->clear();
     this->mergeFiles();
     if(this->pdfmerge.writeOutput()){
+        QMessageBox::information(this, "Successful printing", "Your portfolio has been created and has been saved to your desktop. You can now print it.");
         QDesktopServices::openUrl(QUrl("file:///" + this->pdfmerge.outputFileName()));
     }else{
         //Ver si se puede sacar alguna conclusión con un archivo de Qt.
         QMessageBox::critical(this, "Printing failed", "The program couldn't save the output file.");
     }
+}
+
+void MainWindow::backToLoginPage(){
+    if(this->thread.isRunning()){
+        this->finishThread = true;
+        this->thread.waitForFinished();
+    }
+
+    this->ui->lineEditUsername->setText("");
+    this->ui->lineEditPassword->setText("");
+    this->ui->treeWidgetFiles->clear();
+    this->ui->lblLoginFail->setText("");
+    this->ui->btnNext_2->setEnabled(true);
+
+
+    this->db.disconnect();
+    this->clearAppDirectories();
+    this->ui->stackedWidget->setCurrentIndex(1);
+}
+
+void MainWindow::backTotreePageFromUser(){
+    if(this->thread.isRunning()){
+        this->finishThread = true;
+        this->hide();
+        this->thread.waitForFinished();
+    }
+    this->clearAppDirectories();
+    this->ui->stackedWidget->setCurrentIndex(3);
 }
 
 void MainWindow::exit(){    
