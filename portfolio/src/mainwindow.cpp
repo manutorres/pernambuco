@@ -20,9 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
-    this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
+    //this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
     //this->ui->lineEditUsername->setText("sandalon61");
-    this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
+    //this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
     //QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
@@ -131,7 +131,7 @@ void MainWindow::reduceWindow(){
     int x = geometry.x();
     int y = geometry.y();
     int width = geometry.width();
-    int newHeight = geometry.height() - 100;
+    int newHeight = geometry.height() - 99;
     this->setGeometry(x, y, width, newHeight);
     qApp->processEvents();
     this->centerOnScreen();
@@ -287,7 +287,8 @@ void MainWindow::downloadHandouts(){
     this->sftp.disconnect();
 }
 
-void MainWindow::switchToTreePageFromUser(){       
+void MainWindow::switchToTreePageFromUser(){
+    qApp->processEvents();
     this->ui->btnNext_2->setEnabled(false);
     if(!connectToDatabase())
         return;
@@ -300,7 +301,7 @@ void MainWindow::switchToTreePageFromUser(){
     if(!this->db.userLogin(username, password)){
         this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: red;}");
         this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
-        this->ui->btnNext_2->setEnabled(true);
+        this->ui->btnNext_2->setEnabled(true);        
         return;
     }
     //Seteo el nombre del archivo de salida ahora que el modelo tiene los datos del usuario.
@@ -640,7 +641,7 @@ void MainWindow::backToLoginPage(){
     this->ui->lineEditPassword->setText("");
     this->ui->lblLoginFail->setText("");
     this->ui->btnNext_2->setEnabled(true);
-    this->db.disconnect();
+    //this->db.disconnect();
     this->ui->stackedWidget->setCurrentIndex(1);
     this->reduceWindow();
     this->ui->treeWidgetFiles->clear();
@@ -660,7 +661,6 @@ void MainWindow::backToTreePageFromUser(){
     this->setPageTitle(2, "File selection");
     this->ui->stackedWidget->setCurrentIndex(3);
     this->enlargeWindow();
-
 }
 
 void MainWindow::exit(){    
