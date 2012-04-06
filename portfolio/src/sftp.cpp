@@ -1,7 +1,13 @@
 #include "sftp.h"
 #include <QDebug>
 
-Sftp::Sftp(){}
+Sftp::Sftp(){
+    this->setTransfersEnabled(true);
+}
+
+void Sftp::setTransfersEnabled(bool value){
+    this->transfersEnabled = value;
+}
 
 //Crea una conexion ssh con el server especificado en host
 bool Sftp::open(QString host, QString username, QString password){
@@ -123,6 +129,9 @@ bool Sftp::downloadFile(QString serverFile, QString outputFile){
     //fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
 
     do {
+        if(!this->transfersEnabled)
+            break;
+
         char mem[131072];
 
         //loop until we fail

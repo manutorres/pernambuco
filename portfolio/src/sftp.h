@@ -40,8 +40,6 @@
 #include <ctype.h>
 */
 
-#define UPLOAD_FILES_PATH "html/moodle/moodledata/filedir/"
-
 class Sftp
 {
 
@@ -52,6 +50,7 @@ public:
     void disconnect();
     bool downloadFile(QString serverFile, QString outputFile);
     QStringList getListOfHandouts(QString handsoutDirectory);
+    void setTransfersEnabled(bool value);
 
 private:
 
@@ -60,6 +59,7 @@ private:
     LIBSSH2_SFTP *sftp_session;
     int rc;
     int sock;
+    bool transfersEnabled;
 };
 
 #endif // SFTP_H

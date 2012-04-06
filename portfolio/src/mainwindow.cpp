@@ -20,9 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
-    //this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
+    this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
     //this->ui->lineEditUsername->setText("sandalon61");
-    //this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
+    this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
     //QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->btnExit_3, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_4, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnBack_3, SIGNAL(clicked()), this, SLOT(backToLoginPage()));
-    QObject::connect(this->ui->btnBack_4, SIGNAL(clicked()), this, SLOT(backTotreePageFromUser()));
+    QObject::connect(this->ui->btnBack_4, SIGNAL(clicked()), this, SLOT(backToTreePageFromUser()));
     QObject::connect(this, SIGNAL(destroyed()), this, SLOT(exit()));
     QObject::connect(this->ui->btnPrint, SIGNAL(clicked()), this, SLOT(mergeAndPrint()));
     QObject::connect(this->ui->progressBar, SIGNAL(valueChanged(int)), this, SLOT(checkProgressBar()));
@@ -42,14 +42,31 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->treeWidgetFiles, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
                      this, SLOT(updateCheckState(QTreeWidgetItem*, int)));
 
-    this->finishThread = false;
+    this->setDownloadsEnabled(true);
+    this->conversionsCount = 0;
+    this->abortConversions = false;
 
-    this->ui->lblSteps->setText("Step 1 of 3");
-    this->ui->lblTask->setText("Login");
+    this->setPageTitle(1, "Login");
     this->ui->btnNext_3->setEnabled(false);
     this->ui->progressBar->setRange(0, 0);
     //this->ui->listWidgetOutputStatus->setEnabled(false);
     this->ui->stackedWidget->setCurrentIndex(1);
+}
+
+void MainWindow::setDownloadsEnabled(bool value){
+    this->downloadsEnabled = value;
+}
+
+void MainWindow::finishDownloadThread(bool hideWindow){
+    if(!this->thread.isRunning())
+        return;
+    this->setDownloadsEnabled(false);
+    this->sftp.setTransfersEnabled(false);
+    if(hideWindow)
+        this->hide();
+    this->thread.waitForFinished();
+    this->sftp.setTransfersEnabled(true);
+    this->setDownloadsEnabled(true);
 }
 
 void MainWindow::createAppDirectories(){
@@ -62,6 +79,11 @@ void MainWindow::clearAppDirectories(){
     Utils::clearDirectory(Utils::getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH);
     Utils::clearDirectory(Utils::getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH);
     Utils::clearDirectory(Utils::getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH);
+}
+
+void MainWindow::setPageTitle(int step, QString task){
+    this->ui->lblTask->setText(task);
+    this->ui->lblSteps->setText("Step " + QString::number(step) + " of 3");
 }
 
 //Metodo encargado de llevar a cabo la conexion con la base de datos
@@ -83,22 +105,37 @@ bool MainWindow::connectToDatabase(){
 
 //Metodo para centrar el mainwindow en la pantalla
 void MainWindow::centerOnScreen(){
-    QRect availableGeometry = QDesktopWidget().availableGeometry();
-    QRect currentGeometry = this->geometry();
-    this->setGeometry(availableGeometry.width() / 2 - currentGeometry.width() / 2,
-                      availableGeometry.height() / 2 - currentGeometry.height() / 2,
-                      currentGeometry.width(), currentGeometry.height());
+    QRect rect = this->frameGeometry();
+    rect.moveCenter(QDesktopWidget().availableGeometry().center());
+    this->move(rect.topLeft());
+    qApp->processEvents();
 }
 
 //Metodo para acomodar el tamanio de la ventana al momento de desplegar el QTreeWidget
 void MainWindow::enlargeWindow(){
     //Se agranda la ventana verticalmente manteniendola centrada.
     QRect geometry = this->geometry();
-    int x = geometry.x();
-    int newY = geometry.y() - 50;
+    int x = geometry.x();    
+    int y = geometry.y();
     int width = geometry.width();
     int newHeight = geometry.height() + 100;
-    this->setGeometry(x, newY, width, newHeight);
+    this->setGeometry(x, y, width, newHeight);
+    qApp->processEvents();
+    this->centerOnScreen();
+}
+
+//Metodo para acomodar el tamanio de la ventana al momento de retornar a la pantalla de login.
+void MainWindow::reduceWindow(){
+    //Se reduce la ventana verticalmente manteniendola centrada.
+    QRect geometry = this->geometry();
+    int x = geometry.x();
+    int y = geometry.y();
+    int width = geometry.width();
+    int newHeight = geometry.height() - 100;
+    this->setGeometry(x, y, width, newHeight);
+    qApp->processEvents();
+    this->centerOnScreen();
+
 }
 
 //Metodo para setear el estilo del QTreeWidget
@@ -185,9 +222,9 @@ int MainWindow::getTreeNameCount(QString name){
 //Dependiendo de la eleccion del usuario descarga o no los handouts del servidor y avanza a la siguiente pantalla
 void MainWindow::switchToLoginPage(){
 
-    if (this->ui->radioButtonHandouts->isChecked()){
-        //thread = run(this, &MainWindow::downloadHandouts);
-    }
+//    if (this->ui->radioButtonHandouts->isChecked()){
+//        thread = run(this, &MainWindow::downloadHandouts);
+//    }
 
     //Lleno el combo con los assignments que tienen por lo menos un assignment_submission online (data1 != '').
     this->db.getOnlineAssignments();
@@ -195,9 +232,7 @@ void MainWindow::switchToLoginPage(){
     for(int i=0; i<onlineAssignments->rowCount(); i++)
         this->ui->cmbAssignments->addItem(onlineAssignments->record(i).value("id").toString());
 
-    this->ui->lblTask->setText("Login");
-    //this->ui->lblSteps->setText("Step 2 of 4");
-    this->ui->lblSteps->setText("Step 1 of 3");
+    this->setPageTitle(1, "Login");
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
@@ -244,7 +279,7 @@ void MainWindow::downloadHandouts(){
 #endif
         emit this->downloadedFile();
 
-        if(this->finishThread){
+        if(!this->downloadsEnabled){
             this->sftp.disconnect();
             return;
         }
@@ -283,16 +318,14 @@ void MainWindow::switchToTreePageFromUser(){
     thread = run(this, &MainWindow::downloadHandouts);
 
     this->fillTreeFromUser(userId.toInt());
-    this->ui->lblTask->setText("File selection");
-    this->ui->lblSteps->setText("Step 2 of 3");
+    this->setPageTitle(2, "File selection");
     this->ui->stackedWidget->setCurrentIndex(3);
     this->enlargeWindow();
 }
 
 void MainWindow::switchToTreePageFromAssignment(){
     this->fillTreeFromAssignment();
-    this->ui->lblTask->setText("Assignment selection");
-    this->ui->lblSteps->setText("Step 2 of 3");
+    this->setPageTitle(2, "Assignment selection");
     this->ui->stackedWidget->setCurrentIndex(2);
     this->enlargeWindow();
 }
@@ -454,16 +487,19 @@ void MainWindow::switchToProgressPage(){
     //qDebug() << countChecked;
 
     //Se actualiza la cantidad de archivos a descargar y/o convertir
-    this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + countChecked + this->handoutsFileNames.count());
+    this->ui->progressBar->setRange(0, this->handoutsFileNames.count() + countChecked);
     this->checkProgressBar();
 
-    this->ui->lblTask->setText("Print");
-    this->ui->lblSteps->setText("Step 3 of 3");
+    this->setPageTitle(3, "Print");
     this->ui->stackedWidget->setCurrentIndex(4);
-    //QFuture<void> th1 = run(this, &MainWindow::downloadUploadFiles);
+    this->reduceWindow();
+
+    this->filesToMerge.clear();
     this->setHandoutsToMerge();
-    this->convertOnlineFiles();
-    this->convertForumPostsFiles();
+    if(!this->abortConversions)
+        this->convertOnlineFiles();
+    if(!this->abortConversions)
+        this->convertForumPostsFiles();
 }
 
 //Actualiza la progress bar a medida que se van descargando los archivos y que se van convirtiendo a pdf los assignment online
@@ -526,10 +562,15 @@ void MainWindow::convertOnlineFiles(){
         if((*it)->parent() != assignmentsItem)
             break;       
         if ((*it)->text(0).contains("(Text)")){
+            this->conversionsLock.lockForWrite();
             localFile = Utils::getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + (*it)->text(0).replace(" (Text)", "") + ".pdf";
             this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
             this->filesToMerge << QPair<QString, int>(localFile, MainWindow::ASSIGNMENT);
             emit this->downloadedFile();
+            this->conversionsCount++;
+            this->conversionsLock.unlock();
+            if(this->abortConversions)
+                break;
         }        
         ++it;
     }
@@ -546,10 +587,15 @@ void MainWindow::convertForumPostsFiles(){
     while(*it){
         if((*it)->parent() != forumPostsItem)
             break;        
+        this->conversionsLock.lockForWrite();
         localFile = Utils::getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH + "/" + (*it)->text(0).replace(":", "") + ".pdf";
         this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
         this->filesToMerge << QPair<QString, int>(localFile, MainWindow::FORUM_POST);
-        emit this->downloadedFile();        
+        emit this->downloadedFile();
+        this->conversionsCount++;
+        this->conversionsLock.unlock();
+        if(this->abortConversions)
+            break;
         ++it;
     }
 }
@@ -581,45 +627,44 @@ void MainWindow::mergeAndPrint(){
         QMessageBox::information(this, "Successful printing", "Your portfolio has been created and has been saved to your desktop. You can now print it.");
         QDesktopServices::openUrl(QUrl("file:///" + this->pdfmerge.outputFileName()));
     }else{
-        //Ver si se puede sacar alguna conclusión con un archivo de Qt.
         QMessageBox::critical(this, "Printing failed", "The program couldn't save the output file.");
     }
 }
 
 void MainWindow::backToLoginPage(){
-    if(this->thread.isRunning()){
-        this->finishThread = true;
-        this->thread.waitForFinished();
-    }
+    this->finishDownloadThread();
+    qDebug() << "Back to login: downloads finished.";
 
+    this->setPageTitle(1, "Login");
     this->ui->lineEditUsername->setText("");
     this->ui->lineEditPassword->setText("");
-    this->ui->treeWidgetFiles->clear();
     this->ui->lblLoginFail->setText("");
     this->ui->btnNext_2->setEnabled(true);
-
-
     this->db.disconnect();
-    this->clearAppDirectories();
     this->ui->stackedWidget->setCurrentIndex(1);
+    this->reduceWindow();
+    this->ui->treeWidgetFiles->clear();
+    this->ui->progressBar->setValue(0);
+    this->clearAppDirectories();
 }
 
-void MainWindow::backTotreePageFromUser(){
-    if(this->thread.isRunning()){
-        this->finishThread = true;
-        this->hide();
-        this->thread.waitForFinished();
-    }
-    this->clearAppDirectories();
+void MainWindow::backToTreePageFromUser(){
+    this->abortConversions = true;
+    this->conversionsLock.lockForRead();
+    qDebug() << "Conversions:" << this->conversionsCount;
+    this->ui->progressBar->setValue(this->ui->progressBar->value() - this->conversionsCount);
+    this->conversionsLock.unlock();
+    this->abortConversions = false;
+    this->conversionsCount = 0;
+
+    this->setPageTitle(2, "File selection");
     this->ui->stackedWidget->setCurrentIndex(3);
+    this->enlargeWindow();
+
 }
 
 void MainWindow::exit(){    
-    if(this->thread.isRunning()){
-        this->finishThread = true;
-        this->hide();
-        this->thread.waitForFinished();
-    }
+    this->finishDownloadThread(true);
     this->db.disconnect();
     this->clearAppDirectories();
     QApplication::exit();

@@ -42,17 +42,22 @@ private:
     static const int FORUM_POST = 2;
 
     Sftp sftp;
-    QList<QPair<QString,QString > > handoutsFileNames;
+    QList<QPair<QString, QString> > handoutsFileNames;
     QList<QPair<QString, int> > filesToMerge;
     QFuture<void> thread;
     DBConnection db;
     PDFmerge pdfmerge;
-    bool finishThread;
+    bool downloadsEnabled;
+    bool abortConversions;
+    int conversionsCount;
+    QReadWriteLock conversionsLock;
 
     void createAppDirectories();
     void clearAppDirectories();
+    void setPageTitle(int step, QString task);
     void centerOnScreen();
     void enlargeWindow();
+    void reduceWindow();
     bool connectToDatabase();
     void setTreeStyle();
     void setTreeTopLevelItems(QString fileType);
@@ -70,7 +75,8 @@ private:
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);
     void updatePrintEnabledState();
-
+    void setDownloadsEnabled(bool value);
+    void finishDownloadThread(bool hideWindow = false);
     void closeEvent(QCloseEvent *event);
 
 private slots:
@@ -83,7 +89,7 @@ private slots:
     void checkProgressBar();
     void mergeAndPrint();
     void backToLoginPage();
-    void backTotreePageFromUser();
+    void backToTreePageFromUser();
     void exit();
 
 signals:
