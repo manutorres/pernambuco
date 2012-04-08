@@ -143,7 +143,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_4">
@@ -342,7 +342,8 @@
            </font>
           </property>
           <property name="text">
-           <string>Please enter your user information. You have to login in order to continue.</string>
+           <string>Your computer must be connected to the internet for this program to work.
+Please enter your user information. You have to login in order to continue.</string>
           </property>
          </widget>
         </item>
@@ -799,7 +800,7 @@ color: rgb(206, 0, 0)</string>
       </widget>
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout">
-        <item row="6" column="5">
+        <item row="6" column="6">
          <widget class="QPushButton" name="btnExit_3">
           <property name="font">
            <font>
@@ -824,7 +825,7 @@ color: rgb(206, 0, 0)</string>
           </property>
          </spacer>
         </item>
-        <item row="6" column="4">
+        <item row="6" column="5">
          <widget class="QPushButton" name="btnNext_3">
           <property name="font">
            <font>
@@ -836,7 +837,7 @@ color: rgb(206, 0, 0)</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1" colspan="5">
+        <item row="4" column="1" colspan="6">
          <widget class="QTreeWidget" name="treeWidgetFiles">
           <property name="selectionMode">
            <enum>QAbstractItemView::NoSelection</enum>
@@ -848,7 +849,7 @@ color: rgb(206, 0, 0)</string>
           </column>
          </widget>
         </item>
-        <item row="3" column="1" colspan="5">
+        <item row="3" column="1" colspan="6">
          <widget class="QLabel" name="label_5">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -875,23 +876,18 @@ color: rgb(206, 0, 0)</string>
           </property>
          </widget>
         </item>
+        <item row="6" column="4">
+         <widget class="QPushButton" name="btnBack_3">
+          <property name="text">
+           <string>&amp;Back</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="page_4">
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>File downloading progress:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
+        <item row="3" column="0">
          <widget class="QProgressBar" name="progressBar">
           <property name="minimumSize">
            <size>
@@ -910,67 +906,7 @@ color: rgb(206, 0, 0)</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>Files included:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0" colspan="3">
-         <widget class="QListWidget" name="listWidgetOutputStatus">
-          <property name="minimumSize">
-           <size>
-            <width>332</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::NoSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="2">
+        <item row="3" column="2">
          <widget class="QPushButton" name="btnPrint">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1008,11 +944,11 @@ Portfolio</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="8" column="2">
          <widget class="QPushButton" name="btnExit_4">
           <property name="maximumSize">
            <size>
-            <width>96</width>
+            <width>80</width>
             <height>16777215</height>
            </size>
           </property>
@@ -1026,15 +962,92 @@ Portfolio</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <spacer name="horizontalSpacer_9">
+        <item row="8" column="1">
+         <widget class="QPushButton" name="btnBack_4">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&amp;Back</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>File downloading progress:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0" colspan="3">
+         <spacer name="verticalSpacer">
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>40</width>
-            <height>20</height>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="7" column="0" colspan="3">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="0">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="5" column="0" colspan="3">
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="4" column="0" colspan="3">
+         <spacer name="verticalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
            </size>
           </property>
          </spacer>
