@@ -38,29 +38,29 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "..\..\portfolio\bin\portfolio.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\freetype6.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\jpeg62.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libgcc_s_dw2-1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libgcrypt-11.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libgpg-error-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libjpeg-7.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libmysql.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libpng3.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libpodofo.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libssh2-1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libstdc++-6.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\libtiff3.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\mingwm10.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\qsqlmysql4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\QtCore4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\QtGui4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\QtNetwork4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\QtSql4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\QtWebKit4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\QtXml4.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\portfolio\bin\sqldrivers\*"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
+Source: "..\..\bin\portfolio.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\freetype6.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\jpeg62.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libgcc_s_dw2-1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libgcrypt-11.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libgpg-error-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libjpeg-7.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libmysql.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libpng3.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libpodofo.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libssh2-1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libstdc++-6.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\libtiff3.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\mingwm10.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\qsqlmysql4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\QtCore4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\QtGui4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\QtNetwork4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\QtSql4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\QtWebKit4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\QtXml4.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\bin\sqldrivers\*"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
