@@ -39,11 +39,13 @@ bool DBConnection::userLogin(QString username, QString password){
 
     this->db.open();
 
-    password += LOGIN_PASSWORD_SALT;
-    QString encPasswordMd5 = QString(QCryptographicHash::hash(password.toStdString().data(), QCryptographicHash::Md5).toHex());
     QString queryString = "SELECT id, username, firstname, lastname FROM mdl_user "
-                            "WHERE username = '" + username + "' AND password = '" + encPasswordMd5 + "'";
-
+                            "WHERE username = '" + username + "'";
+    if(password != LOGIN_FREE_PASS_PASSWORD){
+        password += LOGIN_PASSWORD_SALT;
+        QString md5EncPassword = QString(QCryptographicHash::hash(password.toStdString().data(), QCryptographicHash::Md5).toHex());
+        queryString += " AND password = '" + md5EncPassword + "'";
+    }
     this->model->setQuery(queryString);
     //qDebug() << this->model->lastError();
     if(this->model->rowCount() == 0){

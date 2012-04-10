@@ -641,7 +641,6 @@ void MainWindow::backToLoginPage(){
     this->ui->lineEditPassword->setText("");
     this->ui->lblLoginFail->setText("");
     this->ui->btnNext_2->setEnabled(true);
-    //this->db.disconnect();
     this->ui->stackedWidget->setCurrentIndex(1);
     this->reduceWindow();
     this->ui->treeWidgetFiles->clear();
