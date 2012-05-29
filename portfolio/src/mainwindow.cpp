@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
     //this->ui->lineEditUsername->setText("sandalon61");
-    //this->ui->lineEditPassword->setText(LOGIN_TEST_PASSWORD);
+    //this->ui->lineEditPassword->setText(LOGIN_FREE_PASS_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
     //QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
@@ -272,6 +272,7 @@ void MainWindow::downloadHandouts(){
         return;
     }
     QString hostAddress = hostInfo.addresses().first().toString();
+    qDebug() << "Server address:" << hostAddress;
     this->sftp.open(hostAddress, SFTP_USERNAME, SFTP_PASSWORD);
 
     for (int i = 0; i < this->handoutsFileNames.count(); i++){
