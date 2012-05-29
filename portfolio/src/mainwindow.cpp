@@ -5,7 +5,6 @@ const int MainWindow::HANDOUT;
 const int MainWindow::ASSIGNMENT;
 const int MainWindow::FORUM_POST;
 
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -267,7 +266,13 @@ void MainWindow::downloadHandouts(){
     QString remoteFile;
     QString localFile;
 
-    this->sftp.open(SFTP_HOST_IP, SFTP_USERNAME, SFTP_PASSWORD);
+    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_IP);
+    if(hostInfo.addresses().isEmpty()){
+        QMessageBox::critical(this, "File downloading failed", "The program couldn't connect to the server.");
+        return;
+    }
+    QString hostAddress = hostInfo.addresses().first().toString();
+    this->sftp.open(hostAddress, SFTP_USERNAME, SFTP_PASSWORD);
 
     for (int i = 0; i < this->handoutsFileNames.count(); i++){
         remoteFile = this->handoutsFileNames.at(i).first;

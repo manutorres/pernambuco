@@ -12,6 +12,7 @@
 #include <QNetworkAccessManager>
 #include <QDesktopServices>
 #include <QFont>
+#include <QHostInfo>
 
 #include "xmlassigment.h"
 #include "pdfmerge.h"
