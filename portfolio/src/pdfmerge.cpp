@@ -1,7 +1,6 @@
 #include "pdfmerge.h"
 
-PDFmerge::PDFmerge()
-{    
+PDFmerge::PDFmerge(){    
     this->printer.setPageSize(QPrinter::Letter);
     this->printer.setOutputFormat(QPrinter::PdfFormat);
     this->printer.setPageMargins(60, 80, 60, 80, QPrinter::DevicePixel);
@@ -24,7 +23,7 @@ bool PDFmerge::addPdf(QString file, QString &errorString){
         doc.CreateFont("Calibri");
         doc.Load(file.toStdString().data());
         try{
-            document.Append(doc);
+            this->document.Append(doc);
         }catch(PoDoFo::PdfError){
             errorString = "The file couldn't be included.";
             return false;
@@ -51,7 +50,7 @@ bool PDFmerge::writeOutput(QString outputFile){
     if(outputFile == "")
         outputFile = this->outputFile;
     try{
-        document.Write(outputFile.toStdString().data());
+        this->document.Write(outputFile.toStdString().data());
     }catch(PoDoFo::PdfError){
         //qDebug() << "Error en la escritura de la salida.";
         return false;
@@ -62,4 +61,8 @@ bool PDFmerge::writeOutput(QString outputFile){
 //Este método se ejecuta cuando el contenido html se termina de cargar en el objeto web
 void PDFmerge::printHtmlToPdf(){
     this->web.print(&this->printer);
+}
+
+void PDFmerge::clearDocument(){
+    this->document.DeletePages(0, this->document.GetPageCount());
 }

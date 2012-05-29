@@ -23,6 +23,7 @@ public:
     void setOutputFileName(QString outputFile);
     QString outputFileName();
     bool writeOutput(QString outputFile = "");
+    void clearDocument();
 
 private:
     QWebView web;

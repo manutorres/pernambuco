@@ -623,6 +623,7 @@ void MainWindow::mergeFiles(){
 void MainWindow::mergeAndPrint(){
     //this->ui->listWidgetOutputStatus->setEnabled(true);
     //this->ui->listWidgetOutputStatus->clear();
+    this->pdfmerge.clearDocument();
     this->mergeFiles();
     if(this->pdfmerge.writeOutput()){
         QMessageBox::information(this, "Successful printing", "Your portfolio has been created and has been saved to your desktop. You can now print it.");
