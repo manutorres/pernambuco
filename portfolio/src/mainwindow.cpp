@@ -266,7 +266,7 @@ void MainWindow::downloadHandouts(){
     QString remoteFile;
     QString localFile;
 
-    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_IP);
+    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
     if(hostInfo.addresses().isEmpty()){
         QMessageBox::critical(this, "File downloading failed", "The program couldn't connect to the server.");
         return;
