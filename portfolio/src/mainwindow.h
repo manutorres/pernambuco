@@ -65,7 +65,7 @@ private:
     QTreeWidgetItem* getFileTypeItem(QString type);
     int getTreeNameCount(QString name);
     void getHandoutsFileNames(QString userId);
-    void downloadHandouts();
+    void downloadHandouts(QString serverAddress);
     void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();
     void setHandoutsToMerge();

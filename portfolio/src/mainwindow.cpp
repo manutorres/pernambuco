@@ -20,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
     //this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
-    //this->ui->lineEditUsername->setText("sandalon61");
     //this->ui->lineEditPassword->setText(LOGIN_FREE_PASS_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
@@ -261,19 +260,13 @@ void MainWindow::getHandoutsFileNames(QString userId){
 }
 
 //Descarga los handouts en background
-void MainWindow::downloadHandouts(){
+void MainWindow::downloadHandouts(QString serverAddress){
     QString localPath = Utils::getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
     QString remoteFile;
     QString localFile;
 
-    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
-    if(hostInfo.addresses().isEmpty()){
-        QMessageBox::critical(this, "File downloading failed", "The program couldn't connect to the server.");
-        return;
-    }
-    QString hostAddress = hostInfo.addresses().first().toString();
-    qDebug() << "Server address:" << hostAddress;
-    this->sftp.open(hostAddress, SFTP_USERNAME, SFTP_PASSWORD);
+    qDebug() << "Server address:" << serverAddress;
+    this->sftp.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
 
     for (int i = 0; i < this->handoutsFileNames.count(); i++){
         remoteFile = this->handoutsFileNames.at(i).first;
@@ -318,11 +311,15 @@ void MainWindow::switchToTreePageFromUser(){
     this->pdfmerge.setOutputFileName(outputFile);
     //qDebug() << "Output file:" << outputFile;
 
-    //Mensaje de descarga de handouts
-    //int ret = QMessageBox::question(this, "Handouts download", "Do you want to include the handouts in the portfolio?", QMessageBox::Yes, QMessageBox::No);
-    //if(ret == QMessageBox::Yes){
-    getHandoutsFileNames(userId);
-    thread = run(this, &MainWindow::downloadHandouts);
+    //Se asegura el acceso al server antes de obtener handouts y lanzar el hilo
+    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    if(hostInfo.addresses().isEmpty()){
+        QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server.");
+    }else{
+        QString hostAddress = hostInfo.addresses().first().toString();
+        getHandoutsFileNames(userId);
+        thread = run(this, &MainWindow::downloadHandouts, hostAddress);
+    }
 
     this->fillTreeFromUser(userId.toInt());
     this->setPageTitle(2, "File selection");
