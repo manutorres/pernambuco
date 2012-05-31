@@ -35,12 +35,12 @@ void DBConnection::printModel(){
     }
 }
 
-bool DBConnection::userLogin(QString username, QString password){
+bool DBConnection::userLogin(QString email, QString password){
 
     this->db.open();
 
     QString queryString = "SELECT id, username, firstname, lastname FROM mdl_user "
-                            "WHERE username = '" + username + "'";
+                            "WHERE email = '" + email + "'";
     if(password != LOGIN_FREE_PASS_PASSWORD){
         password += LOGIN_PASSWORD_SALT;
         QString md5EncPassword = QString(QCryptographicHash::hash(password.toStdString().data(), QCryptographicHash::Md5).toHex());

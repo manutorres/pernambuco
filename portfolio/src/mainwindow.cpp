@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
-    //this->ui->lineEditUsername->setText(LOGIN_TEST_USERNAME);
+    //this->ui->lineEditUsername->setText(LOGIN_TEST_EMAIL);
     //this->ui->lineEditPassword->setText(LOGIN_FREE_PASS_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
@@ -291,13 +291,13 @@ void MainWindow::switchToTreePageFromUser(){
     this->ui->btnNext_2->setEnabled(false);
     if(!connectToDatabase())
         return;
-    QString username = this->ui->lineEditUsername->text();
+    QString email = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
     this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: #006EA8;}");
     this->ui->lblLoginFail->setText("Please wait while the application connects to the database...");
     qApp->processEvents();
 
-    if(!this->db.userLogin(username, password)){
+    if(!this->db.userLogin(email, password)){
         this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: red;}");
         this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
         this->ui->btnNext_2->setEnabled(true);        
@@ -334,6 +334,15 @@ void MainWindow::switchToTreePageFromAssignment(){
     this->enlargeWindow();
 }
 
+void MainWindow::insertOrderedTreeItem(QTreeWidgetItem *parentItem, QTreeWidgetItem *item){
+    int i=0;
+    for(i; i<parentItem->childCount(); i++){
+        if(Utils::customSort(QPair<QString, int>(item->text(0), 0), QPair<QString, int>(parentItem->child(i)->text(0), 0)))
+            break;
+    }
+    parentItem->insertChild(i, item);
+}
+
 void MainWindow::fillTreeFromUser(int userId){
 
     int i, count;
@@ -347,11 +356,13 @@ void MainWindow::fillTreeFromUser(int userId){
 
         for (i = 0; i < this->handoutsFileNames.count(); i++){            
             itemData << QString(this->handoutsFileNames.at(i).second).replace(".pdf", "");
-            QTreeWidgetItem *item = new QTreeWidgetItem(handouts, itemData);
+            QTreeWidgetItem *item = new QTreeWidgetItem(itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Checked);
             item->setIcon(0, QIcon(":/images/pdf_file.png"));
+            this->insertOrderedTreeItem(handouts, item);
             itemData.clear();
+
         }
     }
 
@@ -381,10 +392,11 @@ void MainWindow::fillTreeFromUser(int userId){
                     "</div>";
 
             itemData << name << Utils::timeStampToDate(onlineFilesModel->record(i).value(5).toInt()) << html;
-            QTreeWidgetItem *item = new QTreeWidgetItem(onlineAssignments, itemData);
+            QTreeWidgetItem *item = new QTreeWidgetItem(itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Checked);
             item->setIcon(0, QIcon(":/images/html_file.png"));
+            this->insertOrderedTreeItem(onlineAssignments, item);
             itemData.clear();
         }
     }
@@ -418,10 +430,11 @@ void MainWindow::fillTreeFromUser(int userId){
             qDebug() << forumPostsModel->record(i).value("pregMessage").toString();
 
             itemData << name << Utils::timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()) << html;
-            QTreeWidgetItem *item = new QTreeWidgetItem(forumPosts, itemData);
+            QTreeWidgetItem *item = new QTreeWidgetItem(itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Checked);
             item->setIcon(0, QIcon(":/images/forum_file.png"));
+            this->insertOrderedTreeItem(forumPosts, item);
             itemData.clear();
         }
     }

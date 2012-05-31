@@ -68,6 +68,7 @@ private:
     void downloadHandouts(QString serverAddress);
     void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();
+    void insertOrderedTreeItem(QTreeWidgetItem *parentItem, QTreeWidgetItem *item);
     void setHandoutsToMerge();
     void downloadUploadFiles();
     void convertOnlineFiles();
