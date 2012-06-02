@@ -404,7 +404,7 @@ Please enter your user information. You have to login in order to continue.</str
            </font>
           </property>
           <property name="text">
-           <string>Username</string>
+           <string>Email</string>
           </property>
          </widget>
         </item>
@@ -1064,7 +1064,7 @@ Portfolio</string>
      <x>0</x>
      <y>0</y>
      <width>480</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>
