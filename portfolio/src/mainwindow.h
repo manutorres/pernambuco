@@ -13,6 +13,7 @@
 #include <QDesktopServices>
 #include <QFont>
 #include <QHostInfo>
+#include <QHash>
 
 #include "xmlassigment.h"
 #include "pdfmerge.h"
@@ -52,6 +53,7 @@ private:
     bool abortConversions;
     int conversionsCount;
     QReadWriteLock conversionsLock;
+    QHash<int, int> hashCourses;//key: numero de item en el combobox. -- value: el id de un curso
 
     void createAppDirectories();
     void clearAppDirectories();
@@ -80,6 +82,8 @@ private:
     void setDownloadsEnabled(bool value);
     void finishDownloadThread(bool hideWindow = false);
     void closeEvent(QCloseEvent *event);
+    void fillCourses();
+
 
 private slots:
     void updateCheckState(QTreeWidgetItem *item, int column);
@@ -93,6 +97,7 @@ private slots:
     void backToLoginPage();
     void backToTreePageFromUser();
     void exit();
+    void fillStudentsFromCourse();
 
 signals:
     void downloadedFile();    

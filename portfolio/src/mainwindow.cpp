@@ -31,8 +31,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->btnExit_2, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_3, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_4, SIGNAL(clicked()), this, SLOT(exit()));
+    QObject::connect(this->ui->btnExit_5, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnBack_3, SIGNAL(clicked()), this, SLOT(backToLoginPage()));
     QObject::connect(this->ui->btnBack_4, SIGNAL(clicked()), this, SLOT(backToTreePageFromUser()));
+    QObject::connect(this->ui->btnBack_5, SIGNAL(clicked()), this, SLOT(backToLoginPage()));
     QObject::connect(this, SIGNAL(destroyed()), this, SLOT(exit()));
     QObject::connect(this->ui->btnPrint, SIGNAL(clicked()), this, SLOT(mergeAndPrint()));
     QObject::connect(this->ui->progressBar, SIGNAL(valueChanged(int)), this, SLOT(checkProgressBar()));
@@ -136,9 +138,10 @@ void MainWindow::reduceWindow(){
 
 }
 
-//Metodo para setear el estilo del QTreeWidget
+//Metodo para setear el estilo de los QTreeWidget
 void MainWindow::setTreeStyle(){
 
+    //Estilo del QTreeWidget para los Handouts y Assignments
     QStringList treeHeaders;
     treeHeaders << "File" << "Date" << "PrintData";
     this->ui->treeWidgetFiles->setColumnCount(3);
@@ -147,6 +150,16 @@ void MainWindow::setTreeStyle(){
     this->ui->treeWidgetFiles->setColumnWidth(0, 320);
     this->ui->treeWidgetFiles->setColumnWidth(1, 66);
     this->ui->treeWidgetFiles->setIconSize(QSize(22, 22));
+
+    //Estilo del QTreeWidget para la lista de students
+    treeHeaders.clear();
+    treeHeaders << "First Name" << "Last Name" << "Email" << "studentId";
+    this->ui->treeWidgetStudents->setColumnCount(4);
+    this->ui->treeWidgetStudents->hideColumn(3);
+    this->ui->treeWidgetStudents->setHeaderLabels(treeHeaders);
+    this->ui->treeWidgetStudents->setColumnWidth(1, 200);
+    this->ui->treeWidgetStudents->setColumnWidth(2, 200);
+    this->ui->treeWidgetStudents->setColumnWidth(3, 150);
 }
 
 void MainWindow::setTreeTopLevelItems(QString fileType){
@@ -297,34 +310,82 @@ void MainWindow::switchToTreePageFromUser(){
     this->ui->lblLoginFail->setText("Please wait while the application connects to the database...");
     qApp->processEvents();
 
-    if(!this->db.userLogin(email, password)){
-        this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: red;}");
-        this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
-        this->ui->btnNext_2->setEnabled(true);        
-        return;
-    }
-    //Seteo el nombre del archivo de salida ahora que el modelo tiene los datos del usuario.
-    QSqlRecord userRecord = this->db.getModel()->record(0);
-    QString userId = userRecord.value("id").toString();
-    QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/KpmPortfolio " +
-            userRecord.value("firstname").toString() + userRecord.value("lastname").toString()[0].toUpper() + ".pdf";
-    this->pdfmerge.setOutputFileName(outputFile);
-    //qDebug() << "Output file:" << outputFile;
+    if (email == LOGIN_USERNAME_KPMTEAM && password == LOGIN_PASSWORD_KPMTEAM){
 
-    //Se asegura el acceso al server antes de obtener handouts y lanzar el hilo
-    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
-    if(hostInfo.addresses().isEmpty()){
-        QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server.");
-    }else{
-        QString hostAddress = hostInfo.addresses().first().toString();
-        getHandoutsFileNames(userId);
-        thread = run(this, &MainWindow::downloadHandouts, hostAddress);
+        fillCourses();//Completa el combobox con todos los cursos disponibles
+        this->setPageTitle(2, "Course and Student(s) selection");
+        this->ui->stackedWidget->setCurrentIndex(5);
     }
+    else
+    {
+        if(!this->db.userLogin(email, password)){
+            this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: red;}");
+            this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
+            this->ui->btnNext_2->setEnabled(true);
+            return;
+        }
+        //Seteo el nombre del archivo de salida ahora que el modelo tiene los datos del usuario.
+        QSqlRecord userRecord = this->db.getModel()->record(0);
+        QString userId = userRecord.value("id").toString();
+        QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/KpmPortfolio " +
+                userRecord.value("firstname").toString() + userRecord.value("lastname").toString()[0].toUpper() + ".pdf";
+        this->pdfmerge.setOutputFileName(outputFile);
+        //qDebug() << "Output file:" << outputFile;
 
-    this->fillTreeFromUser(userId.toInt());
-    this->setPageTitle(2, "File selection");
-    this->ui->stackedWidget->setCurrentIndex(3);
-    this->enlargeWindow();
+        //Se asegura el acceso al server antes de obtener handouts y lanzar el hilo
+        QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+        if(hostInfo.addresses().isEmpty()){
+            QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server.");
+        }else{
+            QString hostAddress = hostInfo.addresses().first().toString();
+            getHandoutsFileNames(userId);
+            thread = run(this, &MainWindow::downloadHandouts, hostAddress);
+        }
+
+        this->fillTreeFromUser(userId.toInt());
+        this->setPageTitle(2, "File selection");
+        this->ui->stackedWidget->setCurrentIndex(3);
+        this->enlargeWindow();
+    }
+}
+
+void MainWindow::fillCourses(){
+
+    this->ui->cmbCourses->clear();    
+
+    this->db.getAllCourses();
+    QSqlQueryModel *coursesModel = this->db.getModel();
+
+    if (coursesModel->rowCount() != 0){
+        this->hashCourses.clear();
+
+        for (int i = 0; i < coursesModel->rowCount(); i++){
+            //qDebug() << coursesModel->record(i).value("shortname").toString();
+            this->hashCourses[i] = coursesModel->record(i).value("id").toInt();
+            this->ui->cmbCourses->addItem(coursesModel->record(i).value("shortname").toString());
+        }
+        QObject::connect(this->ui->cmbCourses, SIGNAL(currentIndexChanged(int)), this, SLOT(fillStudentsFromCourse()));
+        fillStudentsFromCourse();
+    }
+}
+
+void MainWindow::fillStudentsFromCourse(){
+    this->ui->treeWidgetStudents->clear();
+    this->db.getStudentsByCourse(this->hashCourses[this->ui->cmbCourses->currentIndex()]);
+    QSqlQueryModel *studentsModel = this->db.getModel();
+
+    if (studentsModel->rowCount() != 0){
+        QStringList itemData;
+
+        for (int i = 0; i < studentsModel->rowCount(); i++){
+            itemData << studentsModel->record(i).value("firstname").toString() << studentsModel->record(i).value("lastname").toString() << studentsModel->record(i).value("email").toString();
+            QTreeWidgetItem *studentItem = new QTreeWidgetItem(itemData);
+            studentItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+            studentItem->setCheckState(0, Qt::Checked);
+            this->ui->treeWidgetStudents->addTopLevelItem(studentItem);
+            itemData.clear();
+        }
+    }
 }
 
 void MainWindow::switchToTreePageFromAssignment(){
@@ -650,6 +711,7 @@ void MainWindow::mergeAndPrint(){
 }
 
 void MainWindow::backToLoginPage(){
+    disconnect(this->ui->cmbCourses, SIGNAL(currentIndexChanged(int)), this, SLOT(fillStudentsFromCourse()));
     this->finishDownloadThread();
     qDebug() << "Back to login: downloads finished.";
 

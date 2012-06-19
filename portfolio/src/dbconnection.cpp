@@ -160,6 +160,30 @@ bool DBConnection::getCourseHandouts(int courseId){
     return true;
 }
 
+bool DBConnection::getAllCourses(){
+    this->db.open();
+    QString queryString = "SELECT id, shortname FROM mdl_course";
+
+    this->model->setQuery(queryString);
+    //qDebug() << this->model->lastError();
+    if(this->model->rowCount() == 0){
+        return false;
+    }
+    return true;
+}
+
+bool DBConnection::getStudentsByCourse(int courseId){
+    this->db.open();
+    QString queryString = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user.email FROM mdl_user, mdl_user_enrolments WHERE mdl_user.id = mdl_user_enrolments.userId and mdl_user_enrolments.enrolid = " + QString::number(courseId);
+
+    this->model->setQuery(queryString);
+    //qDebug() << this->model->lastError();
+    if(this->model->rowCount() == 0){
+        return false;
+    }
+    return true;
+}
+
 void DBConnection::disconnect(){
     if(this->db.open())
         this->db.close();

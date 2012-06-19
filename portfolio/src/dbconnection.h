@@ -30,6 +30,8 @@ public:
     void disconnect();
     QSqlQueryModel* getModel();
     void printModel();
+    bool getAllCourses();
+    bool getStudentsByCourse(int courseId);
 
 private:
 

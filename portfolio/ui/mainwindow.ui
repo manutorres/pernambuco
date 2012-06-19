@@ -143,7 +143,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_4">
@@ -1054,6 +1054,73 @@ Portfolio</string>
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="page_5">
+       <layout class="QGridLayout" name="gridLayout_9">
+        <item row="5" column="1">
+         <widget class="QPushButton" name="btnBack_5">
+          <property name="text">
+           <string>&amp;Previous</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QPushButton" name="btnNext_5">
+          <property name="text">
+           <string>&amp;Next</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="3">
+         <widget class="QPushButton" name="btnExit_5">
+          <property name="text">
+           <string>&amp;Exit</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <spacer name="horizontalSpacer_9">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_19">
+          <property name="text">
+           <string>Please select the student(s):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>Please select the course:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QComboBox" name="cmbCourses"/>
+        </item>
+        <item row="4" column="0" colspan="4">
+         <widget class="QTreeWidget" name="treeWidgetStudents">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::MultiSelection</enum>
+          </property>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1064,7 +1131,7 @@ Portfolio</string>
      <x>0</x>
      <y>0</y>
      <width>480</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
