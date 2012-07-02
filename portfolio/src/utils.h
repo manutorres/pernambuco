@@ -20,6 +20,7 @@ public:
     static QString timeStampToDate(int unixTime);
     static bool customSort(QPair<QString, int> item1, QPair<QString, int> item2);
     static QString fileHashToPath(QString fileHash);
+    static QString dataToHtml(QString title, QString intro, QString content);
 };
 
 #endif // UTILS_H

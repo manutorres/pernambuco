@@ -80,3 +80,19 @@ bool Utils::customSort(QPair<QString, int> item1, QPair<QString, int> item2){
 QString Utils::fileHashToPath(QString fileHash){
     return fileHash.left(2) + "/" + fileHash.mid(2, 2) + "/" + fileHash;
 }
+
+//Retorna un html listo para ser impreso en pdf.
+QString Utils::dataToHtml(QString title, QString intro, QString content){
+    QString html =  "<h2 style='font: bold 22px arial, sans-serif;'>" +
+                        title +
+                    "</h2>"
+                    "<br />"
+                    "<div style='font: 20px arial, sans-serif;'>" +
+                        intro +
+                    "</div>"
+                    "<br />"
+                    "<div style='font: 20px arial, sans-serif;'>" +
+                        content +
+                    "</div>";
+    return html;
+}

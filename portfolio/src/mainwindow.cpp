@@ -19,22 +19,26 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
-    //this->ui->lineEditUsername->setText(LOGIN_TEST_EMAIL);
-    //this->ui->lineEditPassword->setText(LOGIN_FREE_PASS_PASSWORD);
+    this->ui->lineEditUsername->setText(LOGIN_USERNAME_KPMTEAM);
+    this->ui->lineEditPassword->setText(LOGIN_FREE_PASS_PASSWORD);
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
     //QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
     //QObject::connect(this->ui->btnNext_2b, SIGNAL(clicked()), this, SLOT(switchToTreePageFromAssignment()));
-    QObject::connect(this->ui->btnNext_2, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
+    QObject::connect(this->ui->btnNext_2, SIGNAL(clicked()), this, SLOT(loginAndSwitchPage()));
     QObject::connect(this->ui->btnNext_3, SIGNAL(clicked()), this, SLOT(switchToProgressPage()));
+    QObject::connect(this->ui->btnNext_5, SIGNAL(clicked()), this, SLOT(switchToCategoriesPage()));
+    QObject::connect(this->ui->btnNext_6, SIGNAL(clicked()), this, SLOT(switchToProgressPageFromCourse()));
+    QObject::connect(this->ui->btnBack_3, SIGNAL(clicked()), this, SLOT(backToLoginPage()));
+    QObject::connect(this->ui->btnBack_4, SIGNAL(clicked()), this, SLOT(backToTreePageFromUser()));
+    QObject::connect(this->ui->btnBack_5, SIGNAL(clicked()), this, SLOT(backToLoginPage()));
+    QObject::connect(this->ui->btnBack_6, SIGNAL(clicked()), this, SLOT(backToCoursesPage()));
     QObject::connect(this->ui->btnExit_1, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_2, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_3, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_4, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this->ui->btnExit_5, SIGNAL(clicked()), this, SLOT(exit()));
-    QObject::connect(this->ui->btnBack_3, SIGNAL(clicked()), this, SLOT(backToLoginPage()));
-    QObject::connect(this->ui->btnBack_4, SIGNAL(clicked()), this, SLOT(backToTreePageFromUser()));
-    QObject::connect(this->ui->btnBack_5, SIGNAL(clicked()), this, SLOT(backToLoginPage()));
+    QObject::connect(this->ui->btnExit_6, SIGNAL(clicked()), this, SLOT(exit()));
     QObject::connect(this, SIGNAL(destroyed()), this, SLOT(exit()));
     QObject::connect(this->ui->btnPrint, SIGNAL(clicked()), this, SLOT(mergeAndPrint()));
     QObject::connect(this->ui->progressBar, SIGNAL(valueChanged(int)), this, SLOT(checkProgressBar()));
@@ -247,34 +251,28 @@ void MainWindow::switchToLoginPage(){
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
-void MainWindow::getHandoutsFileNames(QString userId){
+void MainWindow::getHandoutsFileNames(int courseId){
     this->handoutsFileNames.clear();
     QString remoteFile;
     QString fileName;
     QSqlQueryModel *model;
-    QStringList coursesId;
+    QString localPath = Utils::getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
 
-    this->db.getUserCourse(userId.toInt());
+    qDebug() << "Course ID:" << courseId;
+    this->db.getCourseHandouts(courseId);
     model = this->db.getModel();
-
-    for (int i = 0; i < model->rowCount(); i++)
-        coursesId << model->record(i).value("enrolid").toString();
-
-    foreach (QString courseId, coursesId){
-        this->db.getCourseHandouts(courseId.toInt());
-        model = this->db.getModel();
-        for (int i = 0; i < model->rowCount(); i++){
-            remoteFile = QString(HANDOUTS_REMOTE_PATH) + "/" + Utils::fileHashToPath(model->record(i).value("contenthash").toString());
-            fileName = model->record(i).value("filename").toString();
-            this->handoutsFileNames.append(QPair<QString, QString>(remoteFile, fileName));
-        }
+    qDebug() << "DB Handout:" << model->rowCount();
+    for (int i=0; i<model->rowCount(); i++){
+        remoteFile = QString(HANDOUTS_REMOTE_PATH) + "/" + Utils::fileHashToPath(model->record(i).value("contenthash").toString());
+        fileName = localPath + "/" + model->record(i).value("filename").toString();
+        this->handoutsFileNames.append(QPair<QString, QString>(remoteFile, fileName));
     }
-    qDebug() << this->handoutsFileNames;
+    qDebug() << "Handouts count:" << this->handoutsFileNames.count();
+    qDebug() << "Handouts:" << this->handoutsFileNames;
 }
 
 //Descarga los handouts en background
 void MainWindow::downloadHandouts(QString serverAddress){
-    QString localPath = Utils::getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
     QString remoteFile;
     QString localFile;
 
@@ -283,7 +281,7 @@ void MainWindow::downloadHandouts(QString serverAddress){
 
     for (int i = 0; i < this->handoutsFileNames.count(); i++){
         remoteFile = this->handoutsFileNames.at(i).first;
-        localFile = localPath + "/" + this->handoutsFileNames.at(i).second;
+        localFile = this->handoutsFileNames.at(i).second;
         this->sftp.downloadFile(remoteFile, localFile);
         qDebug() << "Downloaded file:" << localFile;
 #ifdef Q_OS_WIN32
@@ -299,7 +297,7 @@ void MainWindow::downloadHandouts(QString serverAddress){
     this->sftp.disconnect();
 }
 
-void MainWindow::switchToTreePageFromUser(){
+void MainWindow::loginAndSwitchPage(){
     qApp->processEvents();
     this->ui->btnNext_2->setEnabled(false);
     if(!connectToDatabase())
@@ -309,12 +307,16 @@ void MainWindow::switchToTreePageFromUser(){
     this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: #006EA8;}");
     this->ui->lblLoginFail->setText("Please wait while the application connects to the database...");
     qApp->processEvents();
+    this->kpmteamLogin = false;
 
     if (email == LOGIN_USERNAME_KPMTEAM && password == LOGIN_PASSWORD_KPMTEAM){
-
-        fillCourses();//Completa el combobox con todos los cursos disponibles
-        this->setPageTitle(2, "Course and Student(s) selection");
+        this->kpmteamLogin = true;
+        fillCourses(); //Completa el combobox con todos los cursos disponibles
+        this->studentNames.clear();
+        this->filesToMergeByStudent.clear();
+        this->setPageTitle(2, "Course and Student(s) selection");        
         this->ui->stackedWidget->setCurrentIndex(5);
+        this->enlargeWindow();
     }
     else
     {
@@ -333,19 +335,38 @@ void MainWindow::switchToTreePageFromUser(){
         //qDebug() << "Output file:" << outputFile;
 
         //Se asegura el acceso al server antes de obtener handouts y lanzar el hilo
+        this->db.getUserCourse(userId.toInt());
+        int courseId = this->db.getModel()->record(0).value("enrolid").toInt();
+        this->downloadCourseHandouts(courseId);
+
+        /*
         QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
         if(hostInfo.addresses().isEmpty()){
             QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server.");
-        }else{
+        }else{            
+            this->db.getUserCourse(userId.toInt());
             QString hostAddress = hostInfo.addresses().first().toString();
-            getHandoutsFileNames(userId);
+            QString courseId = this->db.getModel()->record(0).value("enrolid").toString();
+            getHandoutsFileNames(courseId.toInt());
             thread = run(this, &MainWindow::downloadHandouts, hostAddress);
         }
+        */
 
         this->fillTreeFromUser(userId.toInt());
         this->setPageTitle(2, "File selection");
         this->ui->stackedWidget->setCurrentIndex(3);
         this->enlargeWindow();
+    }
+}
+
+void MainWindow::downloadCourseHandouts(int courseId){
+    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    if(hostInfo.addresses().isEmpty()){
+        QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server.");
+    }else{
+        QString hostAddress = hostInfo.addresses().first().toString();
+        this->getHandoutsFileNames(courseId);
+        thread = run(this, &MainWindow::downloadHandouts, hostAddress);
     }
 }
 
@@ -378,13 +399,102 @@ void MainWindow::fillStudentsFromCourse(){
         QStringList itemData;
 
         for (int i = 0; i < studentsModel->rowCount(); i++){
-            itemData << studentsModel->record(i).value("firstname").toString() << studentsModel->record(i).value("lastname").toString() << studentsModel->record(i).value("email").toString();
+            itemData << studentsModel->record(i).value("firstname").toString() <<
+                        studentsModel->record(i).value("lastname").toString() <<
+                        studentsModel->record(i).value("email").toString() <<
+                        studentsModel->record(i).value("id").toString();
             QTreeWidgetItem *studentItem = new QTreeWidgetItem(itemData);
             studentItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             studentItem->setCheckState(0, Qt::Checked);
             this->ui->treeWidgetStudents->addTopLevelItem(studentItem);
             itemData.clear();
         }
+    }
+}
+
+void MainWindow::switchToCategoriesPage(){
+    QTreeWidgetItemIterator it(this->ui->treeWidgetStudents, QTreeWidgetItemIterator::Checked);
+    while(*it){ //Recorro estudiantes seleccionados para llenar el hash de nombres.
+        qDebug() << "Student:" << (*it)->text(3) << (*it)->text(0) << (*it)->text(1);
+        qDebug() << (*it)->text(3).toInt();
+        this->studentNames[(*it)->text(3).toInt()] = (*it)->text(0) + " " + (*it)->text(1);
+        ++it;
+    }
+    this->setPageTitle(3, "File selection");
+    this->ui->stackedWidget->setCurrentIndex(6);
+    this->reduceWindow();
+}
+
+void MainWindow::switchToProgressPageFromCourse(){
+    if(this->ui->checkBoxHandouts){
+        //Incluyo los handouts en la lista de archivos a mergear de cada estudiante.
+        int courseId = this->hashCourses[this->ui->cmbCourses->currentIndex()];
+        this->downloadCourseHandouts(courseId + 1); //Truchada para usar un curso que tenga handouts: HABLARLO CON CARLOS
+        this->ui->progressBar->setRange(0, this->handoutsFileNames.count()); //Ya tengo los nombres, la descarga se ejecuta en otro hilo.
+    }
+    this->setPageTitle(3, "Print");
+    this->ui->stackedWidget->setCurrentIndex(4);
+    this->reduceWindow();
+
+    qDebug() << "Abort conversions:" << this->abortConversions;
+    if(!this->abortConversions && this->ui->checkBoxAssignments){
+        this->convertCourseAssignments();
+    }
+    if(!this->abortConversions && this->ui->checkBoxForumPosts){
+        this->convertCourseForumPosts();
+    }
+}
+
+void MainWindow::convertCourseAssignments(){
+    int studentId;
+    QString localFile, html;
+    this->db.getOnlineFilesByUsers(this->studentNames.keys());
+    QSqlQueryModel *model = this->db.getModel(); //Los assignments de todos los estudiantes juntos.
+    qDebug() << "Assignments count:" << model->rowCount();
+    this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + model->rowCount());
+
+    for (int i=0; i<model->rowCount(); i++){ //Para cada uno, lo convierto y lo guardo en la lista 'toMerge' del alumno correspondiente.
+        this->conversionsLock.lockForWrite();
+        studentId = model->record(i).value("userId").toInt();
+        qDebug() << "Assignment userid:" << studentId;
+        localFile = Utils::getUserDirectory() + "/" + ASSIGNMENTS_LOCAL_PATH + "/" + model->record(i).value("name").toString() + ".pdf";
+        html = Utils::dataToHtml(model->record(i).value("name").toString(),
+                                    model->record(i).value("intro").toString(),
+                                    model->record(i).value("data1").toString());
+        this->pdfmerge.htmlToPdf(html, localFile);
+        this->filesToMergeByStudent[studentId] << QPair<QString, int>(localFile, MainWindow::ASSIGNMENT);
+        emit this->downloadedFile();
+        this->conversionsCount++;
+        this->conversionsLock.unlock();
+        if(this->abortConversions)
+            break;
+    }
+}
+
+void MainWindow::convertCourseForumPosts(){
+    int studentId;
+    QString localFile, html;
+    this->db.getForumPostsByUsers(this->studentNames.keys());
+    QSqlQueryModel *model = this->db.getModel(); //Los forum posts de todos los estudiantes juntos.
+    qDebug() << "Forum posts count:" << model->rowCount();
+    this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + model->rowCount());
+
+    for (int i=0; i<model->rowCount(); i++){ //Para cada uno, lo convierto y lo guardo en la lista 'toMerge' del alumno correspondiente.
+        this->conversionsLock.lockForWrite();
+        studentId = model->record(i).value("userId").toInt();
+        qDebug() << "Forum post userid:" << studentId;
+        localFile = Utils::getUserDirectory() + "/" + FORUM_POSTS_LOCAL_PATH + "/" + model->record(i).value("pregSubject").toString() +
+                    model->record(i).value("respId").toString() + ".pdf";
+        html = Utils::dataToHtml(model->record(i).value("pregSubject").toString(),
+                                    model->record(i).value("pregMessage").toString(),
+                                    model->record(i).value("respMessage").toString());
+        this->pdfmerge.htmlToPdf(html, localFile);
+        this->filesToMergeByStudent[studentId] << QPair<QString, int>(localFile, MainWindow::FORUM_POST);
+        emit this->downloadedFile();
+        this->conversionsCount++;
+        this->conversionsLock.unlock();
+        if(this->abortConversions)
+            break;
     }
 }
 
@@ -416,7 +526,7 @@ void MainWindow::fillTreeFromUser(int userId){
         handouts->setCheckState(0, Qt::Checked);
 
         for (i = 0; i < this->handoutsFileNames.count(); i++){            
-            itemData << QString(this->handoutsFileNames.at(i).second).replace(".pdf", "");
+            itemData << QString(this->handoutsFileNames.at(i).second).section('/', -1).replace(".pdf", "");
             QTreeWidgetItem *item = new QTreeWidgetItem(itemData);
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
             item->setCheckState(0, Qt::Checked);
@@ -440,17 +550,10 @@ void MainWindow::fillTreeFromUser(int userId){
             count = this->getTreeNameCount(name);
             if(count > 0)
                 name += " [" + QString::number(count + 1) + "]";
-            html = "<h2 style='font: bold 22px arial, sans-serif;'>" +
-                        onlineFilesModel->record(i).value("name").toString() +
-                    "</h2>"
-                    "<br />"
-                    "<div style='font: 20px arial, sans-serif;'>" +
-                        onlineFilesModel->record(i).value("intro").toString() +
-                    "</div>"
-                    "<br />"
-                    "<div style='font: 20px arial, sans-serif;'>" +
-                        onlineFilesModel->record(i).value("data1").toString() +
-                    "</div>";
+
+            html = Utils::dataToHtml(onlineFilesModel->record(i).value("name").toString(),
+                                        onlineFilesModel->record(i).value("intro").toString(),
+                                        onlineFilesModel->record(i).value("data1").toString());
 
             itemData << name << Utils::timeStampToDate(onlineFilesModel->record(i).value(5).toInt()) << html;
             QTreeWidgetItem *item = new QTreeWidgetItem(itemData);
@@ -476,19 +579,9 @@ void MainWindow::fillTreeFromUser(int userId){
             count = this->getTreeNameCount(name);
             if(count > 0)
                 name += " [" + QString::number(count + 1) + "]";
-            html = "<h2 style='font: bold 22px arial, sans-serif;'>" +
-                        forumPostsModel->record(i).value("pregSubject").toString() +
-                    "</h2>"
-                    "<br />"
-                    "<div style='font: 20px arial, sans-serif;'>" +
-                        forumPostsModel->record(i).value("pregMessage").toString() +
-                    "</div>"
-                    "<br />"
-                    "<div style='font: 20px arial, sans-serif;'>" +
-                        forumPostsModel->record(i).value("respMessage").toString() +
-                    "</div>";
-
-            qDebug() << forumPostsModel->record(i).value("pregMessage").toString();
+            html = Utils::dataToHtml(forumPostsModel->record(i).value("pregSubject").toString(),
+                                     forumPostsModel->record(i).value("pregMessage").toString(),
+                                     forumPostsModel->record(i).value("respMessage").toString());
 
             itemData << name << Utils::timeStampToDate(forumPostsModel->record(i).value("respModified").toInt()) << html;
             QTreeWidgetItem *item = new QTreeWidgetItem(itemData);
@@ -582,10 +675,12 @@ void MainWindow::switchToProgressPage(){
 
 //Actualiza la progress bar a medida que se van descargando los archivos y que se van convirtiendo a pdf los assignment online
 void MainWindow::updateProgressBar(){
+    qDebug() << "Update Progress Bar:" << this->ui->progressBar->value() + 1;
     this->ui->progressBar->setValue(this->ui->progressBar->value() + 1);    
 }
 
 void MainWindow::checkProgressBar(){
+    qDebug() << "Check Progress Bar:" << this->ui->progressBar->value() << this->ui->progressBar->maximum();
     this->ui->btnPrint->setEnabled(this->ui->progressBar->value() == this->ui->progressBar->maximum());
 }
 
@@ -678,35 +773,59 @@ void MainWindow::convertForumPostsFiles(){
     }
 }
 
-void MainWindow::mergeFiles(){
-    qSort(this->filesToMerge.begin(), this->filesToMerge.end(), Utils::customSort);
+void MainWindow::mergeFiles(QList<QPair<QString, int> > files){
+    qSort(files.begin(), files.end(), Utils::customSort);
     //qDebug() << "Files to merge:" << this->filesToMerge;
     QPair<QString, int> file;
-    foreach(file, this->filesToMerge){
+    foreach(file, files){
         QString errorString;
-        this->pdfmerge.addPdf(file.first, errorString);
-        /*if(this->pdfmerge.addPdf(file.first, errorString)){
-            this->ui->listWidgetOutputStatus->addItem("File successfully included: " + file.first.section('/', -2));
-        }else{
-            QListWidgetItem *item = new QListWidgetItem();
-            item->setForeground(QBrush(QColor(255, 0, 0)));
-            errorString = errorString.replace(".", ": ") + file.first.section('/', -2);
-            item->setText(errorString);
-            this->ui->listWidgetOutputStatus->addItem(item);
-        }*/
+        this->pdfmerge.addPdf(file.first, errorString);        
     }
 }
 
-void MainWindow::mergeAndPrint(){
-    //this->ui->listWidgetOutputStatus->setEnabled(true);
-    //this->ui->listWidgetOutputStatus->clear();
-    this->pdfmerge.clearDocument();
-    this->mergeFiles();
-    if(this->pdfmerge.writeOutput()){
-        QMessageBox::information(this, "Successful printing", "Your portfolio has been created and has been saved to your desktop. You can now print it.");
-        QDesktopServices::openUrl(QUrl("file:///" + this->pdfmerge.outputFileName()));
-    }else{
-        QMessageBox::critical(this, "Printing failed", "The program couldn't save the output file.");
+void MainWindow::mergeAndPrint(){    
+    if(!this->kpmteamLogin){ //Un sólo archivo.
+        qDebug() << "Print individual";
+        this->pdfmerge.clearDocument();
+        this->mergeFiles(this->filesToMerge);
+        if(this->pdfmerge.writeOutput()){
+            QMessageBox::information(this, "Successful printing", "Your portfolio has been created and has been saved to your desktop. You can now print it.");
+            QDesktopServices::openUrl(QUrl("file:///" + this->pdfmerge.outputFileName()));
+        }else{
+            QMessageBox::critical(this, "Printing failed", "The program couldn't save the output file.");
+        }
+    }else{ //Múltiples archivos.
+        this->addHandoutsToMerge();
+        this->pdfmerge.clearDocument();
+        bool successfulPrinting = true;
+        QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);
+        while(i.hasNext()){
+            i.next();
+            qDebug() << i.key() << this->studentNames[i.key()] << "'s filesToMerge:" << i.value();
+            this->mergeFiles(i.value());
+            QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/KpmPortfolio " +
+                    this->studentNames[i.key()].toUpper() + ".pdf";
+            this->pdfmerge.setOutputFileName(outputFile);
+            if(!this->pdfmerge.writeOutput())
+                successfulPrinting = false;
+            this->pdfmerge.clearDocument();
+        }
+        if(successfulPrinting){
+            QMessageBox::information(this, "Successful printing", "The portfolios have been created and have been saved to your desktop. You can now print them.");
+        }else{
+            QMessageBox::critical(this, "Printing failed", "The program had problems to save some of the portfolios.");
+        }
+    }
+}
+
+void MainWindow::addHandoutsToMerge(){
+    QList<int> studentIds = this->studentNames.keys();
+    QPair<QString, QString> handout;
+    foreach(handout, this->handoutsFileNames){ //Se setean los handouts para todos los estudiantes.
+        foreach(int id, studentIds){
+            qDebug() << id << handout.second;
+            this->filesToMergeByStudent[id] << QPair<QString, int>(handout.second, MainWindow::HANDOUT);
+        }
     }
 }
 
@@ -738,6 +857,12 @@ void MainWindow::backToTreePageFromUser(){
 
     this->setPageTitle(2, "File selection");
     this->ui->stackedWidget->setCurrentIndex(3);
+    this->enlargeWindow();
+}
+
+void MainWindow::backToCoursesPage(){
+    this->setPageTitle(2, "Course and Student(s) selection");
+    this->ui->stackedWidget->setCurrentIndex(5);
     this->enlargeWindow();
 }
 

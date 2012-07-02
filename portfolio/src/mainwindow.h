@@ -45,7 +45,7 @@ private:
 
     Sftp sftp;
     QList<QPair<QString, QString> > handoutsFileNames;
-    QList<QPair<QString, int> > filesToMerge;
+    QList<QPair<QString, int> > filesToMerge;    
     QFuture<void> thread;
     DBConnection db;
     PDFmerge pdfmerge;
@@ -54,6 +54,9 @@ private:
     int conversionsCount;
     QReadWriteLock conversionsLock;
     QHash<int, int> hashCourses;//key: numero de item en el combobox. -- value: el id de un curso
+    bool kpmteamLogin;
+    QHash<int, QString> studentNames;
+    QHash<int, QList<QPair<QString, int> > > filesToMergeByStudent; //Estudiante, Archivos a mergear.
 
     void createAppDirectories();
     void clearAppDirectories();
@@ -66,8 +69,9 @@ private:
     void setTreeTopLevelItems(QString fileType);
     QTreeWidgetItem* getFileTypeItem(QString type);
     int getTreeNameCount(QString name);
-    void getHandoutsFileNames(QString userId);
+    void getHandoutsFileNames(int courseId);
     void downloadHandouts(QString serverAddress);
+    void downloadCourseHandouts(int courseId);
     void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();
     void insertOrderedTreeItem(QTreeWidgetItem *parentItem, QTreeWidgetItem *item);
@@ -75,7 +79,10 @@ private:
     void downloadUploadFiles();
     void convertOnlineFiles();
     void convertForumPostsFiles();
-    void mergeFiles();
+    void convertCourseAssignments();
+    void convertCourseForumPosts();
+    void mergeFiles(QList<QPair<QString, int> > filesToMerge);
+    void addHandoutsToMerge();
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);
     void updatePrintEnabledState();
@@ -88,14 +95,17 @@ private:
 private slots:
     void updateCheckState(QTreeWidgetItem *item, int column);
     void switchToLoginPage();
-    void switchToTreePageFromUser();
+    void loginAndSwitchPage();
     void switchToTreePageFromAssignment();
+    void switchToCategoriesPage();
     void switchToProgressPage();
+    void switchToProgressPageFromCourse();
     void updateProgressBar();
     void checkProgressBar();
     void mergeAndPrint();
     void backToLoginPage();
     void backToTreePageFromUser();
+    void backToCoursesPage();
     void exit();
     void fillStudentsFromCourse();
 
