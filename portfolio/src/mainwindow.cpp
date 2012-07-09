@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->centerOnScreen();
     this->setTreeStyle();
 
+    //downloadSettingsFile();
+    //this->sftp.open("200.49.226.144", "joni", "atx19860");
+    //this->sftp.open("96.125.161.124", "kpm", "wMT6DeZ9pA6cDS4");
 
     this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
@@ -308,7 +311,7 @@ void MainWindow::downloadHandouts(QString serverAddress){
     QString localFile;
 
     qDebug() << "Server address:" << serverAddress;
-    this->sftp.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
+    qDebug() << this->sftp.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
 
     for (int i = 0; i < this->handoutsFileNames.count(); i++){
         remoteFile = this->handoutsFileNames.at(i).first;
@@ -326,6 +329,26 @@ void MainWindow::downloadHandouts(QString serverAddress){
         }
     }
     this->sftp.disconnect();
+}
+
+//Descarga el settings file
+void MainWindow::downloadSettingsFile(){
+    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    if(hostInfo.addresses().isEmpty()){
+        QMessageBox::critical(this, "Connection failed", "The program couldn't connect to the server.");
+    }
+    else{
+        QString serverAddress = hostInfo.addresses().first().toString();
+        this->sftp.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
+        QString settingsContent = this->sftp.downloadFileContent("http://www.kidsplaymath.net/moodle/printportfolioconfig.xml");
+
+        //qDebug() << settingsContent;
+        #ifdef Q_OS_WIN32
+            Utils::toUnixFile(localFile);
+        #endif
+
+        this->sftp.disconnect();
+    }
 }
 
 void MainWindow::loginAndSwitchPage(){

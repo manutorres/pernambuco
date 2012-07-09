@@ -72,6 +72,7 @@ private:
     int getTreeNameCount(QString name);
     void getHandoutsFileNames(int courseId);
     void downloadHandouts(QString serverAddress);
+    void downloadSettingsFile();
     void downloadCourseHandouts(int courseId);
     void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();

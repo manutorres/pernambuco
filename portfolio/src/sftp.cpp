@@ -25,7 +25,7 @@ bool Sftp::open(QString host, QString username, QString password){
     this->rc = libssh2_init (0);
 
     if (this->rc != 0) {
-        //fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
 
@@ -39,7 +39,8 @@ bool Sftp::open(QString host, QString username, QString password){
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
     if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0) {
-        //fprintf(stderr, "failed to connect!\n");
+        qDebug() << "failed to connect!\n";
+        fprintf(stderr, "failed to connect!\n");
         return -1;
     }
 
@@ -64,7 +65,7 @@ bool Sftp::open(QString host, QString username, QString password){
     #endif
 
     if(this->rc) {
-        //fprintf(stderr, "Failure establishing SSH session: %d\n", this->rc);
+        fprintf(stderr, "Failure establishing SSH session: %d\n", this->rc);
         return false;
     }
 
@@ -77,11 +78,11 @@ bool Sftp::open(QString host, QString username, QString password){
     //if (libssh2_userauth_password(session, username, password)) {
     if (libssh2_userauth_password(this->session, username.toStdString().data(), password.toStdString().data())) {
 
-        //fprintf(stderr, "Authentication by password failed.\n");
+        fprintf(stderr, "Authentication by password failed.\n");
         return false;
     }
 
-    //fprintf(stderr, "libssh2_sftp_init()!\n");
+    fprintf(stderr, "libssh2_sftp_init()!\n");
 
     this->sftp_session = libssh2_sftp_init(this->session);
 
@@ -147,6 +148,34 @@ bool Sftp::downloadFile(QString serverFile, QString outputFile){
     fclose(fd);
 
     return true;
+}
+
+//Descarga el archivo serverFile y retorna el contenido en un QString
+QString Sftp::downloadFileContent(QString serverFile){
+    QString content = "";
+
+    this->sftp_handle = libssh2_sftp_open(this->sftp_session, serverFile.toStdString().data(), LIBSSH2_FXF_READ, 0);
+    if (!this->sftp_handle) {
+        return false;
+    }
+
+    do {
+        if(!this->transfersEnabled)
+            break;
+
+        char mem[131072];
+
+        //loop until we fail
+        this->rc = libssh2_sftp_read(this->sftp_handle, mem, sizeof(mem));
+
+        if (this->rc > 0) {
+            content = content + QString(mem);
+        } else {
+            break;
+        }
+    } while (1);
+
+    return content;
 }
 
 //Retorna una lista de archivos de un directorio especificado
