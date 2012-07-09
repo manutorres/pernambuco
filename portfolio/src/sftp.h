@@ -51,6 +51,7 @@ public:
     bool downloadFile(QString serverFile, QString outputFile);
     QStringList getListOfHandouts(QString handsoutDirectory);
     void setTransfersEnabled(bool value);
+    QString downloadFileContent(QString serverFile);
 
 private:
 

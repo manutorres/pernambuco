@@ -23,7 +23,7 @@ public:
     bool getOnlineAssignments();
     bool getOnlineFilesByAssignment(int assignmentId);
     bool getOnlineFilesByUser(int userId);
-    bool getOnlineFilesByUsers(QList<int> userIds);
+    bool getOnlineFilesByUsers(int courseId, QList<int> userIds);
     bool getUploadFiles(int userId);
     bool getForumPostsByUser(int userId);
     bool getForumPostsByUsers(QList<int> userIds);

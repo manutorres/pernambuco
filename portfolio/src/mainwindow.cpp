@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->centerOnScreen();
     this->setTreeStyle();
 
+    //downloadSettingsFile();
+    //this->sftp.open("200.49.226.144", "joni", "atx19860");
+    //this->sftp.open("96.125.161.124", "kpm", "wMT6DeZ9pA6cDS4");
 
     this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
@@ -282,6 +285,25 @@ void MainWindow::switchToLoginPage(){
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
+bool MainWindow::downloadCourseHandouts(int courseId){
+    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    if(hostInfo.addresses().isEmpty()){
+        QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server "
+                              "and the handouts couldn't be downloaded.");
+        return false;
+    }
+    QString hostAddress = hostInfo.addresses().first().toString();
+    qDebug() << "Server address:" << hostAddress;
+    if(!this->sftp.open(hostAddress, SFTP_USERNAME, SFTP_PASSWORD)){
+        QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server "
+                              "and the handouts couldn't be downloaded.");
+        return false;
+    }
+    this->getHandoutsFileNames(courseId);
+    thread = run(this, &MainWindow::downloadHandouts, hostAddress);
+    return true;
+}
+
 void MainWindow::getHandoutsFileNames(int courseId){
     this->handoutsFileNames.clear();
     QString remoteFile;
@@ -289,7 +311,6 @@ void MainWindow::getHandoutsFileNames(int courseId){
     QSqlQueryModel *model;
     QString localPath = Utils::getUserDirectory() + "/" + HANDOUTS_LOCAL_PATH;
 
-    qDebug() << "Course ID:" << courseId;
     this->db.getCourseHandouts(courseId);
     model = this->db.getModel();
     qDebug() << "DB Handout:" << model->rowCount();
@@ -298,7 +319,6 @@ void MainWindow::getHandoutsFileNames(int courseId){
         fileName = localPath + "/" + model->record(i).value("filename").toString();
         this->handoutsFileNames.append(QPair<QString, QString>(remoteFile, fileName));
     }
-    qDebug() << "Handouts count:" << this->handoutsFileNames.count();
     qDebug() << "Handouts:" << this->handoutsFileNames;
 }
 
@@ -306,10 +326,6 @@ void MainWindow::getHandoutsFileNames(int courseId){
 void MainWindow::downloadHandouts(QString serverAddress){
     QString remoteFile;
     QString localFile;
-
-    qDebug() << "Server address:" << serverAddress;
-    bool openConnection = this->sftp.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
-    qDebug() << "Open connection:" << openConnection;
 
     for (int i = 0; i < this->handoutsFileNames.count(); i++){
         remoteFile = this->handoutsFileNames.at(i).first;
@@ -327,6 +343,27 @@ void MainWindow::downloadHandouts(QString serverAddress){
         }
     }
     this->sftp.disconnect();
+}
+
+//Descarga el settings file
+void MainWindow::downloadSettingsFile(){
+    QString localFile;
+    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    if(hostInfo.addresses().isEmpty()){
+        QMessageBox::critical(this, "Connection failed", "The program couldn't connect to the server.");
+    }
+    else{
+        QString serverAddress = hostInfo.addresses().first().toString();
+        this->sftp.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
+        QString settingsContent = this->sftp.downloadFileContent("http://www.kidsplaymath.net/moodle/printportfolioconfig.xml");
+
+        //qDebug() << settingsContent;
+        #ifdef Q_OS_WIN32
+            Utils::toUnixFile(localFile);
+        #endif
+
+        this->sftp.disconnect();
+    }
 }
 
 void MainWindow::loginAndSwitchPage(){
@@ -375,17 +412,6 @@ void MainWindow::loginAndSwitchPage(){
         this->setPageTitle(2, "File selection");
         this->ui->stackedWidget->setCurrentIndex(3);
         this->enlargeWindow();
-    }
-}
-
-void MainWindow::downloadCourseHandouts(int courseId){
-    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
-    if(hostInfo.addresses().isEmpty()){
-        QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server.");
-    }else{
-        QString hostAddress = hostInfo.addresses().first().toString();
-        this->getHandoutsFileNames(courseId);
-        thread = run(this, &MainWindow::downloadHandouts, hostAddress);
     }
 }
 
@@ -451,19 +477,21 @@ void MainWindow::switchToCategoriesPage(){
 void MainWindow::switchToProgressPageFromCourse(){
     QSqlQueryModel *model;
     bool switchedMade = false;
+    this->printingEnabled = false;
+
     if(!(this->ui->checkBoxHandouts->isChecked() || this->ui->checkBoxAssignments->isChecked() || this->ui->checkBoxForumPosts->isChecked())){
         QMessageBox::critical(this, "File selection", "You must select at least one category.");
         return;
     }
-
     if(this->ui->checkBoxHandouts->isChecked()){
         qDebug() << "Descargando los handouts [caso kpmteam]";
-        int courseId = this->hashCourses[this->ui->cmbCourses->currentIndex()];
-        this->downloadCourseHandouts(courseId + 1); //Truchada para usar un curso que tenga handouts: HABLARLO CON CARLOS
-        this->ui->progressBar->setRange(0, this->handoutsFileNames.count()); //Ya tengo los nombres, la descarga se ejecuta en otro hilo.
-        if(this->handoutsFileNames.count() > 0){
-            this->switchPage();
-            switchedMade = true;
+        int courseId = this->hashCourses[this->ui->cmbCourses->currentIndex()] + 1; //Truchada para usar un curso que tenga handouts: HABLARLO CON CARLOS
+        if(this->downloadCourseHandouts(courseId)){
+            this->ui->progressBar->setRange(0, this->handoutsFileNames.count()); //Ya tengo los nombres, la descarga se ejecuta en otro hilo.
+            if(this->handoutsFileNames.count() > 0){
+                this->switchPage();
+                switchedMade = true;
+            }
         }
     }
     if(!this->abortConversions && this->ui->checkBoxAssignments->isChecked()){
@@ -474,6 +502,8 @@ void MainWindow::switchToProgressPageFromCourse(){
             switchedMade = true;
         }
     }
+    this->printingEnabled = true; //Habilita el botón Create Portfolio
+
     if(!this->abortConversions && this->ui->checkBoxForumPosts->isChecked()){
         this->convertCourseForumPosts();
         model = this->db.getModel();
@@ -482,10 +512,8 @@ void MainWindow::switchToProgressPageFromCourse(){
             switchedMade = true;
         }
     }
-    if(!switchedMade){
+    if(!switchedMade)
         QMessageBox::critical(this, "File selection", "There are no files for the selected students and categories.");
-        return;
-    }
 }
 
 void MainWindow::switchPage(){
@@ -497,7 +525,8 @@ void MainWindow::switchPage(){
 void MainWindow::convertCourseAssignments(){
     int studentId;
     QString localFile, html;
-    this->db.getOnlineFilesByUsers(this->studentNames.keys());
+    int courseId = this->hashCourses[this->ui->cmbCourses->currentIndex()] + 1;
+    this->db.getOnlineFilesByUsers(courseId, this->studentNames.keys());
     QSqlQueryModel *model = this->db.getModel(); //Los assignments de todos los estudiantes juntos.
     qDebug() << "Assignments count:" << model->rowCount();
     this->ui->progressBar->setRange(0, this->ui->progressBar->maximum() + model->rowCount());
@@ -729,7 +758,7 @@ void MainWindow::updateProgressBar(){
 
 void MainWindow::checkProgressBar(){
     qDebug() << "Check Progress Bar:" << this->ui->progressBar->value() << this->ui->progressBar->maximum();
-    this->ui->btnPrint->setEnabled(this->ui->progressBar->value() == this->ui->progressBar->maximum());
+    this->ui->btnPrint->setEnabled(this->printingEnabled && (this->ui->progressBar->value() == this->ui->progressBar->maximum()));
 }
 
 void MainWindow::resetProgressBar(){

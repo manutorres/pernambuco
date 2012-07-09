@@ -57,6 +57,7 @@ private:
     bool kpmteamLogin;
     QHash<int, QString> studentNames;
     QHash<int, QList<QPair<QString, int> > > filesToMergeByStudent; //Estudiante, Archivos a mergear.
+    bool printingEnabled;
 
     void setupCourseCheckboxes();
     void createAppDirectories();
@@ -73,7 +74,8 @@ private:
     int getTreeNameCount(QString name);
     void getHandoutsFileNames(int courseId);
     void downloadHandouts(QString serverAddress);
-    void downloadCourseHandouts(int courseId);
+    void downloadSettingsFile();
+    bool downloadCourseHandouts(int courseId);
     void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();
     void insertOrderedTreeItem(QTreeWidgetItem *parentItem, QTreeWidgetItem *item);

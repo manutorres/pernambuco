@@ -118,7 +118,7 @@ bool DBConnection::getOnlineFilesByUser(int userId){
     return true;
 }
 
-bool DBConnection::getOnlineFilesByUsers(QList<int> userIds){
+bool DBConnection::getOnlineFilesByUsers(int courseId, QList<int> userIds){
 
     this->db.open();
     QString idsString = "(" + QString::number(userIds[0]);
@@ -131,7 +131,7 @@ bool DBConnection::getOnlineFilesByUsers(QList<int> userIds){
                             "mdl_assignment_submissions.id as submission_id, data1, "
                             "mdl_assignment_submissions.timemodified, userid as userId FROM mdl_assignment_submissions "
                             "JOIN mdl_assignment WHERE data1 != '' AND assignment = mdl_assignment.id AND "
-                            "userid IN " + idsString;
+                            "mdl_assignment.course = " + QString::number(courseId) + " AND userid IN " + idsString;
     qDebug() << queryString;
     this->model->setQuery(queryString);
     //qDebug() << this->model->lastError();
