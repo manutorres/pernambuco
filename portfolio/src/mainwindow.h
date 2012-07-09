@@ -57,9 +57,8 @@ private:
     bool kpmteamLogin;
     QHash<int, QString> studentNames;
     QHash<int, QList<QPair<QString, int> > > filesToMergeByStudent; //Estudiante, Archivos a mergear.
-    QList<QPair<QString, int> >  addHandoutsToMergeInMultipleReport();//Es para el caso de kpmteam, en el cual hay más de 5 estudiantes (reportes)
-                                                                      //Con lo que genera esta función se llama mergeFiles(...)
 
+    void setupCourseCheckboxes();
     void createAppDirectories();
     void clearAppDirectories();
     void setPageTitle(int step, QString task);
@@ -83,8 +82,11 @@ private:
     void convertForumPostsFiles();
     void convertCourseAssignments();
     void convertCourseForumPosts();
+    void switchPage();
     void mergeFiles(QList<QPair<QString, int> > filesToMerge, QString StudentName = "");
     void addHandoutsToMerge();
+    QList<QPair<QString, int> >  addHandoutsToMergeInMultipleReport();//Es para el caso de kpmteam, en el cual hay más de 5 estudiantes (reportes)
+                                                                      //Con lo que genera esta función se llama mergeFiles(...)
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);
     void updatePrintEnabledState();
@@ -99,6 +101,8 @@ private slots:
     void switchToLoginPage();
     void loginAndSwitchPage();
     void switchToTreePageFromAssignment();
+    void selectAllStudents();
+    void selectNoneStudents();
     void switchToCategoriesPage();
     void switchToProgressPage();
     void switchToProgressPageFromCourse();
