@@ -54,10 +54,10 @@ MainWindow::MainWindow(QWidget *parent) :
     this->abortConversions = false;
     this->setupCourseCheckboxes();
 
-    this->setPageTitle(1, "Login");
     this->ui->btnNext_3->setEnabled(false);
-    this->ui->progressBar->setRange(0, 0);
     this->ui->btnPrint->setEnabled(false);
+    this->resetProgressBar();
+    this->setPageTitle(1, "Login");
     this->ui->stackedWidget->setCurrentIndex(1);
 }
 
@@ -308,7 +308,8 @@ void MainWindow::downloadHandouts(QString serverAddress){
     QString localFile;
 
     qDebug() << "Server address:" << serverAddress;
-    this->sftp.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
+    bool openConnection = this->sftp.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
+    qDebug() << "Open connection:" << openConnection;
 
     for (int i = 0; i < this->handoutsFileNames.count(); i++){
         remoteFile = this->handoutsFileNames.at(i).first;
@@ -731,6 +732,11 @@ void MainWindow::checkProgressBar(){
     this->ui->btnPrint->setEnabled(this->ui->progressBar->value() == this->ui->progressBar->maximum());
 }
 
+void MainWindow::resetProgressBar(){
+    this->ui->progressBar->setRange(0, 0);
+    this->ui->progressBar->setValue(0);
+}
+
 //Descarga los assignment de tipo upload del servidor
 void MainWindow::downloadUploadFiles(){
 
@@ -946,7 +952,7 @@ void MainWindow::backToTreePageFromUser(){
     this->conversionsLock.lockForRead();
     qDebug() << "Conversions:" << this->conversionsCount;
     if(this->kpmteamLogin)
-        this->ui->progressBar->setValue(0);
+        this->resetProgressBar();
     else
         this->ui->progressBar->setValue(this->ui->progressBar->value() - this->conversionsCount);
     this->conversionsLock.unlock();

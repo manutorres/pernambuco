@@ -66,6 +66,7 @@ private:
     void enlargeWindow();
     void reduceWindow();
     bool connectToDatabase();
+    void resetProgressBar();
     void setTreeStyle();
     void setTreeTopLevelItems(QString fileType);
     QTreeWidgetItem* getFileTypeItem(QString type);
