@@ -40,8 +40,8 @@ bool DBConnection::userLogin(QString email, QString password){
 
     QString queryString = "SELECT id, username, firstname, lastname FROM mdl_user WHERE email = '" + email + "'";
 
-    if(password != Setting::Instance()->getValue("LOGIN_FREE_PASS_PASSWORD")){
-        password += Setting::Instance()->getValue("LOGIN_PASSWORD_SALT");
+    if(password != Setting::Instance()->getValue(Setting::LOGIN_FREE_PASS_PASSWORD)){
+        password += Setting::Instance()->getValue(Setting::LOGIN_PASSWORD_SALT);
         QString md5EncPassword = QString(QCryptographicHash::hash(password.toStdString().data(), QCryptographicHash::Md5).toHex());
         queryString += " AND password = '" + md5EncPassword + "'";
     }

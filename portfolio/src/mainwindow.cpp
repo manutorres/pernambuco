@@ -45,8 +45,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
-    this->ui->lineEditUsername->setText(Setting::Instance()->getValue("LOGIN_USERNAME_KPMTEAM"));
-    this->ui->lineEditPassword->setText(Setting::Instance()->getValue("LOGIN_PASSWORD_KPMTEAM"));
+    this->ui->lineEditUsername->setText(Setting::Instance()->getValue(Setting::LOGIN_USERNAME_KPMTEAM));
+    this->ui->lineEditPassword->setText(Setting::Instance()->getValue(Setting::LOGIN_PASSWORD_KPMTEAM));
     this->setupCourseCheckboxes();
     this->ui->btnNext_3->setEnabled(false);
     this->ui->btnPrint->setEnabled(false);
@@ -86,15 +86,15 @@ void MainWindow::finishDownloadThread(bool hideWindow){
 }
 
 void MainWindow::createAppDirectories(){
-    Utils::createDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("HANDOUTS_LOCAL_PATH"));
-    Utils::createDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("ASSIGNMENTS_LOCAL_PATH"));
-    Utils::createDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("FORUM_POSTS_LOCAL_PATH"));
+    Utils::createDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::HANDOUTS_LOCAL_PATH));
+    Utils::createDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH));
+    Utils::createDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::FORUM_POSTS_LOCAL_PATH));
 }
 
 void MainWindow::clearAppDirectories(){
-    Utils::clearDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("HANDOUTS_LOCAL_PATH"));
-    Utils::clearDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("ASSIGNMENTS_LOCAL_PATH"));
-    Utils::clearDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("FORUM_POSTS_LOCAL_PATH"));
+    Utils::clearDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::HANDOUTS_LOCAL_PATH));
+    Utils::clearDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH));
+    Utils::clearDirectory(Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::FORUM_POSTS_LOCAL_PATH));
 }
 
 void MainWindow::setPageTitle(int step, QString task){
@@ -106,7 +106,7 @@ void MainWindow::setPageTitle(int step, QString task){
 //Metodo encargado de llevar a cabo la conexion con la base de datos
 bool MainWindow::connectToDatabase(){
 
-    if(this->db.connect(Setting::Instance()->getValue("MYSQL_HOST_NAME"), Setting::Instance()->getValue("MYSQL_DATABASE_NAME"), Setting::Instance()->getValue("MYSQL_USERNAME"), Setting::Instance()->getValue("MYSQL_PASSWORD"))){
+    if(this->db.connect(Setting::Instance()->getValue(Setting::MYSQL_HOST_NAME), Setting::Instance()->getValue(Setting::MYSQL_DATABASE_NAME), Setting::Instance()->getValue(Setting::MYSQL_USERNAME), Setting::Instance()->getValue(Setting::MYSQL_PASSWORD))){
         return true;
     }
     else{
@@ -320,13 +320,13 @@ void MainWindow::getHandoutsFileNames(int courseId){
     QString remoteFile;
     QString fileName;
     QSqlQueryModel *model;
-    QString localPath = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("HANDOUTS_LOCAL_PATH");
+    QString localPath = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::HANDOUTS_LOCAL_PATH);
 
     this->db.getCourseHandouts(courseId);
     model = this->db.getModel();
     //qDebug() << "DB Handout:" << model->rowCount();
     for (int i=0; i<model->rowCount(); i++){        
-        remoteFile = Setting::Instance()->getValue("HANDOUTS_REMOTE_PATH") + "/" + Utils::fileHashToPath(model->record(i).value("contenthash").toString());
+        remoteFile = Setting::Instance()->getValue(Setting::HANDOUTS_REMOTE_PATH) + "/" + Utils::fileHashToPath(model->record(i).value("contenthash").toString());
         fileName = localPath + "/" + model->record(i).value("filename").toString();
         this->handoutsFileNames.append(QPair<QString, QString>(remoteFile, fileName));
     }
@@ -374,7 +374,7 @@ void MainWindow::loginAndSwitchPage(){
     qApp->processEvents();
     this->kpmteamLogin = false;
 
-    if (email == Setting::Instance()->getValue("LOGIN_USERNAME_KPMTEAM") && password == Setting::Instance()->getValue("LOGIN_PASSWORD_KPMTEAM")){
+    if (email == Setting::Instance()->getValue(Setting::LOGIN_USERNAME_KPMTEAM) && password == Setting::Instance()->getValue(Setting::LOGIN_PASSWORD_KPMTEAM)){
         this->kpmteamLogin = true;
         fillCourses(); //Completa el combobox con todos los cursos disponibles
         this->studentNames.clear();
@@ -536,7 +536,7 @@ void MainWindow::convertCourseAssignments(){
         this->conversionsLock.lockForWrite();
         studentId = model->record(i).value("userId").toInt();
         qDebug() << "Assignment userid:" << studentId;        
-        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("ASSIGNMENTS_LOCAL_PATH") + "/" + model->record(i).value("name").toString() + ".pdf";
+        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH) + "/" + model->record(i).value("name").toString() + ".pdf";
         html = Utils::dataToHtml(model->record(i).value("name").toString(),
                                     model->record(i).value("intro").toString(),
                                     model->record(i).value("data1").toString());
@@ -564,7 +564,7 @@ void MainWindow::convertCourseForumPosts(){
         this->conversionsLock.lockForWrite();
         studentId = model->record(i).value("userId").toInt();
         qDebug() << "Forum post userid:" << studentId;        
-        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("FORUM_POSTS_LOCAL_PATH") + "/" + model->record(i).value("pregSubject").toString() +
+        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::FORUM_POSTS_LOCAL_PATH) + "/" + model->record(i).value("pregSubject").toString() +
                     model->record(i).value("respId").toString() + ".pdf";
         html = Utils::dataToHtml(model->record(i).value("pregSubject").toString(),
                                     model->record(i).value("pregMessage").toString(),
@@ -787,7 +787,7 @@ void MainWindow::downloadUploadFiles(){
     QTreeWidgetItemIterator it(this->getFileTypeItem("Assignments"), QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
     while (*it){                
         if ((*it)->text(0).contains("(Document)")){            
-            localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("ASSIGNMENTS_LOCAL_PATH") + "/"  + QString::number(index) + ". " +
+            localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH) + "/"  + QString::number(index) + ". " +
                         (*it)->text(0);
             sftp2.downloadFile(Utils::fileHashToPath((*it)->text(2)), localFile);
             emit this->downloadedFile();
@@ -812,7 +812,7 @@ void MainWindow::setHandoutsToMerge(){
             break;
         }
 
-        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("HANDOUTS_LOCAL_PATH") + "/"  + (*it)->text(0) + ".pdf";
+        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::HANDOUTS_LOCAL_PATH) + "/"  + (*it)->text(0) + ".pdf";
         this->filesToMerge << QPair<QString, int>(localFile, MainWindow::HANDOUT);
         ++it;
     }
@@ -836,7 +836,7 @@ void MainWindow::convertOnlineFiles(){
 
         if ((*it)->text(0).contains("(Text)")){
             this->conversionsLock.lockForWrite();            
-            localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("ASSIGNMENTS_LOCAL_PATH") + "/" + (*it)->text(0).replace(" (Text)", "") + ".pdf";
+            localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH) + "/" + (*it)->text(0).replace(" (Text)", "") + ".pdf";
             this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
             this->filesToMerge << QPair<QString, int>(localFile, MainWindow::ASSIGNMENT);
             emit this->downloadedFile();
@@ -864,7 +864,7 @@ void MainWindow::convertForumPostsFiles(){
         }
 
         this->conversionsLock.lockForWrite();        
-        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue("FORUM_POSTS_LOCAL_PATH") + "/" + (*it)->text(0).replace(":", "") + ".pdf";
+        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::FORUM_POSTS_LOCAL_PATH) + "/" + (*it)->text(0).replace(":", "") + ".pdf";
         this->pdfmerge.htmlToPdf((*it)->text(2), localFile);
         this->filesToMerge << QPair<QString, int>(localFile, MainWindow::FORUM_POST);
         emit this->downloadedFile();
