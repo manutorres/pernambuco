@@ -82,7 +82,7 @@ void MainWindow::finishDownloadThread(bool hideWindow){
     if(hideWindow)
         this->hide();
 
-    this->thread.cancel();//Lo agregue porque sino había veces que esperaba eternamente el waitForFinish y la aplicación quedaba abierta
+    this->thread.cancel(); //Lo agregue porque sino había veces que esperaba eternamente el waitForFinish y la aplicación quedaba abierta
     this->thread.waitForFinished();
     this->sftp.setTransfersEnabled(true);
     this->setDownloadsEnabled(true);
@@ -501,7 +501,6 @@ void MainWindow::switchToProgressPageFromCourse(){
             switchedMade = true;
         }
     }
-    this->printingEnabled = true; //Habilita el botón Create Portfolio
 
     if(!this->abortConversions && this->ui->checkBoxForumPosts->isChecked()){
         this->convertCourseForumPosts();
@@ -511,6 +510,10 @@ void MainWindow::switchToProgressPageFromCourse(){
             switchedMade = true;
         }
     }
+
+    this->printingEnabled = true; //Habilita el botón Create Portfolio
+    this->checkProgressBar();
+
     if(!switchedMade){
         QMessageBox::critical(this, "File selection", "There are no files for the selected students and categories.");
     }
