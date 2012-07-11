@@ -9,17 +9,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ui->setupUi(this);
 
-    this->createAppDirectories();
-    this->clearAppDirectories();
-    this->centerOnScreen();
-    this->setTreeStyle();
-
-    this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
-    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
-    this->ui->lblForgotenPassword->setOpenExternalLinks(true);
-
-    this->ui->lineEditUsername->setText(Setting::Instance()->getValue("LOGIN_USERNAME_KPMTEAM"));
-    this->ui->lineEditPassword->setText(Setting::Instance()->getValue("LOGIN_PASSWORD_KPMTEAM"));
+    if (!Setting::Instance()->loadSettings()){
+        QMessageBox::critical(this, "Connection failed", "The program couldn't connect to the server.");
+    }
 
     QObject::connect(this->ui->btnNext_1, SIGNAL(clicked()), this, SLOT(switchToLoginPage()));
     //QObject::connect(this->ui->btnLogin, SIGNAL(clicked()), this, SLOT(switchToTreePageFromUser()));
@@ -46,20 +38,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QObject::connect(this->ui->btnSelectAll, SIGNAL(clicked()), this, SLOT(selectAllStudents()));
     QObject::connect(this->ui->btnSelectNone, SIGNAL(clicked()), this, SLOT(selectNoneStudents()));
 
-    if (!Setting::Instance()->loadSettings()){
-        QMessageBox::critical(this, "Connection failed", "The program couldn't connect to the server.");
-    }
-
-    this->setDownloadsEnabled(true);
-    this->conversionsCount = 0;
-    this->abortConversions = false;
+    this->createAppDirectories();
+    this->clearAppDirectories();
+    this->centerOnScreen();
+    this->setTreeStyle();
+    this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
+    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
+    this->ui->lblForgotenPassword->setOpenExternalLinks(true);
+    this->ui->lineEditUsername->setText(Setting::Instance()->getValue("LOGIN_USERNAME_KPMTEAM"));
+    this->ui->lineEditPassword->setText(Setting::Instance()->getValue("LOGIN_PASSWORD_KPMTEAM"));
     this->setupCourseCheckboxes();
-
     this->ui->btnNext_3->setEnabled(false);
     this->ui->btnPrint->setEnabled(false);
     this->resetProgressBar();
     this->setPageTitle(1, "Login");
     this->ui->stackedWidget->setCurrentIndex(1);
+
+    this->setDownloadsEnabled(true);
+    this->conversionsCount = 0;
+    this->abortConversions = false;
 }
 
 void MainWindow::setupCourseCheckboxes(){
