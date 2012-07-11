@@ -19,13 +19,12 @@ bool Sftp::open(QString host, QString username, QString password){
         WSAStartup(MAKEWORD(2,0), &wsadata);
     #endif
 
-    //hostaddr =  inet_addr(host);
     hostaddr =  inet_addr(host.toStdString().data());
 
     this->rc = libssh2_init (0);
 
     if (this->rc != 0) {
-        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        //fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
 
@@ -36,11 +35,10 @@ bool Sftp::open(QString host, QString username, QString password){
     this->sock = socket(AF_INET, SOCK_STREAM, 0);
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(22);
+    sin.sin_port = htons(2222);
     sin.sin_addr.s_addr = hostaddr;
     if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0) {
-        qDebug() << "failed to connect!\n";
-        fprintf(stderr, "failed to connect!\n");
+        //fprintf(stderr, "failed to connect!\n");
         return -1;
     }
 
@@ -65,7 +63,7 @@ bool Sftp::open(QString host, QString username, QString password){
     #endif
 
     if(this->rc) {
-        fprintf(stderr, "Failure establishing SSH session: %d\n", this->rc);
+        //fprintf(stderr, "Failure establishing SSH session: %d\n", this->rc);
         return false;
     }
 
@@ -78,11 +76,11 @@ bool Sftp::open(QString host, QString username, QString password){
     //if (libssh2_userauth_password(session, username, password)) {
     if (libssh2_userauth_password(this->session, username.toStdString().data(), password.toStdString().data())) {
 
-        fprintf(stderr, "Authentication by password failed.\n");
+        //fprintf(stderr, "Authentication by password failed.\n");
         return false;
     }
 
-    fprintf(stderr, "libssh2_sftp_init()!\n");
+    //fprintf(stderr, "libssh2_sftp_init()!\n");
 
     this->sftp_session = libssh2_sftp_init(this->session);
 
@@ -97,13 +95,6 @@ bool Sftp::open(QString host, QString username, QString password){
 
 //Cierra la conexión ssh
 void Sftp::disconnect(){
-
-    /*libssh2_sftp_close(this->sftp_handle);
-
-    libssh2_sftp_shutdown(this->sftp_session);
-
-    libssh2_session_disconnect(this->session, "Normal Shutdown, Thank you for playing");
-    libssh2_session_free(this->session);*/
 
     #ifdef Q_WS_WIN
         closesocket(this->sock);

@@ -32,22 +32,22 @@ TEMPLATE = app
 DESTDIR = bin
 
 SOURCES += src/main.cpp \
-           src/mainwindow.cpp \
-           src/xmlassigment.cpp \
+           src/mainwindow.cpp \           
            src/dbconnection.cpp \
            src/sftp.cpp \
            src/pdfmerge.cpp \
-    src/utils.cpp
+           src/utils.cpp \
+           src/setting.cpp
 
-HEADERS  += src/mainwindow.h \
-            src/xmlassigment.h \
+HEADERS  += src/mainwindow.h \            
             src/dbconnection.h \
             src/includes.h \
             src/kpm_settings.h \
             src/sftp.h \
             src/libssh2_config.h \
             src/pdfmerge.h \
-    src/utils.h
+            src/utils.h \
+            src/setting.h
 
 FORMS    += ui/mainwindow.ui
 

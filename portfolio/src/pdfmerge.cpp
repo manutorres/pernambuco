@@ -1,10 +1,12 @@
 #include "pdfmerge.h"
 
-PDFmerge::PDFmerge(){    
+PDFmerge::PDFmerge(){
+
     this->printer.setPageSize(QPrinter::Letter);
     this->printer.setOutputFormat(QPrinter::PdfFormat);
     this->printer.setPageMargins(60, 80, 60, 80, QPrinter::DevicePixel);
     this->dir.setNameFilters(QStringList() << "*.pdf");
+
     QObject::connect(&this->web, SIGNAL(loadFinished(bool)), this, SLOT(printHtmlToPdf()));
 }
 
@@ -44,7 +46,7 @@ void PDFmerge::setOutputFileName(QString outputFile){
     this->outputFile = outputFile;
 }
 
-QString PDFmerge::outputFileName(){
+QString PDFmerge::getOutputFileName(){
     return this->outputFile;
 }
 
@@ -71,8 +73,7 @@ void PDFmerge::clearDocument(){
 }
 
 //Agrega una página en blanco de tamaño A4 (eso es un parametro) para funcionar como separador
-void PDFmerge::addPageSeparator(){
-    //this->document.CreatePage(PdfRect(PdfPage::CreateStandardPageSize(ePdfPageSize_A4)));
+void PDFmerge::addPageSeparator(){    
     this->document.CreatePage(this->document.GetPage(0)->GetPageSize());
 }
 

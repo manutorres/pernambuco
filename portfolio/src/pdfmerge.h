@@ -1,12 +1,13 @@
 #ifndef PDFMERGE_H
 #define PDFMERGE_H
 
-#include <stdio.h>
-#include <podofo/podofo.h>
 #include <QPrinter>
 #include <QtWebKit/QtWebKit>
 #include <QObject>
 #include <QDir>
+#include <stdio.h>
+#include <podofo/podofo.h>
+
 
 using namespace PoDoFo;
 
@@ -21,7 +22,7 @@ public:
     void htmlToPdf(QString html, QString outputName);
     bool addPdf(QString file, QString studentName, QString &errorString);
     void setOutputFileName(QString outputFile);
-    QString outputFileName();
+    QString getOutputFileName();
     bool writeOutput(QString outputFile = "");
     void clearDocument();
     void addPageSeparator();

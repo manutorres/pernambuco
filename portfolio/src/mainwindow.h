@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QSignalMapper>
 #include <QtConcurrentRun>
 #include <QTreeWidgetItem>
 #include <QCheckBox>
@@ -15,11 +14,11 @@
 #include <QHostInfo>
 #include <QHash>
 
-#include "xmlassigment.h"
 #include "pdfmerge.h"
 #include "sftp.h"
 #include "dbconnection.h"
 #include "utils.h"
+#include "setting.h"
 
 namespace Ui {
     class MainWindow;
@@ -44,20 +43,23 @@ private:
     static const int FORUM_POST = 2;
 
     Sftp sftp;
-    QList<QPair<QString, QString> > handoutsFileNames;
-    QList<QPair<QString, int> > filesToMerge;    
-    QFuture<void> thread;
     DBConnection db;
     PDFmerge pdfmerge;
+
+    int conversionsCount;
     bool downloadsEnabled;
     bool abortConversions;
-    int conversionsCount;
-    QReadWriteLock conversionsLock;
-    QHash<int, int> hashCourses;//key: numero de item en el combobox. -- value: el id de un curso
+    bool printingEnabled;
     bool kpmteamLogin;
+
+    QList<QPair<QString, QString> > handoutsFileNames;
+    QList<QPair<QString, int> > filesToMerge;    
+    QFuture<void> thread;       
+    QReadWriteLock conversionsLock;
+    QHash<int, int> hashCourses;//key: numero de item en el combobox. -- value: el id de un curso    
     QHash<int, QString> studentNames;
     QHash<int, QList<QPair<QString, int> > > filesToMergeByStudent; //Estudiante, Archivos a mergear.
-    bool printingEnabled;
+
 
     void setupCourseCheckboxes();
     void createAppDirectories();
@@ -73,8 +75,7 @@ private:
     QTreeWidgetItem* getFileTypeItem(QString type);
     int getTreeNameCount(QString name);
     void getHandoutsFileNames(int courseId);
-    void downloadHandouts(QString serverAddress);
-    void downloadSettingsFile();
+    void downloadHandouts();
     bool downloadCourseHandouts(int courseId);
     void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();
@@ -90,6 +91,7 @@ private:
     void addHandoutsToMerge();
     QList<QPair<QString, int> >  addHandoutsToMergeInMultipleReport();//Es para el caso de kpmteam, en el cual hay más de 5 estudiantes (reportes)
                                                                       //Con lo que genera esta función se llama mergeFiles(...)
+
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);
     void updatePrintEnabledState();
@@ -97,7 +99,6 @@ private:
     void finishDownloadThread(bool hideWindow = false);
     void closeEvent(QCloseEvent *event);
     void fillCourses();
-
 
 private slots:
     void updateCheckState(QTreeWidgetItem *item, int column);
@@ -114,9 +115,9 @@ private slots:
     void mergeAndPrint();
     void backToLoginPage();
     void backToTreePageFromUser();
-    void backToCoursesPage();
-    void exit();
+    void backToCoursesPage();   
     void fillStudentsFromCourse();
+    void exit();
 
 signals:
     void downloadedFile();    
