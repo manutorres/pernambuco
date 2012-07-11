@@ -906,14 +906,13 @@ void MainWindow::mergeAndPrint(){
         }
     }else{ //Múltiples archivos.
         bool successfulPrinting = true;
+        QList<QPair<QString, int> > handoutsToMerge = this->getHandoutsToMerge();
 
         if (this->studentNames.count() < 5){
-            addHandoutsToMerge();//De esta forma el reporte de cada estudiante incluye los handouts del curso
             QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);
             while(i.hasNext()){
                 i.next();
-                qDebug() << i.key() << this->studentNames[i.key()] << "'s filesToMerge:" << i.value();
-                this->mergeFiles(i.value(), this->studentNames[i.key()]);
+                this->mergeFiles(this->getHandoutsToMerge() + i.value(), this->studentNames[i.key()]);
                 QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/KpmPortfolio " +
                         this->studentNames[i.key()].toUpper() + ".pdf";
                 this->pdfmerge.setOutputFileName(outputFile);
@@ -928,10 +927,8 @@ void MainWindow::mergeAndPrint(){
             }
         }
         else{
-            if (this->handoutsFileNames.count() > 0){
-                QList<QPair<QString, int> > handoutsToMerge = addHandoutsToMergeInMultipleReport();
-                this->mergeFiles(handoutsToMerge);
-            }
+            if (handoutsToMerge.count() > 0)
+                this->mergeFiles(handoutsToMerge);            
 
             QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/KpmPortfolio Course " +
                     this->ui->cmbCourses->currentText().toUpper() + ".pdf";
@@ -955,28 +952,12 @@ void MainWindow::mergeAndPrint(){
     }
 }
 
-//Se agregan los handouts a cada uno de los estudiantes, de forma que al generar el reporte de cada estudiante este contendra una copia de
-//los handouts
-void MainWindow::addHandoutsToMerge(){
-
-    QList<int> studentIds = this->studentNames.keys();
-    QPair<QString, QString> handout;
-    foreach(handout, this->handoutsFileNames){ //Se setean los handouts para todos los estudiantes.
-        foreach(int id, studentIds){
-            qDebug() << id << handout.second;
-            this->filesToMergeByStudent[id] << QPair<QString, int>(handout.second, MainWindow::HANDOUT);
-        }
-    }
-}
-
-//El resultado de esta funcion luego es pasada como parametro al metodo mergeFiles.
-//Se usa en el caso de login con kpmteam, y cuando hay mas de  cinco estudiantes involucrados
-QList<QPair<QString, int> > MainWindow::addHandoutsToMergeInMultipleReport(){
-
+//Retorna la lista de handouts en el formato necesario para mergear con los demás archivos.
+QList<QPair<QString, int> > MainWindow::getHandoutsToMerge(){
     QPair<QString, QString> handout;
     QList<QPair<QString, int> > result;
 
-    foreach(handout, this->handoutsFileNames){ //Se setean los handouts para todos los estudiantes.
+    foreach(handout, this->handoutsFileNames){
         result.append(QPair<QString, int>(handout.second, MainWindow::HANDOUT));
     }
     return result;

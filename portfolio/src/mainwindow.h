@@ -89,8 +89,7 @@ private:
     void switchPage();
     void mergeFiles(QList<QPair<QString, int> > filesToMerge, QString StudentName = "");
     void addHandoutsToMerge();
-    QList<QPair<QString, int> >  addHandoutsToMergeInMultipleReport();//Es para el caso de kpmteam, en el cual hay más de 5 estudiantes (reportes)
-                                                                      //Con lo que genera esta función se llama mergeFiles(...)
+    QList<QPair<QString, int> > getHandoutsToMerge(); //Retorna la lista de handouts en el formato necesario para mergear con los dem�s archivos.
 
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);

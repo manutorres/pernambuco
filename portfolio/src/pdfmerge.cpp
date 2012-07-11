@@ -54,7 +54,8 @@ QString PDFmerge::getOutputFileName(){
 bool PDFmerge::writeOutput(QString outputFile){
     if(outputFile == "")
         outputFile = this->outputFile;
-    try{        
+    try{
+        QFile::remove(outputFile);
         this->document.Write(outputFile.toStdString().data());
     }catch(PoDoFo::PdfError){
         return false;
@@ -69,7 +70,7 @@ void PDFmerge::printHtmlToPdf(){
 
 //Borra todas las páginas del documento
 void PDFmerge::clearDocument(){
-    this->document.DeletePages(0, this->document.GetPageCount());    
+    this->document.DeletePages(0, this->document.GetPageCount());
 }
 
 //Agrega una página en blanco de tamaño A4 (eso es un parametro) para funcionar como separador
