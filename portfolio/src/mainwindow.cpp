@@ -43,10 +43,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->centerOnScreen();
     this->setTreeStyle();
     this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
-    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
+    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");    
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
-    this->ui->lineEditUsername->setText(Setting::Instance()->getValue(Setting::LOGIN_USERNAME_KPMTEAM));
-    this->ui->lineEditPassword->setText(Setting::Instance()->getValue(Setting::LOGIN_PASSWORD_KPMTEAM));
+
+    //this->ui->lineEditUsername->setText(Setting::Instance()->getValue(Setting::LOGIN_USERNAME_KPMTEAM));
+    //this->ui->lineEditPassword->setText(Setting::Instance()->getValue(Setting::LOGIN_PASSWORD_KPMTEAM));
+
     this->setupCourseCheckboxes();
     this->ui->btnNext_3->setEnabled(false);
     this->ui->btnPrint->setEnabled(false);
