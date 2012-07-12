@@ -895,7 +895,8 @@ void MainWindow::mergeFiles(QList<QPair<QString, int> > files, QString studentNa
 
 void MainWindow::mergeAndPrint(){
 
-    this->pdfmerge.clearDocument();
+    this->pdfmerge.setupDocument();
+
     if(!this->kpmteamLogin){ //Un sólo archivo.       
         this->mergeFiles(this->filesToMerge);
         if(this->pdfmerge.writeOutput()){
@@ -918,7 +919,8 @@ void MainWindow::mergeAndPrint(){
                 this->pdfmerge.setOutputFileName(outputFile);
                 if(!this->pdfmerge.writeOutput())
                     successfulPrinting = false;
-                this->pdfmerge.clearDocument();
+
+                this->pdfmerge.setupDocument();
             }
             if(successfulPrinting){
                 QMessageBox::information(this, "Successful printing", "The portfolios have been created and have been saved to your desktop. You can now print them.");

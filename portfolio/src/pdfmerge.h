@@ -20,6 +20,7 @@ public:
     PDFmerge();      
 
     void htmlToPdf(QString html, QString outputName);
+    void setupDocument();
     bool addPdf(QString file, QString studentName, QString &errorString);
     void setOutputFileName(QString outputFile);
     QString getOutputFileName();
@@ -30,7 +31,7 @@ public:
 private:
     QWebView web;
     QPrinter printer;
-    PdfMemDocument document;
+    PdfMemDocument* document;
     QString outputFile;
     QDir dir;
 

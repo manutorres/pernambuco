@@ -6,8 +6,14 @@ PDFmerge::PDFmerge(){
     this->printer.setOutputFormat(QPrinter::PdfFormat);
     this->printer.setPageMargins(60, 80, 60, 80, QPrinter::DevicePixel);
     this->dir.setNameFilters(QStringList() << "*.pdf");
-
+    this->document = NULL;
     QObject::connect(&this->web, SIGNAL(loadFinished(bool)), this, SLOT(printHtmlToPdf()));
+}
+
+void PDFmerge::setupDocument(){
+    if(this->document)
+        delete this->document;
+    this->document = new PdfMemDocument;
 }
 
 //Convierte contenido html en un documento pdf
@@ -28,7 +34,7 @@ bool PDFmerge::addPdf(QString file, QString studentName, QString &errorString){
             if (studentName != ""){
                 addPageTitle(doc, studentName);
             }
-            this->document.Append(doc);
+            this->document->Append(doc);
         }catch(PoDoFo::PdfError){
             errorString = "The file couldn't be included.";
             return false;
@@ -56,7 +62,7 @@ bool PDFmerge::writeOutput(QString outputFile){
         outputFile = this->outputFile;
     try{
         QFile::remove(outputFile);
-        this->document.Write(outputFile.toStdString().data());
+        this->document->Write(outputFile.toStdString().data());
     }catch(PoDoFo::PdfError){
         return false;
     }
@@ -70,12 +76,12 @@ void PDFmerge::printHtmlToPdf(){
 
 //Borra todas las páginas del documento
 void PDFmerge::clearDocument(){
-    this->document.DeletePages(0, this->document.GetPageCount());
+    this->document->DeletePages(0, this->document->GetPageCount());
 }
 
 //Agrega una página en blanco de tamaño A4 (eso es un parametro) para funcionar como separador
 void PDFmerge::addPageSeparator(){    
-    this->document.CreatePage(this->document.GetPage(0)->GetPageSize());
+    this->document->CreatePage(this->document->GetPage(0)->GetPageSize());
 }
 
 void PDFmerge::addPageTitle(PdfMemDocument &doc, QString title){
