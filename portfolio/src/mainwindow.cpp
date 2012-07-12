@@ -727,7 +727,7 @@ void MainWindow::fillTreeFromAssignment(){
 }
 
 void MainWindow::switchToProgressPage(){
-
+    this->printingEnabled = false;
     int countChecked = 0;//sin tener en cuenta los handouts
 
     QTreeWidgetItemIterator it(this->ui->treeWidgetFiles, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
@@ -739,6 +739,7 @@ void MainWindow::switchToProgressPage(){
     }
 
     //Se actualiza la cantidad de archivos a descargar y/o convertir
+    this->printingEnabled = true;
     this->ui->progressBar->setRange(0, this->handoutsFileNames.count() + countChecked);
     this->checkProgressBar();
 
@@ -755,7 +756,7 @@ void MainWindow::switchToProgressPage(){
 
     if(!this->abortConversions){
         this->convertForumPostsFiles();
-    }
+    }    
 }
 
 //Actualiza la progress bar a medida que se van descargando los archivos y que se van convirtiendo a pdf los assignment online
