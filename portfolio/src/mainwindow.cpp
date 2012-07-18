@@ -401,7 +401,8 @@ void MainWindow::loginAndSwitchPage(){
 
         //Se asegura el acceso al server antes de obtener handouts y lanzar el hilo
         this->db.getUserCourse(userId.toInt());
-        int courseId = this->db.getModel()->record(0).value("enrolid").toInt();
+        //int courseId = this->db.getModel()->record(0).value("enrolid").toInt();
+        int courseId = this->db.getModel()->record(0).value("courseid").toInt();
         this->downloadCourseHandouts(courseId);
 
         this->fillTreeFromUser(userId.toInt());
@@ -431,7 +432,7 @@ void MainWindow::fillCourses(){
 
 void MainWindow::fillStudentsFromCourse(){
 
-    this->ui->treeWidgetStudents->clear();
+    this->ui->treeWidgetStudents->clear();    
     this->db.getStudentsByCourse(this->hashCourses[this->ui->cmbCourses->currentIndex()]);
     QSqlQueryModel *studentsModel = this->db.getModel();
 
@@ -483,7 +484,7 @@ void MainWindow::switchToProgressPageFromCourse(){
 
     if(this->ui->checkBoxHandouts->isChecked()){
         qDebug() << "Descargando los handouts [caso kpmteam]";
-        int courseId = this->hashCourses[this->ui->cmbCourses->currentIndex()] + 1; //Truchada para usar un curso que tenga handouts: HABLARLO CON CARLOS
+        int courseId = this->hashCourses[this->ui->cmbCourses->currentIndex()];//HABLARLO CON CARLOS (antes se sumaba 1)
         if(this->downloadCourseHandouts(courseId)){
             this->ui->progressBar->setRange(0, this->handoutsFileNames.count()); //Ya tengo los nombres, la descarga se ejecuta en otro hilo.
             if(this->handoutsFileNames.count() > 0){
@@ -528,7 +529,7 @@ void MainWindow::convertCourseAssignments(){
 
     int studentId;
     QString localFile, html;
-    int courseId = this->hashCourses[this->ui->cmbCourses->currentIndex()] + 1;
+    int courseId = this->hashCourses[this->ui->cmbCourses->currentIndex()];//Hablar con Carlos. Antes se sumaba + 1;
     this->db.getOnlineFilesByUsers(courseId, this->studentNames.keys());
     QSqlQueryModel *model = this->db.getModel(); //Los assignments de todos los estudiantes juntos.
     qDebug() << "Assignments count:" << model->rowCount();
@@ -912,38 +913,89 @@ void MainWindow::mergeAndPrint(){
         bool successfulPrinting = true;
         QList<QPair<QString, int> > handoutsToMerge = this->getHandoutsToMerge();
 
-        if (this->studentNames.count() < 5){
-            QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);
-            while(i.hasNext()){
-                i.next();
-                this->mergeFiles(this->getHandoutsToMerge() + i.value(), this->studentNames[i.key()]);
+        if (this->studentNames.count() < 5){            
+            //QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);
+            QString failedReports = "";
+            //Esto es para que cada estudiante tenga su propio juego de handouts. Además evita el hecho de que
+            //estudiantes sin assignments ni forum post se queden sin reporte.
+            /*foreach (int i, this->studentNames.keys()){
+                this->filesToMergeByStudent[i].append(handoutsToMerge);
+            }
+
+            QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);*/
+            //while(i.hasNext()){
+                //i.next();
+            foreach (int i, this->studentNames.keys()){
+                //this->mergeFiles(this->getHandoutsToMerge() + i.value(), this->studentNames[i.key()]);//Antes de la modificacion
+                //this->mergeFiles(i.value(), this->studentNames[i.key()]);
+                if (!this->filesToMergeByStudent.contains(i) && this->ui->checkBoxAssignments->isChecked() && this->ui->checkBoxForumPosts->isChecked()){//El student no tiene ni assignments ni forum post
+                    this->mergeFiles(handoutsToMerge, this->studentNames[i]);
+                    QString tmpPath = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH);
+                    this->pdfmerge.addPageNeitherAssignmentsNorForumPost(tmpPath, this->studentNames[i]);
+                    QDir dir(tmpPath);
+                    dir.remove("NoAssigmentNoForumPost.pdf");//Archivo temporal utilizado para poner una pagina que dice
+                                                             //que el usuario no tiene ni assignments ni forum post.
+                }
+                else{
+                    this->mergeFiles(handoutsToMerge + this->filesToMergeByStudent[i]);
+                }
+
                 QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/KpmPortfolio " +
-                        this->studentNames[i.key()].toUpper() + ".pdf";
+                        //this->studentNames[i.key()].toUpper() + ".pdf";
+                        this->studentNames[i].toUpper() + ".pdf";
+
                 this->pdfmerge.setOutputFileName(outputFile);
-                if(!this->pdfmerge.writeOutput())
+                if(this->pdfmerge.writeOutput()){
+                    QDesktopServices::openUrl(QUrl("file:///" + this->pdfmerge.getOutputFileName()));
+                }
+                else {
                     successfulPrinting = false;
+                    if (failedReports == ""){
+                        //failedReports = this->studentNames[i.key()].toUpper();
+                        failedReports = this->studentNames[i].toUpper();
+                    }
+                    else {
+                        //failedReports = failedReports + ", " + this->studentNames[i.key()].toUpper();
+                        failedReports = failedReports + ", " + this->studentNames[i].toUpper();
+                    }
+                }
 
                 this->pdfmerge.setupDocument();
             }
+
             if(successfulPrinting){
                 QMessageBox::information(this, "Successful printing", "The portfolios have been created and have been saved to your desktop. You can now print them.");
             }else{
-                QMessageBox::critical(this, "Printing failed", "The program had problems to create some of the portfolios.");
+                QMessageBox::critical(this, "Printing failed", "The program had problems to create some of the portfolios: " + failedReports);
             }
         }
         else{
-            if (handoutsToMerge.count() > 0)
+            if (handoutsToMerge.count() > 0){
                 this->mergeFiles(handoutsToMerge);            
+            }
 
             QString outputFile = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation) + "/KpmPortfolio Course " +
                     this->ui->cmbCourses->currentText().toUpper() + ".pdf";
             this->pdfmerge.setOutputFileName(outputFile);
 
-            QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);
-            while(i.hasNext()){
-                i.next();
-                qDebug() << i.key() << this->studentNames[i.key()] << "'s filesToMerge:" << i.value();
-                this->mergeFiles(i.value(), this->studentNames[i.key()]);
+            //QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);
+            //while(i.hasNext()){
+            //    i.next();
+            foreach (int i, this->studentNames.keys()){
+                //qDebug() << i.key() << this->studentNames[i.key()] << "'s filesToMerge:" << i.value();
+                //this->mergeFiles(i.value(), this->studentNames[i.key()]);
+                if (this->filesToMergeByStudent.contains(i)){//Significa que tiene assignments y/o forum post
+                    this->mergeFiles(this->filesToMergeByStudent[i], this->studentNames[i]);
+                }
+                else{
+                    if (!this->filesToMergeByStudent.contains(i) && this->ui->checkBoxAssignments->isChecked() && this->ui->checkBoxForumPosts->isChecked()){//El student no tiene ni assignments ni forum post
+                        QString tmpPath = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH);
+                        this->pdfmerge.addPageNeitherAssignmentsNorForumPost(tmpPath, this->studentNames[i]);
+                        QDir dir(tmpPath);
+                        dir.remove("NoAssigmentNoForumPost.pdf");//Archivo temporal utilizado para poner una pagina que dice
+                                                                 //que el usuario no tiene ni assignments ni forum post.
+                    }
+                }
                 this->pdfmerge.addPageSeparator();
             }
 

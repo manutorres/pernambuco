@@ -9,6 +9,7 @@
 #include <podofo/podofo.h>
 
 
+
 using namespace PoDoFo;
 
 class PDFmerge:public QObject
@@ -27,6 +28,8 @@ public:
     bool writeOutput(QString outputFile = "");
     void clearDocument();
     void addPageSeparator();
+    //Se agrega una página indicando que el estudiante X no tiene ni assignments ni forum post
+    void addPageNeitherAssignmentsNorForumPost(QString tmpPath, QString studentName);
 
 private:
     QWebView web;

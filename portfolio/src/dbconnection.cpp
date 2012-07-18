@@ -197,8 +197,8 @@ bool DBConnection::getForumPostsByUsers(QList<int> userIds){
 bool DBConnection::getUserCourse(int userId){
 
     this->db.open();
-    QString queryString = "SELECT MAX(enrolid) + 1 as enrolid FROM mdl_user_enrolments WHERE userid = " +
-                            QString::number(userId);
+    //QString queryString = "SELECT MAX(enrolid) + 1 as enrolid FROM mdl_user_enrolments WHERE userid = " + QString::number(userId);
+    QString queryString = "SELECT courseid FROM mdl_user_lastaccess WHERE userid = " + QString::number(userId) + " order by timeaccess DESC";
 
     this->model->setQuery(queryString);
 
@@ -242,7 +242,8 @@ bool DBConnection::getAllCourses(){
 bool DBConnection::getStudentsByCourse(int courseId){
 
     this->db.open();
-    QString queryString = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user.email FROM mdl_user, mdl_user_enrolments WHERE mdl_user.id = mdl_user_enrolments.userId and mdl_user_enrolments.enrolid = " + QString::number(courseId);
+    //QString queryString = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user.email FROM mdl_user, mdl_user_enrolments WHERE mdl_user.id = mdl_user_enrolments.userId and mdl_user_enrolments.enrolid = " + QString::number(courseId);
+    QString queryString = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user.email FROM mdl_user, mdl_user_lastaccess WHERE mdl_user.id = mdl_user_lastaccess.userid and mdl_user_lastaccess.courseid = " + QString::number(courseId);
 
     this->model->setQuery(queryString);
 

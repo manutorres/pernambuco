@@ -110,3 +110,13 @@ void PDFmerge::addPageTitle(PdfMemDocument &doc, QString title){
         painter.FinishPage();
     }
 }
+
+void PDFmerge::addPageNeitherAssignmentsNorForumPost(QString tmpPath, QString studentName){
+
+    QString message = "<body style='font: 18px arial, sans-serif;'><p align='center' style='font: 20px arial'>" + studentName + " has not answered any assignments or any forum posts!" + "</p></body>";
+    QString tmpFileName = tmpPath + "/" + "NoAssigmentNoForumPost.pdf";
+    htmlToPdf(message, tmpFileName);
+    PdfMemDocument doc;
+    doc.Load(tmpFileName.toStdString().data());
+    this->document->Append(doc);
+}
