@@ -1,6 +1,9 @@
 #ifndef SETTING_H
 #define SETTING_H
 
+#include <QFtp>
+#include <QBuffer>
+#include <QEventLoop>
 #include <QtXml/QDomComment>
 #include <QHostInfo>
 #include <QString>
@@ -11,13 +14,17 @@
 
 using namespace std;
 
-class Setting
+class Setting : public QObject
 {
+    Q_OBJECT
 
 public:
 
     static Setting* Instance();
 
+    static const QString SSH_HOST_NAME;
+    static const QString SSH_USERNAME;
+    static const QString SSH_PASSWORD;
     static const QString MYSQL_HOST_NAME;
     static const QString MYSQL_DATABASE_NAME;
     static const QString MYSQL_USERNAME;
@@ -43,7 +50,16 @@ private:
     Setting& operator=(Setting const&){} // assignment operator is private
     static Setting* m_pInstance;
 
+    QFtp ftp;
     QDomDocument xmlSettings;
+    QBuffer settingsContent;
+    bool settingsLoaded;
+
+signals:
+    void finishLoop();
+
+private slots:
+    void ftpCommandFinished(int commandId, bool error);
 };
 
 #endif // SETTING_H

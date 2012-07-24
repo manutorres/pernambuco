@@ -1,5 +1,8 @@
 #include "setting.h"
 
+const QString Setting::SSH_HOST_NAME = QString("SSH_HOST_NAME");
+const QString Setting::SSH_USERNAME = QString("SSH_USERNAME");
+const QString Setting::SSH_PASSWORD = QString("SSH_PASSWORD");
 const QString Setting::MYSQL_HOST_NAME = QString("MYSQL_HOST_NAME");
 const QString Setting::MYSQL_DATABASE_NAME = QString("MYSQL_DATABASE_NAME");
 const QString Setting::MYSQL_USERNAME = QString("MYSQL_USERNAME");
@@ -31,7 +34,7 @@ Setting* Setting::Instance(){
 }
 
 bool Setting::loadSettings(){
-    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    /*QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
 
     if(hostInfo.addresses().isEmpty()){
         return false;
@@ -51,9 +54,55 @@ bool Setting::loadSettings(){
         sftp.disconnect();
 
         return result;
-    }
+    }*/
+
+    this->settingsLoaded = false;
+    QObject::connect(&this->ftp, SIGNAL(commandFinished(int,bool)), this, SLOT(ftpCommandFinished(int,bool)));
+    ftp.connectToHost(SFTP_HOST_NAME, 21);
+    ftp.login(SFTP_USERNAME, SFTP_PASSWORD);
+    QEventLoop loop;
+    QObject::connect(this, SIGNAL(finishLoop()), &loop, SLOT(quit()));
+    loop.exec();
+    return this->settingsLoaded;
 }
 
 QString Setting::getValue(QString attribute){
     return this->xmlSettings.documentElement().elementsByTagName(attribute).at(0).firstChild().nodeValue();
+}
+
+void Setting::ftpCommandFinished(int, bool error){
+
+    if (ftp.currentCommand() == QFtp::ConnectToHost) {
+        if (error) {
+            this->settingsLoaded = false;
+            emit finishLoop();
+            return;
+        }
+
+        this->settingsContent.open(QIODevice::ReadWrite);        
+        ftp.get(SFTP_SETTINGS_PATH, &this->settingsContent);
+        return;
+    }
+
+    if (ftp.currentCommand() == QFtp::Login){
+        if (error){
+            this->settingsLoaded = false;
+            emit finishLoop();
+            return;
+        }
+    }
+
+    if (ftp.currentCommand() == QFtp::Get) {
+        if (error) {
+            this->settingsLoaded = false;
+            emit finishLoop();
+        }
+        else {            
+            this->xmlSettings.clear();
+            QString content = QString(this->settingsContent.data());
+            this->xmlSettings.setContent(content);
+            this->settingsLoaded = true;
+            emit finishLoop();
+        }
+    }
 }

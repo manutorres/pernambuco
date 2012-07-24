@@ -46,9 +46,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");    
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
-    //this->ui->lineEditUsername->setText(Setting::Instance()->getValue(Setting::LOGIN_USERNAME_KPMTEAM));
-    //this->ui->lineEditPassword->setText(Setting::Instance()->getValue(Setting::LOGIN_PASSWORD_KPMTEAM));
-
     this->setupCourseCheckboxes();
     this->ui->btnNext_3->setEnabled(false);
     this->ui->btnPrint->setEnabled(false);
@@ -297,7 +294,8 @@ void MainWindow::switchToLoginPage(){
 
 bool MainWindow::downloadCourseHandouts(int courseId){
 
-    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    //QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    QHostInfo hostInfo = QHostInfo::fromName(Setting::Instance()->getValue(Setting::SSH_HOST_NAME));
 
     if(hostInfo.addresses().isEmpty()){
         QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server "
@@ -306,7 +304,8 @@ bool MainWindow::downloadCourseHandouts(int courseId){
     }
     QString hostAddress = hostInfo.addresses().first().toString();
 
-    if(!this->sftp.open(hostAddress, SFTP_USERNAME, SFTP_PASSWORD)){
+    //if(!this->sftp.open(hostAddress, SFTP_USERNAME, SFTP_PASSWORD)){
+    if(!this->sftp.open(hostAddress, Setting::Instance()->getValue(Setting::SSH_USERNAME), Setting::Instance()->getValue(Setting::SSH_PASSWORD))){
         QMessageBox::critical(this, "Handouts downloading failed", "The program couldn't connect to the server "
                               "and the handouts couldn't be downloaded.");
         return false;
@@ -781,15 +780,18 @@ void MainWindow::resetProgressBar(){
 //Descarga los assignment de tipo upload del servidor
 void MainWindow::downloadUploadFiles(){
 
-    QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    //QHostInfo hostInfo = QHostInfo::fromName(SFTP_HOST_NAME);
+    QHostInfo hostInfo = QHostInfo::fromName(Setting::Instance()->getValue(Setting::SSH_HOST_NAME));
     QString serverAddress = hostInfo.addresses().first().toString();
 
     Sftp sftp2;
-    sftp2.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
+    //sftp2.open(serverAddress, SFTP_USERNAME, SFTP_PASSWORD);
+    sftp2.open(serverAddress, Setting::Instance()->getValue(Setting::SSH_USERNAME), Setting::Instance()->getValue(Setting::SSH_PASSWORD));
     QString localFile;
     int index = 0;
     QTreeWidgetItemIterator it(this->getFileTypeItem("Assignments"), QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
-    while (*it){                
+
+    while (*it){
         if ((*it)->text(0).contains("(Document)")){            
             localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH) + "/"  + QString::number(index) + ". " +
                         (*it)->text(0);
