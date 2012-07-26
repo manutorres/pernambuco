@@ -59,13 +59,22 @@ bool Utils::customSort(QPair<QString, int> item1, QPair<QString, int> item2){
     qDebug() << "Name1:" << nameItem1 << numbersItem1 << item1.second;
     qDebug() << "Name2:" << nameItem2 << numbersItem2 << item2.second;
 
+    //Primer número (Topic)
+    if(numbersItem1[0] < numbersItem2[0])
+        return true;
+    if(numbersItem1[0] > numbersItem2[0])
+        return false;
+
+    numbersItem1.pop_front();
+    numbersItem2.pop_front();
+
     //Tipo
     if(item1.second < item2.second)
         return true;
     if(item1.second > item2.second)
         return false;
 
-    //Número
+    //Resto de los números
     for(int i=0; i<numbersItem1.count() && i<numbersItem2.count(); i++){
         if(numbersItem1[i].toInt() < numbersItem2[i].toInt())
             return true;
