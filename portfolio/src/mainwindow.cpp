@@ -659,7 +659,7 @@ void MainWindow::fillTreeFromUser(int userId){
         QTreeWidgetItem *forumPosts = this->getFileTypeItem("Forum Posts");
         forumPosts->setCheckState(0, Qt::Checked);
 
-        for (i = 0; i < forumPostsModel->rowCount(); i++){
+        for (i=0; i<forumPostsModel->rowCount(); i++){
             name = forumPostsModel->record(i).value("pregSubject").toString();
             count = this->getTreeNameCount(name);
             if(count > 0)
