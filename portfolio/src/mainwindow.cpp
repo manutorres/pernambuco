@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->centerOnScreen();
     this->setTreeStyle();
     this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
-    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");    
+    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your email or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
     this->setupCourseCheckboxes();
@@ -387,7 +387,7 @@ void MainWindow::loginAndSwitchPage(){
     else{
         if(!this->db.userLogin(email, password)){
             this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: red;}");
-            this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
+            this->ui->lblLoginFail->setText("Your email or password is incorrect. Please try again.");
             this->ui->btnNext_2->setEnabled(true);
             return;
         }

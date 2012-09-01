@@ -20,6 +20,7 @@ void PDFmerge::setupDocument(){
 void PDFmerge::htmlToPdf(QString html, QString outputName){
     this->printer.setOutputFileName(outputName);
     //html = "<body style='font: 18px arial, sans-serif;'>" + html + "</body>";
+    //qDebug() << html;
     this->web.setHtml(html);
 }
 
