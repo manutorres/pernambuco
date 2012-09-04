@@ -82,6 +82,11 @@ void PDFmerge::clearDocument(){
 
 //Agrega una página en blanco de tamaño A4 (eso es un parametro) para funcionar como separador
 void PDFmerge::addPageSeparator(){    
+    /*
+    PdfMemDocument blankPage;
+    blankPage.CreatePage(this->document->GetPage(0)->GetPageSize());
+    this->document->InsertPages(blankPage, 0, 1);
+    */
     this->document->CreatePage(this->document->GetPage(0)->GetPageSize());
 }
 

@@ -915,21 +915,10 @@ void MainWindow::mergeAndPrint(){
         bool successfulPrinting = true;
         QList<QPair<QString, int> > handoutsToMerge = this->getHandoutsToMerge();
 
-        if (this->studentNames.count() < 5){            
-            //QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);
+        if(this->studentNames.count() < 5){
             QString failedReports = "";
-            //Esto es para que cada estudiante tenga su propio juego de handouts. Además evita el hecho de que
-            //estudiantes sin assignments ni forum post se queden sin reporte.
-            /*foreach (int i, this->studentNames.keys()){
-                this->filesToMergeByStudent[i].append(handoutsToMerge);
-            }
 
-            QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);*/
-            //while(i.hasNext()){
-                //i.next();
-            foreach (int i, this->studentNames.keys()){
-                //this->mergeFiles(this->getHandoutsToMerge() + i.value(), this->studentNames[i.key()]);//Antes de la modificacion
-                //this->mergeFiles(i.value(), this->studentNames[i.key()]);
+            foreach (int i, this->studentNames.keys()){                
                 if (!this->filesToMergeByStudent.contains(i) && this->ui->checkBoxAssignments->isChecked() && this->ui->checkBoxForumPosts->isChecked()){//El student no tiene ni assignments ni forum post
                     this->mergeFiles(handoutsToMerge, this->studentNames[i]);
                     QString tmpPath = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH);
@@ -980,17 +969,13 @@ void MainWindow::mergeAndPrint(){
                     this->ui->cmbCourses->currentText().toUpper() + ".pdf";
             this->pdfmerge.setOutputFileName(outputFile);
 
-            //QHashIterator<int, QList<QPair<QString, int> > > i(this->filesToMergeByStudent);
-            //while(i.hasNext()){
-            //    i.next();
             foreach (int i, this->studentNames.keys()){
-                //qDebug() << i.key() << this->studentNames[i.key()] << "'s filesToMerge:" << i.value();
-                //this->mergeFiles(i.value(), this->studentNames[i.key()]);
                 if (this->filesToMergeByStudent.contains(i)){//Significa que tiene assignments y/o forum post
                     this->mergeFiles(this->filesToMergeByStudent[i], this->studentNames[i]);
+                    this->pdfmerge.addPageSeparator();
                 }
                 else{
-                    if (!this->filesToMergeByStudent.contains(i) && this->ui->checkBoxAssignments->isChecked() && this->ui->checkBoxForumPosts->isChecked()){//El student no tiene ni assignments ni forum post
+                    if (this->ui->checkBoxAssignments->isChecked() && this->ui->checkBoxForumPosts->isChecked()){//El student no tiene ni assignments ni forum post
                         QString tmpPath = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH);
                         this->pdfmerge.addPageNeitherAssignmentsNorForumPost(tmpPath, this->studentNames[i]);
                         QDir dir(tmpPath);
@@ -998,7 +983,6 @@ void MainWindow::mergeAndPrint(){
                                                                  //que el usuario no tiene ni assignments ni forum post.
                     }
                 }
-                this->pdfmerge.addPageSeparator();
             }
 
             if(this->pdfmerge.writeOutput()){
@@ -1059,6 +1043,7 @@ void MainWindow::backToTreePageFromUser(){
         this->finishDownloadThread();
         this->handoutsFileNames.clear();
         this->filesToMergeByStudent.clear();
+        this->resetProgressBar();
         this->setPageTitle(3, "File selection");
         this->ui->stackedWidget->setCurrentIndex(6);
     }
@@ -1074,6 +1059,7 @@ void MainWindow::backToCoursesPage(){
     this->studentNames.clear();
     this->setPageTitle(2, "Course and Student(s) selection");
     this->ui->stackedWidget->setCurrentIndex(5);
+    this->resetProgressBar();
     this->enlargeWindow();
 }
 
