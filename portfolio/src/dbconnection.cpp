@@ -155,8 +155,7 @@ bool DBConnection::getForumPostsByUser(int userId){
     //Join de la tabla con si misma para que queda respuesta quede con su pregunta.
     QString queryString = "SELECT resp.id as respId, preg.subject as pregSubject, preg.message as pregMessage, "
             "resp.subject as respSubject, resp.message as respMessage, resp.modified as respModified FROM "
-            "mdl_forum_posts as preg JOIN mdl_forum_posts as resp WHERE preg.subject NOT LIKE 'RE: %' "
-            "AND resp.subject LIKE 'RE: %' AND preg.subject = SUBSTRING(resp.subject, 5) AND "
+            "mdl_forum_posts as preg JOIN mdl_forum_posts as resp WHERE resp.subject LIKE 'RE: %' AND "
             "resp.userid = " + QString::number(userId) + " AND resp.parent = preg.id ORDER BY respId ";
 
     this->model->setQuery(queryString);
@@ -181,8 +180,7 @@ bool DBConnection::getForumPostsByUsers(QList<int> userIds){
     //Join de la tabla con si misma para que queda respuesta quede con su pregunta.
     QString queryString = "SELECT resp.id as respId, preg.subject as pregSubject, preg.message as pregMessage, "
             "resp.subject as respSubject, resp.message as respMessage, resp.modified as respModified, resp.userid as "
-            "userId FROM mdl_forum_posts as preg JOIN mdl_forum_posts as resp WHERE preg.subject NOT LIKE 'RE: %' "
-            "AND resp.subject LIKE 'RE: %' AND preg.subject = SUBSTRING(resp.subject, 5) AND "
+            "userId FROM mdl_forum_posts as preg JOIN mdl_forum_posts as resp WHERE resp.subject LIKE 'RE: %' AND "
             "resp.userid IN " + idsString + " AND resp.parent = preg.id ORDER BY respId";
 
     this->model->setQuery(queryString);

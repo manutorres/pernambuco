@@ -566,7 +566,8 @@ void MainWindow::convertCourseForumPosts(){
         this->conversionsLock.lockForWrite();
         studentId = model->record(i).value("userId").toInt();
         qDebug() << "Forum post userid:" << studentId;        
-        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::FORUM_POSTS_LOCAL_PATH) + "/" + model->record(i).value("pregSubject").toString() +
+        localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::FORUM_POSTS_LOCAL_PATH) + "/" +
+                    model->record(i).value("pregSubject").toString().remove("Re: ", Qt::CaseInsensitive) + " " +
                     model->record(i).value("respId").toString() + ".pdf";
         html = Utils::dataToHtml(model->record(i).value("pregSubject").toString(),
                                     model->record(i).value("pregMessage").toString(),
@@ -660,7 +661,7 @@ void MainWindow::fillTreeFromUser(int userId){
         forumPosts->setCheckState(0, Qt::Checked);
 
         for (i=0; i<forumPostsModel->rowCount(); i++){
-            name = forumPostsModel->record(i).value("pregSubject").toString();
+            name = forumPostsModel->record(i).value("pregSubject").toString().remove("Re: ", Qt::CaseInsensitive);
             count = this->getTreeNameCount(name);
             if(count > 0)
                 name += " [" + QString::number(count + 1) + "]";
