@@ -678,22 +678,6 @@ void MainWindow::fillTreeFromUser(int userId){
             itemData.clear();
         }
     }
-
-    /*
-    this->db.getUploadFiles(userId);
-    QSqlQueryModel *uploadFilesModel = this->db.getModel();
-
-    for (i = 0; i < uploadFilesModel->rowCount(); i++){
-
-        itemData << uploadFilesModel->record(i).value("filename").toString() <<
-                    this->timeStampToDate(uploadFilesModel->record(i).value("timemodified").toInt()) <<
-                    uploadFilesModel->record(i).value("pathnamehash").toString();
-        QTreeWidgetItem *item = new QTreeWidgetItem(forumPosts, itemData);
-        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        item->setCheckState(0, Qt::Unchecked);
-        itemData.clear();
-    }
-    */
 }
 
 void MainWindow::fillTreeFromAssignment(){
@@ -741,9 +725,22 @@ void MainWindow::switchToProgressPage(){
         ++it;
     }
 
+    //En el caso que no se incluya ningún handout, se aborta la descarga.
+    if(this->getFileTypeItem("Handouts")->checkState(0) == Qt::Unchecked){
+        this->abortConversions = true;
+        this->conversionsLock.lockForRead();
+        //qDebug() << "Conversions:" << this->conversionsCount;
+        this->ui->progressBar->setRange(0, countChecked);
+        this->ui->progressBar->setValue(0);
+        this->conversionsLock.unlock();
+        this->abortConversions = false;
+        this->conversionsCount = 0;
+    }else{
+        this->ui->progressBar->setRange(0, this->handoutsFileNames.count() + countChecked);
+    }
+
     //Se actualiza la cantidad de archivos a descargar y/o convertir
     this->printingEnabled = true;
-    this->ui->progressBar->setRange(0, this->handoutsFileNames.count() + countChecked);
     this->checkProgressBar();
 
     this->setPageTitle(3, "Print");
