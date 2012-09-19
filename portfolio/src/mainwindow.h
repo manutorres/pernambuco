@@ -59,7 +59,7 @@ private:
     QHash<int, int> hashCourses;//key: numero de item en el combobox. -- value: el id de un curso    
     QHash<int, QString> studentNames;
     QHash<int, QList<QPair<QString, int> > > filesToMergeByStudent; //Estudiante, Archivos a mergear.
-
+    int courseId;
 
     void setupCourseCheckboxes();
     void createAppDirectories();
@@ -80,7 +80,7 @@ private:
     void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();
     void insertOrderedTreeItem(QTreeWidgetItem *parentItem, QTreeWidgetItem *item);
-    void setHandoutsToMerge();
+    void setHandoutsToDownloadAndMerge();
     void downloadUploadFiles();
     void convertOnlineFiles();
     void convertForumPostsFiles();

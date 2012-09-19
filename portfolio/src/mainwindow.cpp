@@ -310,7 +310,7 @@ bool MainWindow::downloadCourseHandouts(int courseId){
                               "and the handouts couldn't be downloaded.");
         return false;
     }
-    this->getHandoutsFileNames(courseId);
+    //this->getHandoutsFileNames(courseId);
     thread = run(this, &MainWindow::downloadHandouts);
     return true;
 }
@@ -401,8 +401,8 @@ void MainWindow::loginAndSwitchPage(){
         //Se asegura el acceso al server antes de obtener handouts y lanzar el hilo
         this->db.getUserCourse(userId.toInt());
         //int courseId = this->db.getModel()->record(0).value("enrolid").toInt();
-        int courseId = this->db.getModel()->record(0).value("courseid").toInt();
-        this->downloadCourseHandouts(courseId);
+        this->courseId = this->db.getModel()->record(0).value("courseid").toInt();
+        this->getHandoutsFileNames(courseId);
 
         this->fillTreeFromUser(userId.toInt());
         this->setPageTitle(2, "File selection");
@@ -484,6 +484,7 @@ void MainWindow::switchToProgressPageFromCourse(){
     if(this->ui->checkBoxHandouts->isChecked()){
         qDebug() << "Descargando los handouts [caso kpmteam]";
         int courseId = this->hashCourses[this->ui->cmbCourses->currentIndex()];//HABLARLO CON CARLOS (antes se sumaba 1)
+        this->getHandoutsFileNames(courseId);
         if(this->downloadCourseHandouts(courseId)){
             this->ui->progressBar->setRange(0, this->handoutsFileNames.count()); //Ya tengo los nombres, la descarga se ejecuta en otro hilo.
             if(this->handoutsFileNames.count() > 0){
@@ -719,12 +720,13 @@ void MainWindow::switchToProgressPage(){
 
     QTreeWidgetItemIterator it(this->ui->treeWidgetFiles, QTreeWidgetItemIterator::Checked | QTreeWidgetItemIterator::NoChildren);
     while (*it){
-        if((*it)->parent()->text(0) != "Handouts"){            
+        //if((*it)->parent()->text(0) != "Handouts"){
             countChecked++;
-        }
+        //}
         ++it;
     }
 
+    /*
     //En el caso que no se incluya ningún handout, se aborta la descarga.
     if(this->getFileTypeItem("Handouts")->checkState(0) == Qt::Unchecked){
         this->abortConversions = true;
@@ -738,9 +740,12 @@ void MainWindow::switchToProgressPage(){
     }else{
         this->ui->progressBar->setRange(0, this->handoutsFileNames.count() + countChecked);
     }
+    */
 
     //Se actualiza la cantidad de archivos a descargar y/o convertir
     this->printingEnabled = true;
+    //this->ui->progressBar->setRange(0, this->handoutsFileNames.count() + countChecked);
+    this->ui->progressBar->setRange(0, countChecked);
     this->checkProgressBar();
 
     this->setPageTitle(3, "Print");
@@ -748,7 +753,9 @@ void MainWindow::switchToProgressPage(){
     this->reduceWindow();
 
     this->filesToMerge.clear();
-    this->setHandoutsToMerge();
+
+    this->setHandoutsToDownloadAndMerge();
+    this->downloadCourseHandouts(this->courseId);
 
     if(!this->abortConversions){
         this->convertOnlineFiles();
@@ -801,10 +808,11 @@ void MainWindow::downloadUploadFiles(){
     }
 }
 
-void MainWindow::setHandoutsToMerge(){    
+void MainWindow::setHandoutsToDownloadAndMerge(){
+
+    QStringList handoutsToDownload;
 
     QTreeWidgetItem* handoutsItem = this->getFileTypeItem("Handouts");
-
     if (handoutsItem == NULL){
         return;
     }
@@ -817,8 +825,16 @@ void MainWindow::setHandoutsToMerge(){
         }
 
         localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::HANDOUTS_LOCAL_PATH) + "/"  + (*it)->text(0) + ".pdf";
+        handoutsToDownload << localFile;
         this->filesToMerge << QPair<QString, int>(localFile, MainWindow::HANDOUT);
         ++it;
+    }
+
+    //Dejo en handoutsFileNames sólo los que se quiere descargar.
+    QPair<QString, QString> handoutFileName;
+    foreach(handoutFileName, this->handoutsFileNames){
+        if(!handoutsToDownload.contains(handoutFileName.second))
+            this->handoutsFileNames.removeOne(handoutFileName);
     }
 }
 
