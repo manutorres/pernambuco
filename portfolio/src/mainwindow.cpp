@@ -99,7 +99,8 @@ void MainWindow::clearAppDirectories(){
 void MainWindow::setPageTitle(int step, QString task){
     int totalSteps = this->kpmteamLogin ? 4 : 3;
     this->ui->lblTask->setText(task);
-    this->ui->lblSteps->setText("Step " + QString::number(step) + " of " + QString::number(totalSteps));
+    //this->ui->lblSteps->setText("Step " + QString::number(step) + " of " + QString::number(totalSteps));
+    this->ui->lblSteps->setText("Step " + QString::number(step));
 }
 
 //Metodo encargado de llevar a cabo la conexion con la base de datos
@@ -520,7 +521,7 @@ void MainWindow::switchToProgressPageFromCourse(){
 }
 
 void MainWindow::switchPage(){
-    this->setPageTitle(4, "Print");
+    this->setPageTitle(4, "Create and Download");
     this->ui->stackedWidget->setCurrentIndex(4);
     this->reduceWindow();
 }
@@ -969,7 +970,8 @@ void MainWindow::mergeAndPrint(){
             }
 
             if(successfulPrinting){
-                QMessageBox::information(this, "Successful printing", "The portfolios have been created and have been saved to your desktop. You can now print them.");
+                //QMessageBox::information(this, "Successful printing", "The portfolios have been created and have been saved to your desktop. You can now print them. Click on the printer icon in the file.");
+                QMessageBox::information(this, "Success!", "The portfolios have been created and have been saved to your desktop. You can now print by clicking on the print button in your pdf reader program.");
             }else{
                 QMessageBox::critical(this, "Printing failed", "The program had problems to create some of the portfolios: " + failedReports);
             }
