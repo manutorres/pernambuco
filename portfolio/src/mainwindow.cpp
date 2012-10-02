@@ -174,13 +174,13 @@ void MainWindow::setTreeStyle(){
 
     //Estilo del QTreeWidget para la lista de students
     treeHeaders.clear();
-    treeHeaders << "First Name" << "Last Name" << "Email" << "studentId";
+    treeHeaders << "Last Name" << "First Name" << "Email" << "studentId";
     this->ui->treeWidgetStudents->setColumnCount(4);
     this->ui->treeWidgetStudents->hideColumn(3);
     this->ui->treeWidgetStudents->setHeaderLabels(treeHeaders);
-    this->ui->treeWidgetStudents->setColumnWidth(1, 200);
+    this->ui->treeWidgetStudents->setColumnWidth(0, 140);
+    this->ui->treeWidgetStudents->setColumnWidth(1, 100);
     this->ui->treeWidgetStudents->setColumnWidth(2, 200);
-    this->ui->treeWidgetStudents->setColumnWidth(3, 150);
 }
 
 void MainWindow::setTreeTopLevelItems(QString fileType){
@@ -440,8 +440,8 @@ void MainWindow::fillStudentsFromCourse(){
         QStringList itemData;
 
         for (int i = 0; i < studentsModel->rowCount(); i++){
-            itemData << studentsModel->record(i).value("firstname").toString() <<
-                        studentsModel->record(i).value("lastname").toString() <<
+            itemData << studentsModel->record(i).value("lastname").toString() <<
+                        studentsModel->record(i).value("firstname").toString() <<
                         studentsModel->record(i).value("email").toString() <<
                         studentsModel->record(i).value("id").toString();
             QTreeWidgetItem *studentItem = new QTreeWidgetItem(itemData);

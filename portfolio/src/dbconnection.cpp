@@ -242,7 +242,10 @@ bool DBConnection::getStudentsByCourse(int courseId){
 
     this->db.open();
     //QString queryString = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user.email FROM mdl_user, mdl_user_enrolments WHERE mdl_user.id = mdl_user_enrolments.userId and mdl_user_enrolments.enrolid = " + QString::number(courseId);
-    QString queryString = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user.email FROM mdl_user, mdl_user_lastaccess WHERE mdl_user.id = mdl_user_lastaccess.userid and mdl_user_lastaccess.courseid = " + QString::number(courseId);
+
+    QString queryString = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user.email "
+        "FROM mdl_user, mdl_user_lastaccess WHERE mdl_user.id = mdl_user_lastaccess.userid AND "
+            "mdl_user_lastaccess.courseid = " + QString::number(courseId) + " ORDER BY mdl_user.lastname";
 
     this->model->setQuery(queryString);
 
