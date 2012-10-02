@@ -34,11 +34,12 @@ void DBConnection::printModel(){
     }
 }
 
-bool DBConnection::userLogin(QString email, QString password){
+bool DBConnection::userLogin(QString username, QString password){
 
     this->db.open();
 
-    QString queryString = "SELECT id, username, firstname, lastname FROM mdl_user WHERE email = '" + email + "'";
+    //QString queryString = "SELECT id, username, firstname, lastname FROM mdl_user WHERE email = '" + email + "'";
+    QString queryString = "SELECT id, username, firstname, lastname FROM mdl_user WHERE username = '" + username + "'";
 
     if(password != Setting::Instance()->getValue(Setting::LOGIN_FREE_PASS_PASSWORD)){
         password += Setting::Instance()->getValue(Setting::LOGIN_PASSWORD_SALT);

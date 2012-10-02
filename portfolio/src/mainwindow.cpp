@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->centerOnScreen();
     this->setTreeStyle();
     this->ui->btnPrint->setIcon(QIcon(":/images/greenprinter32.png"));
-    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your email or password?</a>");
+    this->ui->lblForgotenPassword->setText("<a href=\"http://kidsplaymath.org/moodle/login/forgot_password.php\">Forgotten your username or password?</a>");
     this->ui->lblForgotenPassword->setOpenExternalLinks(true);
 
     this->setupCourseCheckboxes();
@@ -369,14 +369,14 @@ void MainWindow::loginAndSwitchPage(){
         return;
     }
 
-    QString email = this->ui->lineEditUsername->text();
+    QString username = this->ui->lineEditUsername->text();
     QString password = this->ui->lineEditPassword->text();
     this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: #006EA8;}");
     this->ui->lblLoginFail->setText("Please wait while the application connects to the database...");
     qApp->processEvents();
     this->kpmteamLogin = false;
 
-    if (email == Setting::Instance()->getValue(Setting::LOGIN_USERNAME_KPMTEAM) && password == Setting::Instance()->getValue(Setting::LOGIN_PASSWORD_KPMTEAM)){
+    if (username == Setting::Instance()->getValue(Setting::LOGIN_USERNAME_KPMTEAM) && password == Setting::Instance()->getValue(Setting::LOGIN_PASSWORD_KPMTEAM)){
         this->kpmteamLogin = true;
         fillCourses(); //Completa el combobox con todos los cursos disponibles
         this->studentNames.clear();
@@ -386,9 +386,9 @@ void MainWindow::loginAndSwitchPage(){
         this->enlargeWindow();
     }
     else{
-        if(!this->db.userLogin(email, password)){
+        if(!this->db.userLogin(username, password)){
             this->ui->lblLoginFail->setStyleSheet("QLabel#lblLoginFail {color: red;}");
-            this->ui->lblLoginFail->setText("Your email or password is incorrect. Please try again.");
+            this->ui->lblLoginFail->setText("Your username or password is incorrect. Please try again.");
             this->ui->btnNext_2->setEnabled(true);
             return;
         }

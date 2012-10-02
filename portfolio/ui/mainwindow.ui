@@ -404,7 +404,7 @@ Please enter your user information. You have to login in order to continue.</str
            </font>
           </property>
           <property name="text">
-           <string>Email</string>
+           <string>Username</string>
           </property>
          </widget>
         </item>
