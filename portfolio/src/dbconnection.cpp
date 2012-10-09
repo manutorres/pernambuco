@@ -134,8 +134,8 @@ bool DBConnection::getOnlineFilesByUsers(int courseId, QList<int> userIds){
          idsString += ", " + QString::number(id);
     }
     idsString += ")";
-    QString queryString = "SELECT mdl_assignment.id as assignment_id, name, intro, "
-                            "mdl_assignment_submissions.id as submission_id, data1, "
+    QString queryString = "SELECT mdl_assignment.id as assignmentId, name, intro, "
+                            "mdl_assignment_submissions.id as submissionId, data1, "
                             "mdl_assignment_submissions.timemodified, userid as userId FROM mdl_assignment_submissions "
                             "JOIN mdl_assignment WHERE data1 != '' AND assignment = mdl_assignment.id AND "
                             "mdl_assignment.course = " + QString::number(courseId) + " AND userid IN " + idsString;

@@ -170,10 +170,10 @@ QString Sftp::downloadFileContent(QString serverFile){
 }
 
 //Retorna una lista de archivos de un directorio especificado
-QStringList Sftp::getListOfHandouts(QString handsoutDirectory){
+QStringList Sftp::ls(QString directory){
 
     /* Request a dir listing via SFTP */
-    this->sftp_handle = libssh2_sftp_opendir(this->sftp_session, handsoutDirectory.toStdString().data());
+    this->sftp_handle = libssh2_sftp_opendir(this->sftp_session, directory.toStdString().data());
 
     if (!this->sftp_handle) {
         //fprintf(stderr, "Unable to open dir with SFTP\n");

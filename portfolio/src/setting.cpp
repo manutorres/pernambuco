@@ -15,9 +15,11 @@ const QString Setting::LOGIN_USERNAME_KPMTEAM = QString("LOGIN_USERNAME_KPMTEAM"
 const QString Setting::LOGIN_PASSWORD_KPMTEAM = QString("LOGIN_PASSWORD_KPMTEAM");
 const QString Setting::HANDOUTS_REMOTE_PATH = QString("HANDOUTS_REMOTE_PATH");
 const QString Setting::UPLOAD_FILES_REMOTE_PATH = QString("UPLOAD_FILES_REMOTE_PATH");
+const QString Setting::TITLE_PAGES_REMOTE_PATH = QString("TITLE_PAGES_REMOTE_PATH");
 const QString Setting::ASSIGNMENTS_LOCAL_PATH = QString("ASSIGNMENTS_LOCAL_PATH");
 const QString Setting::FORUM_POSTS_LOCAL_PATH = QString("FORUM_POSTS_LOCAL_PATH");
 const QString Setting::HANDOUTS_LOCAL_PATH = QString("HANDOUTS_LOCAL_PATH");
+const QString Setting::TITLE_PAGES_LOCAL_PATH = QString("TITLE_PAGES_LOCAL_PATH");
 
 // Global static pointer used to ensure a single instance of the class.
 Setting* Setting::m_pInstance = NULL;

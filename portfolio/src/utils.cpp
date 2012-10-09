@@ -91,17 +91,16 @@ QString Utils::fileHashToPath(QString fileHash){
 }
 
 //Retorna un html listo para ser impreso en pdf.
-QString Utils::dataToHtml(QString title, QString intro, QString content){
-    QString html =  "<h2 style='font: bold 22px arial, sans-serif;'>" +
-                        title +
-                    "</h2>"
-                    "<br />"
-                    "<div style='font: 20px arial, sans-serif;'>" +
-                        intro +
-                    "</div>"
-                    "<br />"
-                    "<div style='font: 20px arial, sans-serif;'>" +
-                        content +
-                    "</div>";
+QString Utils::dataToHtml(QString title1, QString text1, QString title2, QString text2, QString title3, QString text3){
+    QString html = "";
+    if(title1 != "")
+        html += "<h2 style='font: bold 22px arial, sans-serif;'>" + title1 + "</h2>";
+    html += "<h2 style='font: bold 24px arial, sans-serif;'>" + text1 + "</h2><br />";
+    if(title2 != "")
+        html += "<h2 style='font: bold 22px arial, sans-serif;'>" + title2 + "</h2>";
+    html += "<div style='font: 20px arial, sans-serif; margin-top: 10px;'>" + text2 + "</div><br />";
+    if(title3 != "")
+        html += "<h2 style='font: bold 22px arial, sans-serif;'>" + title3 + "</h2>";
+    html += "<div style='font: 20px arial, sans-serif; margin-top: 10px;'>" + text3 + "</div>";
     return html;
 }

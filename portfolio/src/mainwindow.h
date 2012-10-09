@@ -38,9 +38,10 @@ private:
     Ui::MainWindow *ui;
 
     //Constantes para determinar el orden entre tipos de archivo.
-    static const int HANDOUT = 0;
-    static const int ASSIGNMENT = 1;
-    static const int FORUM_POST = 2;
+    static const int TITLE = 0;
+    static const int HANDOUT = 1;
+    static const int ASSIGNMENT = 2;
+    static const int FORUM_POST = 3;
 
     Sftp sftp;
     DBConnection db;
@@ -53,8 +54,9 @@ private:
     bool kpmteamLogin;
 
     QList<QPair<QString, QString> > handoutsFileNames;
+    QList<QPair<QString, QString> > titlePagesFileNames;
     QList<QPair<QString, int> > filesToMerge;    
-    QFuture<void> thread;       
+    QFuture<void> downloadThread;
     QReadWriteLock conversionsLock;
     QHash<int, int> hashCourses;//key: numero de item en el combobox. -- value: el id de un curso    
     QHash<int, QString> studentNames;
@@ -74,9 +76,12 @@ private:
     void setTreeTopLevelItems(QString fileType);
     QTreeWidgetItem* getFileTypeItem(QString type);
     int getTreeNameCount(QString name);
+    bool connectToServer();
     void getHandoutsFileNames(int courseId);
-    void downloadHandouts();
-    bool downloadCourseHandouts(int courseId);
+    void getTitlePagesFileNames();
+    bool downloadRemoteFiles(QList<QPair<QString, QString> > fileNames);
+    void downloadFiles(QList<QPair<QString, QString> > fileNames);
+
     void fillTreeFromUser(int userId);
     void fillTreeFromAssignment();
     void insertOrderedTreeItem(QTreeWidgetItem *parentItem, QTreeWidgetItem *item);
@@ -87,9 +92,9 @@ private:
     void convertCourseAssignments();
     void convertCourseForumPosts();
     void switchPage();
-    void mergeFiles(QList<QPair<QString, int> > filesToMerge, QString StudentName = "");
+    void mergeFiles(QList<QPair<QString, int> > filesToMerge, QString studentName = "");
     void addHandoutsToMerge();
-    QList<QPair<QString, int> > getHandoutsToMerge(); //Retorna la lista de handouts en el formato necesario para mergear con los demás archivos.
+    QList<QPair<QString, int> > formatFilesToMerge(QList<QPair<QString, QString> > files, int category);
 
     void updateParentCheckState(QTreeWidgetItem* item);
     void updateChildrenCheckState(QTreeWidgetItem* item);
@@ -113,7 +118,7 @@ private slots:
     void checkProgressBar();
     void mergeAndPrint();
     void backToLoginPage();
-    void backToTreePageFromUser();
+    void backToFilesPage();
     void backToCoursesPage();   
     void fillStudentsFromCourse();
     void exit();

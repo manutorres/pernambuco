@@ -37,9 +37,11 @@ public:
     static const QString LOGIN_PASSWORD_KPMTEAM;
     static const QString HANDOUTS_REMOTE_PATH;
     static const QString UPLOAD_FILES_REMOTE_PATH;
+    static const QString TITLE_PAGES_REMOTE_PATH;
     static const QString ASSIGNMENTS_LOCAL_PATH;
     static const QString FORUM_POSTS_LOCAL_PATH;
     static const QString HANDOUTS_LOCAL_PATH;
+    static const QString TITLE_PAGES_LOCAL_PATH;
 
     bool loadSettings();
     QString getValue(QString attribute);

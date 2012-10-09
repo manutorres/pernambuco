@@ -22,7 +22,7 @@ public:
 
     void htmlToPdf(QString html, QString outputName);
     void setupDocument();
-    bool addPdf(QString file, QString studentName, QString &errorString);
+    bool addPdf(QString file, QString title, QString footNote, QString &errorString);
     void setOutputFileName(QString outputFile);
     QString getOutputFileName();
     bool writeOutput(QString outputFile = "");
@@ -38,7 +38,8 @@ private:
     QString outputFile;
     QDir dir;
 
-    void addPageTitle(PdfMemDocument &doc, QString title);
+    void addPageTitle(PdfMemDocument &doc, QString text);
+    void addPageFootNote(PdfMemDocument &doc, QString text);
 
 private slots:
     void printHtmlToPdf();

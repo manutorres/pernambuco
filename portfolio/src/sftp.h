@@ -49,7 +49,7 @@ public:
     bool open(QString host, QString username, QString password);
     void disconnect();
     bool downloadFile(QString serverFile, QString outputFile);
-    QStringList getListOfHandouts(QString handsoutDirectory);
+    QStringList ls(QString directory);
     void setTransfersEnabled(bool value);
     QString downloadFileContent(QString serverFile);
 
