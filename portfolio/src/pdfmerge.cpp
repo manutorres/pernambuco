@@ -4,8 +4,7 @@ PDFmerge::PDFmerge(){
 
     this->printer.setPaperSize(QPrinter::Letter);
     this->printer.setOutputFormat(QPrinter::PdfFormat);
-    //this->printer.setPageMargins(60, 80, 60, 80, QPrinter::DevicePixel);
-    this->printer.setPageMargins(0.75, 0.75, 0.75, 0.75, QPrinter::Inch);
+    this->printer.setPageMargins(0.75, 1, 0.75, 0.75, QPrinter::Inch);
     this->dir.setNameFilters(QStringList() << "*.pdf");
     this->document = NULL;
     //QObject::connect(&this->web, SIGNAL(loadFinished(bool)), this, SLOT(printHtmlToPdf()));
@@ -18,14 +17,12 @@ void PDFmerge::setupDocument(){
 }
 
 //Convierte contenido html en un documento pdf
-void PDFmerge::htmlToPdf(QString html, QString outputName){
-    /*this->printer.setOutputFileName(outputName);
-    //html = "<body style='font: 18px arial, sans-serif;'>" + html + "</body>";
-    //qDebug() << html;
-    this->web.setHtml(html);*/
+void PDFmerge::htmlToPdf(QString html, QString outputName){    
+    //this->web.setHtml(html);//
 
     this->printer.setOutputFileName(outputName);
     QTextDocument *documentHTML = new QTextDocument();
+    documentHTML->setPageSize(QSizeF(this->printer.width(), this->printer.height()));
     documentHTML->setHtml(html);
     documentHTML->print(&printer);
     delete documentHTML;
@@ -141,12 +138,7 @@ void PDFmerge::clearDocument(){
 }
 
 //Agrega una página en blanco de tamaño A4 (eso es un parametro) para funcionar como separador
-void PDFmerge::addPageSeparator(){    
-    /*
-    PdfMemDocument blankPage;
-    blankPage.CreatePage(this->document->GetPage(0)->GetPageSize());
-    this->document->InsertPages(blankPage, 0, 1);
-    */
+void PDFmerge::addPageSeparator(){
     this->document->CreatePage(this->document->GetPage(0)->GetPageSize());
 }
 

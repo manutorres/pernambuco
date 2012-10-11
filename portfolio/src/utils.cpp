@@ -94,13 +94,13 @@ QString Utils::fileHashToPath(QString fileHash){
 QString Utils::dataToHtml(QString title1, QString text1, QString title2, QString text2, QString title3, QString text3){
     QString html = "";
     if(title1 != "")
-        html += "<h2 style='font: bold 22px arial, sans-serif;'>" + title1 + "</h2>";
-    html += "<h2 style='font: bold 24px arial, sans-serif;'>" + text1 + "</h2><br />";
+        html += "<div style='font: bold 22px arial, sans-serif;'>" + title1 + "</div>";
+    html += "<div style='font: bold 21px arial, sans-serif;'>" + text1 + "</div>";
     if(title2 != "")
-        html += "<h2 style='font: bold 22px arial, sans-serif;'>" + title2 + "</h2>";
-    html += "<div style='font: 20px arial, sans-serif; margin-top: 10px;'>" + text2 + "</div><br />";
+        html += "<div style='font: bold 19px arial, sans-serif; margin-top: 40px;'>" + title2 + "</div>";
+    html += "<div style='font: 17px arial, sans-serif; margin-top: 10px;'>" + text2 + "</div>";
     if(title3 != "")
-        html += "<h2 style='font: bold 22px arial, sans-serif;'>" + title3 + "</h2>";
-    html += "<div style='font: 20px arial, sans-serif; margin-top: 10px;'>" + text3 + "</div>";
+        html += "<div style='font: bold 19px arial, sans-serif; margin-top: 40px;'>" + title3 + "</div>";
+    html += "<div style='font: 17px arial, sans-serif; margin-top: 10px;'>" + text3 + "</div>";
     return html;
 }
