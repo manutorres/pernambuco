@@ -2,9 +2,10 @@
 
 PDFmerge::PDFmerge(){
 
-    this->printer.setPageSize(QPrinter::Letter);
+    this->printer.setPaperSize(QPrinter::Letter);
     this->printer.setOutputFormat(QPrinter::PdfFormat);
-    this->printer.setPageMargins(60, 80, 60, 80, QPrinter::DevicePixel);
+    //this->printer.setPageMargins(60, 80, 60, 80, QPrinter::DevicePixel);
+    this->printer.setPageMargins(1, 1, 1, 1, QPrinter::Inch);
     this->dir.setNameFilters(QStringList() << "*.pdf");
     this->document = NULL;
     QObject::connect(&this->web, SIGNAL(loadFinished(bool)), this, SLOT(printHtmlToPdf()));

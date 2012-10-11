@@ -576,7 +576,7 @@ void MainWindow::convertCourseAssignments(){
         this->conversionsLock.lockForWrite();
         if(this->abortConversions)
             break;
-        id = model->record(i).value("assignmentId").toString();
+        id = model->record(i).value("submissionId").toString();
         studentId = model->record(i).value("userId").toInt();
         qDebug() << "Assignment userid:" << studentId << ", id:" << id;
         localFile = Utils::getUserDirectory() + "/" + Setting::Instance()->getValue(Setting::ASSIGNMENTS_LOCAL_PATH) + "/" +
