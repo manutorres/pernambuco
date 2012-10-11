@@ -2,11 +2,13 @@
 #define PDFMERGE_H
 
 #include <QPrinter>
-#include <QtWebKit/QtWebKit>
+//#include <QtWebKit/QtWebKit>
 #include <QObject>
 #include <QDir>
 #include <stdio.h>
 #include <podofo/podofo.h>
+#include <QTextDocument>
+#include <QDebug>
 
 
 
@@ -32,7 +34,7 @@ public:
     void addPageNeitherAssignmentsNorForumPost(QString tmpPath, QString studentName);
 
 private:
-    QWebView web;
+    //QWebView web;
     QPrinter printer;
     PdfMemDocument* document;
     QString outputFile;
@@ -41,8 +43,8 @@ private:
     void addPageTitle(PdfMemDocument &doc, QString text);
     void addPageFootNote(PdfMemDocument &doc, QString text);
 
-private slots:
-    void printHtmlToPdf();
+//private slots:
+  //  void printHtmlToPdf();
 };
 
 #endif // PDFMERGE_H
